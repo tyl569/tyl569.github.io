@@ -4,27 +4,27 @@
   <meta charset="utf-8">
   
   
-  <title>PHP设计模式-适配器模式 | Hexo</title>
+  <title>PHP设计模式-适配器模式 | Feilong Tech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="适配器模式组合优于继承学习设计模式，最经常听到的一句话就是：组合优于继承，因为使用组合，可以使参与者之间的绑定更宽松，在重用、结构和修改等方面会有很多的有点。这个和继承不同，继承类或者所继承的类中包含已经实现的方法，这其实也是一种绑定，使用组合，就没有这种紧密绑定的缺点。  使用继承的适配器类图  使用组合的适配器类图 组合适配器的例子有一家温湿度传感器公司，这个传感器可以测试空气的温度和湿度。分">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PHP设计模式-适配器模式">
-<meta property="og:url" content="http://example.com/2018/03/08/php-adapter-mode/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http://feilongggg.tech/2018/03/08/php-adapter-mode/index.html">
+<meta property="og:site_name" content="Feilong Tech">
 <meta property="og:description" content="适配器模式组合优于继承学习设计模式，最经常听到的一句话就是：组合优于继承，因为使用组合，可以使参与者之间的绑定更宽松，在重用、结构和修改等方面会有很多的有点。这个和继承不同，继承类或者所继承的类中包含已经实现的方法，这其实也是一种绑定，使用组合，就没有这种紧密绑定的缺点。  使用继承的适配器类图  使用组合的适配器类图 组合适配器的例子有一家温湿度传感器公司，这个传感器可以测试空气的温度和湿度。分">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png">
-<meta property="og:image" content="http://example.com/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE-2.png">
-<meta property="og:image" content="http://example.com/uploads/2018/03/Adapter-300x235.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE-2.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/03/Adapter-300x235.png">
 <meta property="article:published_time" content="2018-03-08T16:12:25.000Z">
 <meta property="article:modified_time" content="2022-03-13T01:17:12.526Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="feilong">
 <meta property="article:tag" content="PHP">
 <meta property="article:tag" content="PHP设计模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png">
+<meta name="twitter:image" content="http://feilongggg.tech/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Feilong Tech" type="application/atom+xml">
   
   
     <link rel="shortcut icon" href="/favicon.png">
@@ -52,7 +52,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">Feilong Tech</a>
       </h1>
       
     </div>
@@ -72,7 +72,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://feilongggg.tech"></form>
       </div>
     </div>
   </div>
@@ -82,7 +82,7 @@
         <section id="main"><article id="post-php-adapter-mode" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2018/03/08/php-adapter-mode/" class="article-date">
-  <time class="dt-published" datetime="2018-03-08T16:12:25.000Z" itemprop="datePublished">2018-03-08</time>
+  <time class="dt-published" datetime="2018-03-08T16:12:25.000Z" itemprop="datePublished">2018-03-09</time>
 </a>
     
   <div class="article-category">
@@ -151,7 +151,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2018/03/08/php-adapter-mode/" data-id="cl0oi8mgy004x417t8njj0k43" data-title="PHP设计模式-适配器模式" class="article-share-link">Share</a>
+      <a data-url="http://feilongggg.tech/2018/03/08/php-adapter-mode/" data-id="cl0oi8mgy004x417t8njj0k43" data-title="PHP设计模式-适配器模式" class="article-share-link">Share</a>
       
       
       
@@ -266,7 +266,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2022 John Doe<br>
+      &copy; 2022 feilong<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

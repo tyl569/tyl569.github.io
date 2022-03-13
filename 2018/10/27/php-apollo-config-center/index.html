@@ -4,36 +4,36 @@
   <meta charset="utf-8">
   
   
-  <title>PHP配合使用携程Apollo配置中心 | Hexo</title>
+  <title>PHP配合使用携程Apollo配置中心 | Feilong Tech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="1. 背景平时开发最头疼之一就是各种配置：  一个项目往往会包含各式各样的配置信息，且不说数据库、redis、memcache这些常用的配置，还会有很多业务上的配置。 线上、测试和开发环境配置各不一样，每个环境都要保存一份 每次上线的时候，都要挨个check一下， 更改某个配置，需要重新上线代码 ￼….  所以配置中心，在devops的开发中，是必不可少的，配置中心，也可以有效的避免，因为更改配置">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PHP配合使用携程Apollo配置中心">
-<meta property="og:url" content="http://example.com/2018/10/27/php-apollo-config-center/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http://feilongggg.tech/2018/10/27/php-apollo-config-center/index.html">
+<meta property="og:site_name" content="Feilong Tech">
 <meta property="og:description" content="1. 背景平时开发最头疼之一就是各种配置：  一个项目往往会包含各式各样的配置信息，且不说数据库、redis、memcache这些常用的配置，还会有很多业务上的配置。 线上、测试和开发环境配置各不一样，每个环境都要保存一份 每次上线的时候，都要挨个check一下， 更改某个配置，需要重新上线代码 ￼….  所以配置中心，在devops的开发中，是必不可少的，配置中心，也可以有效的避免，因为更改配置">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-143049@2x.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-152632.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-153023.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-153143@2x.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/1540625597036.jpg">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-161420@2x.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-162049@2x.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-162156@2x.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-162346.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-162403.png">
-<meta property="og:image" content="http://example.com/uploads/2018/10/WX20181027-162428@2x.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-143049@2x.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-152632.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-153023.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-153143@2x.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/1540625597036.jpg">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-161420@2x.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-162049@2x.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-162156@2x.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-162346.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-162403.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-162428@2x.png">
 <meta property="article:published_time" content="2018-10-27T08:41:39.000Z">
 <meta property="article:modified_time" content="2022-03-13T01:17:12.526Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="feilong">
 <meta property="article:tag" content="Apollo">
 <meta property="article:tag" content="devops">
 <meta property="article:tag" content="微服务">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/uploads/2018/10/WX20181027-143049@2x.png">
+<meta name="twitter:image" content="http://feilongggg.tech/uploads/2018/10/WX20181027-143049@2x.png">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Feilong Tech" type="application/atom+xml">
   
   
     <link rel="shortcut icon" href="/favicon.png">
@@ -61,7 +61,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">Feilong Tech</a>
       </h1>
       
     </div>
@@ -81,7 +81,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://feilongggg.tech"></form>
       </div>
     </div>
   </div>
@@ -166,7 +166,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2018/10/27/php-apollo-config-center/" data-id="cl0oi8mh00052417ta1oq0vcm" data-title="PHP配合使用携程Apollo配置中心" class="article-share-link">Share</a>
+      <a data-url="http://feilongggg.tech/2018/10/27/php-apollo-config-center/" data-id="cl0oi8mh00052417ta1oq0vcm" data-title="PHP配合使用携程Apollo配置中心" class="article-share-link">Share</a>
       
       
       
@@ -281,7 +281,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2022 John Doe<br>
+      &copy; 2022 feilong<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

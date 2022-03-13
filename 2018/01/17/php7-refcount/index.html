@@ -4,25 +4,25 @@
   <meta charset="utf-8">
   
   
-  <title>PHP7内存管理之引用计数 | Hexo</title>
+  <title>PHP7内存管理之引用计数 | Feilong Tech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="C&#x2F;C++的内存管理C&#x2F;C++想要在堆上面分配内存，需要手动进行内存的分配和释放，变量管理非常的麻烦和繁琐，稍有不慎，就可能会造成内存上的错误使用。现在的一些高级语言，都普遍实行自动GC机制。 自己的意淫我们自己先思考下实行自动GC的方法，当我们定义一个变量的时候，给变量分配一块内存，用于保存zval和value的值，等到函数返回的时候，再讲内存回收。如果将变量赋值给其他变量的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PHP7内存管理之引用计数">
-<meta property="og:url" content="http://example.com/2018/01/17/php7-refcount/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http://feilongggg.tech/2018/01/17/php7-refcount/index.html">
+<meta property="og:site_name" content="Feilong Tech">
 <meta property="og:description" content="C&#x2F;C++的内存管理C&#x2F;C++想要在堆上面分配内存，需要手动进行内存的分配和释放，变量管理非常的麻烦和繁琐，稍有不慎，就可能会造成内存上的错误使用。现在的一些高级语言，都普遍实行自动GC机制。 自己的意淫我们自己先思考下实行自动GC的方法，当我们定义一个变量的时候，给变量分配一块内存，用于保存zval和value的值，等到函数返回的时候，再讲内存回收。如果将变量赋值给其他变量的">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-1.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-1.png">
 <meta property="article:published_time" content="2018-01-17T15:38:53.000Z">
 <meta property="article:modified_time" content="2022-03-13T01:17:12.611Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="feilong">
 <meta property="article:tag" content="PHP7">
 <meta property="article:tag" content="PHP源码">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-1.png">
+<meta name="twitter:image" content="http://feilongggg.tech/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-1.png">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Feilong Tech" type="application/atom+xml">
   
   
     <link rel="shortcut icon" href="/favicon.png">
@@ -50,7 +50,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">Feilong Tech</a>
       </h1>
       
     </div>
@@ -70,7 +70,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://feilongggg.tech"></form>
       </div>
     </div>
   </div>
@@ -149,7 +149,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2018/01/17/php7-refcount/" data-id="cl0oi8mhz006u417t4fzacrw0" data-title="PHP7内存管理之引用计数" class="article-share-link">Share</a>
+      <a data-url="http://feilongggg.tech/2018/01/17/php7-refcount/" data-id="cl0oi8mhz006u417t4fzacrw0" data-title="PHP7内存管理之引用计数" class="article-share-link">Share</a>
       
       
       
@@ -264,7 +264,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2022 John Doe<br>
+      &copy; 2022 feilong<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

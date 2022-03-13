@@ -4,28 +4,28 @@
   <meta charset="utf-8">
   
   
-  <title>docker之命名空间 | Hexo</title>
+  <title>docker之命名空间 | Feilong Tech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="1. 基本架构docker目前采用了标准的C&#x2F;S架构。客户端和服务端既可以运行在一个机器上，又可以通过socket或者restful API来进行通信。 1.1 服务端docker服务端一般都是在宿主机上，来接受客户端的命令。docker默认使用套接字的方式，但是也是允许使用tcp进行端口的监听，可以使用docker daemon -H IP:PORT的方式进行监听。 1.2 客户端do">
 <meta property="og:type" content="article">
 <meta property="og:title" content="docker之命名空间">
-<meta property="og:url" content="http://example.com/2018/09/10/docker-namespace/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http://feilongggg.tech/2018/09/10/docker-namespace/index.html">
+<meta property="og:site_name" content="Feilong Tech">
 <meta property="og:description" content="1. 基本架构docker目前采用了标准的C&#x2F;S架构。客户端和服务端既可以运行在一个机器上，又可以通过socket或者restful API来进行通信。 1.1 服务端docker服务端一般都是在宿主机上，来接受客户端的命令。docker默认使用套接字的方式，但是也是允许使用tcp进行端口的监听，可以使用docker daemon -H IP:PORT的方式进行监听。 1.2 客户端do">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8810.59.44.png">
-<meta property="og:image" content="http://example.com/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8811.43.31.png">
-<meta property="og:image" content="http://example.com/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-06-%E4%B8%8B%E5%8D%888.43.46.png">
-<meta property="og:image" content="http://example.com/uploads/2018/09/WX20180908-004426@2x-1024x293.png">
-<meta property="og:image" content="http://example.com/uploads/2018/09/WX20180908-004332@2x-1024x55.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8810.59.44.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8811.43.31.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-06-%E4%B8%8B%E5%8D%888.43.46.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/09/WX20180908-004426@2x-1024x293.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/09/WX20180908-004332@2x-1024x55.png">
 <meta property="article:published_time" content="2018-09-10T15:19:32.000Z">
 <meta property="article:modified_time" content="2022-03-13T01:17:12.409Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="feilong">
 <meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8810.59.44.png">
+<meta name="twitter:image" content="http://feilongggg.tech/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8810.59.44.png">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Feilong Tech" type="application/atom+xml">
   
   
     <link rel="shortcut icon" href="/favicon.png">
@@ -53,7 +53,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">Feilong Tech</a>
       </h1>
       
     </div>
@@ -73,7 +73,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://feilongggg.tech"></form>
       </div>
     </div>
   </div>
@@ -152,7 +152,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2018/09/10/docker-namespace/" data-id="cl0oi8met0016417t46s7gda6" data-title="docker之命名空间" class="article-share-link">Share</a>
+      <a data-url="http://feilongggg.tech/2018/09/10/docker-namespace/" data-id="cl0oi8met0016417t46s7gda6" data-title="docker之命名空间" class="article-share-link">Share</a>
       
       
       
@@ -267,7 +267,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2022 John Doe<br>
+      &copy; 2022 feilong<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
