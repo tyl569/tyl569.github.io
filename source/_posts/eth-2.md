@@ -44,6 +44,7 @@ $ vim genesis.json
   "alloc"      : {}
 }
 ```
+<!--more-->
 
 #### 生成节点(以下使用节点1代指)
 

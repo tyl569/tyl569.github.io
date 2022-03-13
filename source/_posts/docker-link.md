@@ -17,6 +17,8 @@ Docker功能可以说是非常强大，但是如果想要短时间掌握docker�
 
 link的主要作用是实现不同容器之间的连接。 举个例子，我现在有个PHP的容器，我又创建了一个mysql的容器，这个时候，如果我想要使用PHP连接mysql的容器，最常规的方式就是通过ip连接。但是这样的话，如果mysql的容器一旦重启或者重新编译，那么ip就会有可能变动，我们就需要手动更改PHP容器内连接的ip，这样的维护成本太高了。 link的作用就是要解决这个痛点问题。
 
+<!--more-->
+
 ### link的实现
 
 我们首先pull一个busybox的镜像，busybox是一个非常小巧的Linux镜像，占用的空间只有几MB，但是相比较Ubuntu的镜像，要小很多倍，而且也集成了很全的Linux命令 ![](/uploads/2018/08/pull-busybox.png) ![](/uploads/2018/08/busyboxandubuntu.png)

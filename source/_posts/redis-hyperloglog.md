@@ -12,6 +12,8 @@ date: 2019-11-21 22:59:54
 
 Redis相对于memcache的优势之一就是支持丰富的数据结构，比如Hash、List、Set、Zset等。除了这些以外，redis还支持HyperLogLog
 
+<!--more-->
+
 ### HyperLogLog
 
 假如有个需求，需要统计UV情况，我们的思路是什么？

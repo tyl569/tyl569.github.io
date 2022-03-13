@@ -24,6 +24,8 @@ date: 2018-10-27 16:41:39
 
 所以配置中心，在devops的开发中，是必不可少的，配置中心，也可以有效的避免，因为更改配置代码，导致的代码运行出错的风险。
 
+<!--more-->
+
 # 2\. Apollo
 
 携程的[Apollo](https://github.com/ctripcorp/apollo)配置中心，在业内算是比较有名的，github上面大概有8.5k的star。很多知名的公司也都在使用。至于实现的原理直接看github上面的wiki即可。

@@ -14,7 +14,9 @@ date: 2017-08-24 20:20:18
 ```bash
 $ sudo apt-get install mysql-server mysql-client
 ```
+
 <!-- more -->
+
 **安装过程会提示输入root的密码，连续输入两次**
 
 ```bash

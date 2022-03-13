@@ -8,7 +8,9 @@ date: 2017-08-24 20:03:23
 ---
 
 公司的项目是PHP CI ( CodeIgniter ) 框架，框架有很多功能，可以切换多种语言包，Chinese/English。今天接到新需求，原有的Nodejs项目，也要实现多语言问题，在网上找到好多资料，也没有找到有用的。后来就在[Github](https://github.com)找了找资源，废了九牛二虎之力终于找到了。
+
 <!-- more -->
+
 #### 1) 安装语言包langs
 
 命令和安装express差不多：

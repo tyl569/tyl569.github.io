@@ -21,6 +21,7 @@ date: 2018-09-12 18:55:50
 ```bash
 feilongdeMBP:~ feilong$ docker run -it --rm --name test --memory 10m busybox
 ```
+<!--more-->
 
 然后新打开一个窗口，可以实时查看下容器的内存使用情况
 

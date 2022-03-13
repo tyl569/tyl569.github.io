@@ -25,6 +25,8 @@ valuable there.
 Already up-to-date.
 ```
 
+<!--more-->
+
 解决这个的办法就是，重新将brew的update reset下，就OK了。
 
 ```bash

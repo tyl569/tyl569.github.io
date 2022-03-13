@@ -47,6 +47,8 @@ clang: error: linker command failed with exit code 1 (use -v to see invocation)
 make: *** [sapi/cli/php] Error 1
 ```
 
+<!--more-->
+
 这个是因为我在编译的时候设置--with-iconv的路径，猜测应该是iconv的问题。 参照文章 compile php with openssl on mac osx error找到了一些灵感 MakeFile 里面找到类似下面这一行：
 
 ```Makefile

@@ -17,7 +17,9 @@ echo $value;
 //输出：wWwUncleTooComUncleToo12345
 ?>
 ```
+
 <!-- more -->
+
 > 验证用户名 以下代码验证用户名是否由字母、数字及下划线组成。
 
 ```php

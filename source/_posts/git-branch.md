@@ -10,7 +10,9 @@ date: 2017-08-24 19:42:06
 > 平时git branch用的比较少，大多数用的git add/commit/pull/push用的比较多，不过也特意找了一些资料 完整资料请点击[这里](http://blog.jobbole.com/78960/)或者[这里](http://www.open-open.com/lib/view/open1328069889514.html)
 > 
 > 每次提交版本的时候，git会形成一个时间线，上面会有各种操作，git管这个“时间线”叫做分支，也就是我们常见的master，我们也可以根据需要创建各种分支，但是git只是识别master分支，所以每次创建分支后，需要合并才行。
+
 <!-- more -->
+
 #### 1）我们在github创建一个test的项目，创建过程自行操作
 
 ![](/uploads/2017/08/1469950279275.png)

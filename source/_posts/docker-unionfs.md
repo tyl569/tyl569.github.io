@@ -15,6 +15,8 @@ Debian/Ubuntu上成熟的AUFS（Another Union File System）就是一种联合�
 
 Docker镜像自身就是由多个文件层组成，每一层组成有唯一的编号（层ID）
 
+<!--more-->
+
 ## 2\. docker存储
 
 联合文件是docker镜像技术的基础。docker镜像就是根据分层技术来进行继承的。

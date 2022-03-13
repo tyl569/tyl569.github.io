@@ -31,6 +31,8 @@ CURLOPT\_TIMEOUT\_MS
 
 设置cURL允许执行的最长毫秒数。 如果 libcurl 编译时使用系统标准的名称解析器（ standard system name resolver），那部分的连接仍旧使用以秒计的超时解决方案，最小超时时间还是一秒钟。
 
+<!--more-->
+
 ##### 假设我们想要设置超时时间是500毫秒，那么直接设置 curl\_setopt($ch, CURLOPT\_TIMEOUT\_MS, 500);
 
 但是，测试的时候，发现，设置了500ms，curl直接返回了false，并且打印了下错误信息：`cURL Error (28): Timeout was reached` 可能和libcurl 的编译有关系，我继续查了下php手册，发现了如下的内容

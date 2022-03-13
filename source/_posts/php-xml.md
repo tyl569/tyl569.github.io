@@ -18,7 +18,9 @@ $xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
         </people>";
 echo $xml;
 ```
+
 <!-- more -->
+
 #### 2、使用DOMDocument进行创建
 
 ```php

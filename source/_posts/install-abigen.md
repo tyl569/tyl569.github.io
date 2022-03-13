@@ -22,6 +22,8 @@ go: downloading github.com/kevinburke/go-bindata v3.11.0
 go install github.com/kevinburke/go-bindata/go-bindata@latest: zip for github.com/kevinburke/go-bindata@v3.11.0 has unexpected file github.com/kevinburke/go-bindata@v0.0.0-20180804232615-06af60a4461b/.gitignore
 ```
 
+<!--more-->
+
 这个原因是和镜像云有关系，导致不能安装go-bindata，我之前使用的是阿里云的镜像库，切换成官方的镜像，重新安装一下
 
 ```bash

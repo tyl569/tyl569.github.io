@@ -18,6 +18,7 @@ $ groups test #查看test的所有分组
 $ test : test 
 ```
 <!-- more -->
+
 使用test用户在/home/test/路径下新建test.txt使此文件允许test分组和test用户读写
 
 ```bash

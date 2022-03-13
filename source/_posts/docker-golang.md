@@ -19,6 +19,8 @@ func main() {
 }
 ```
 
+<!--more-->
+
 ## Golang:onbuild
 
 现在关于go的docker镜像也发布了很多个版本，我们首先介绍一下`golang:onbuild`以及如何使用。 `golang:onbuild`是go语言官方发布的一款很小的镜像(只有几KB大小)，目的是为了让我们可以编译go文件，并且运行。使用的方式很简单，只需要创建一个Dockerfile，然后在首行加上`FROM golang:onbuild`。

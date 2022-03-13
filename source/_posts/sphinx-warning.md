@@ -8,7 +8,9 @@ date: 2017-08-24 20:18:45
 ---
 
 #### 公司由于业务发展需要使用sphinx、之前是师傅负责配置。现在变成是我来维护，由于对sphinx了解并不多，所以在生成索引的时候一直出现WARNING: attribute 'id' not found - IGNORING
+
 <!-- more -->
+
 我的表结构
 
 ```sql

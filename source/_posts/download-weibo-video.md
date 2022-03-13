@@ -16,6 +16,8 @@ date: 2018-02-25 22:25:50
 
 ![](/uploads/2018/02/IMG_0863-169x300.png)
 
+<!--more-->
+
 #### 下载workflow插件
 
 使用iPhone的自带浏览器Safari 打开连接 [http://workflow.sspai.com/#/main/workflow](http://workflow.sspai.com/#/main/workflow) ，然后找到插件，进行下载

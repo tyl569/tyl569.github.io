@@ -19,6 +19,8 @@ date: 2020-12-13 19:30:41
 
 没错，docker可以解决，但是有没有更加方便的工具来解决PHP版本切换的问题呢？当然有，那就是**phpbrew**!
 
+<!--more-->
+
 ## phpbrew
 
 项目地址，可以异步：[phpbrew](https://github.com/phpbrew/phpbrew/blob/master/README.cn.md "phpbrew")

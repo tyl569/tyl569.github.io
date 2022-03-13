@@ -17,6 +17,9 @@ date: 2021-06-07 22:06:30
 
 首先，代币的授权与余额是一个map，对应key是以太坊钱包的地址，value是对应的授权额度，查询的时间复杂度是O(1)，查询效率会比较高。现在需要实现的是代币余额查询（balanceOf），代币的额度申请（approve）和授权额度查询（allowance）这三个函数。
 
+<!--more-->
+
+
 ```bash
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);

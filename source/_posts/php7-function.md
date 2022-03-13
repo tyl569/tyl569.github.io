@@ -40,7 +40,9 @@ echo call_function($demo, "get_site_name", "site name:");
 echo call_function(null, "get_site_url", "site url:");
 ?>
 ```
+
 <!-- more -->
+
 我们将要实现call\_function的方法的功能
 
 #### 代码实现
