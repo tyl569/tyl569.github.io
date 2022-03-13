@@ -71,57 +71,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/03/13/hello-world/" class="article-date">
-  <time class="dt-published" datetime="2022-03-12T23:44:26.214Z" itemprop="datePublished">2022-03-13</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/03/13/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2022/03/13/hello-world/" data-id="cl0oi8mfo002f417t3d8b1bra" data-title="Hello World" class="article-share-link">Share</a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
     <article id="post-docker版本mysql5-7及以上版本-only-full-group-by报错的解决方法" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="article-date">
@@ -726,11 +675,79 @@
 
 
   
+    <article id="post-php-array" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/10/25/php-array/" class="article-date">
+  <time class="dt-published" datetime="2020-10-25T11:54:17.000Z" itemprop="datePublished">2020-10-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/10/25/php-array/">PHP数组的存储</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>PHP数组是PHP最复杂的数据结构，没有之一，如果能把数据彻底搞透，那么其他的数据结构也能理解的差不多了。</p>
+<h4 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">Bucket</span> &#123;</span></span><br><span class="line">    zval              val;</span><br><span class="line">    zend_ulong        h;                <span class="comment">/* hash value (or numeric index)   */</span></span><br><span class="line">    zend_string      *key;              <span class="comment">/* string key or NULL for numerics */</span></span><br><span class="line">&#125; Bucket;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">zend_array</span> <span class="title">HashTable</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zend_array</span> &#123;</span></span><br><span class="line">    zend_refcounted_h gc;</span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">            ZEND_ENDIAN_LOHI_4(</span><br><span class="line">                zend_uchar    flags,</span><br><span class="line">                zend_uchar    nApplyCount,</span><br><span class="line">                zend_uchar    nIteratorsCount,</span><br><span class="line">                zend_uchar    consistency)</span><br><span class="line">        &#125; v;</span><br><span class="line">        <span class="type">uint32_t</span> flags;</span><br><span class="line">    &#125; u;</span><br><span class="line">    <span class="type">uint32_t</span>          nTableMask; <span class="comment">// 中间映射表，用来映射在arData的存储位置</span></span><br><span class="line">    Bucket           *arData; <span class="comment">// 元素的存储数据结构，默认指向第一个元素</span></span><br><span class="line">    <span class="type">uint32_t</span>          nNumUsed; <span class="comment">// arData使用的个数</span></span><br><span class="line">    <span class="type">uint32_t</span>          nNumOfElements; <span class="comment">// 数组的个数</span></span><br><span class="line">    <span class="type">uint32_t</span>          nTableSize; <span class="comment">// 数组的大小</span></span><br><span class="line">    <span class="type">uint32_t</span>          nInternalPointer;</span><br><span class="line">    zend_long         nNextFreeElement;</span><br><span class="line">    <span class="type">dtor_func_t</span>       pDestructor;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="数组的初始化"><a href="#数组的初始化" class="headerlink" title="数组的初始化"></a>数组的初始化</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">ZEND_API <span class="type">void</span> ZEND_FASTCALL _zend_hash_init(HashTable *ht, <span class="type">uint32_t</span> nSize, <span class="type">dtor_func_t</span> pDestructor, zend_bool persistent ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    GC_REFCOUNT(ht) = <span class="number">1</span>;</span><br><span class="line">    GC_TYPE_INFO(ht) = IS_ARRAY;</span><br><span class="line">    ht-&gt;u.flags = (persistent ? HASH_FLAG_PERSISTENT : <span class="number">0</span>)  HASH_FLAG_APPLY_PROTECTION  HASH_FLAG_STATIC_KEYS;</span><br><span class="line">    ht-&gt;nTableMask = HT_MIN_MASK;</span><br><span class="line">    HT_SET_DATA_ADDR(ht, &amp;uninitialized_bucket);</span><br><span class="line">    ht-&gt;nNumUsed = <span class="number">0</span>;</span><br><span class="line">    ht-&gt;nNumOfElements = <span class="number">0</span>;</span><br><span class="line">    ht-&gt;nInternalPointer = HT_INVALID_IDX;</span><br><span class="line">    ht-&gt;nNextFreeElement = <span class="number">0</span>;</span><br><span class="line">    ht-&gt;pDestructor = pDestructor;</span><br><span class="line">    ht-&gt;nTableSize = zend_hash_check_size(nSize);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> zend_always_inline <span class="type">void</span> <span class="title function_">zend_hash_real_init_ex</span><span class="params">(HashTable *ht, <span class="type">int</span> packed)</span></span><br><span class="line">&#123;</span><br><span class="line">    HT_ASSERT(GC_REFCOUNT(ht) == <span class="number">1</span>);</span><br><span class="line">    ZEND_ASSERT(!((ht)-&gt;u.flags &amp; HASH_FLAG_INITIALIZED));</span><br><span class="line">    <span class="keyword">if</span> (packed) &#123;</span><br><span class="line">        HT_SET_DATA_ADDR(ht, pemalloc(HT_SIZE(ht), (ht)-&gt;u.flags &amp; HASH_FLAG_PERSISTENT));</span><br><span class="line">        (ht)-&gt;u.flags = HASH_FLAG_INITIALIZED  HASH_FLAG_PACKED;</span><br><span class="line">        HT_HASH_RESET_PACKED(ht);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        (ht)-&gt;nTableMask = -(ht)-&gt;nTableSize;</span><br><span class="line">        HT_SET_DATA_ADDR(ht, pemalloc(HT_SIZE(ht), (ht)-&gt;u.flags &amp; HASH_FLAG_PERSISTENT));</span><br><span class="line">        (ht)-&gt;u.flags = HASH_FLAG_INITIALIZED;</span><br><span class="line">        <span class="keyword">if</span> (EXPECTED(ht-&gt;nTableMask == (<span class="type">uint32_t</span>)<span class="number">-8</span>)) &#123;</span><br><span class="line">            Bucket *arData = ht-&gt;arData;</span><br><span class="line"></span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-8</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-7</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-6</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-5</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-4</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-3</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-2</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-1</span>) = <span class="number">-1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            HT_HASH_RESET(ht);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在初始化之前，会先调用_zend_hash_init进行一些简单的初始化操作，但是这部分做的事情比较少，只是初始化了nTableSize&#x3D;8，arData的内存大小是根据这个值确定的，它的大小是8的幂次方，最小为8；</p>
+<p>其他的初始化操作，是通过zend_hash_real_init_ex函数进行的：</p>
+<ul>
+<li>首先，将u.flags设置为<code>初始化</code>的状态</li>
+<li>将映射关系nTableMask设置为nTableSize大小的相反数</li>
+<li>申请地址空间，设备的地址空间大小是nTableMask和nTableSize的两个地址空间大小</li>
+<li>设置arData的每个元素的值为-1</li>
+</ul>
+<h4 id="数组的赋值-zend-hash-add-or-update-i"><a href="#数组的赋值-zend-hash-add-or-update-i" class="headerlink" title="数组的赋值_zend_hash_add_or_update_i"></a>数组的赋值_zend_hash_add_or_update_i</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> zend_always_inline zval *_zend_hash_add_or_update_i(HashTable *ht, zend_string *key, zval *pData, <span class="type">uint32_t</span> flag ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    zend_ulong h;</span><br><span class="line">    <span class="type">uint32_t</span> nIndex;</span><br><span class="line">    <span class="type">uint32_t</span> idx;</span><br><span class="line">    Bucket *p;</span><br><span class="line"></span><br><span class="line">    IS_CONSISTENT(ht);</span><br><span class="line">    HT_ASSERT(GC_REFCOUNT(ht) == <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (UNEXPECTED(!(ht-&gt;u.flags &amp; HASH_FLAG_INITIALIZED))) &#123;</span><br><span class="line">        CHECK_INIT(ht, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">goto</span> add_to_hash;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ht-&gt;u.flags &amp; HASH_FLAG_PACKED) &#123;</span><br><span class="line">        zend_hash_packed_to_hash(ht);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((flag &amp; HASH_ADD_NEW) == <span class="number">0</span>) &#123;</span><br><span class="line">        p = zend_hash_find_bucket(ht, key);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (p) &#123;</span><br><span class="line">            zval *data;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (flag &amp; HASH_ADD) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!(flag &amp; HASH_UPDATE_INDIRECT)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                ZEND_ASSERT(&amp;p-&gt;val != pData);</span><br><span class="line">                data = &amp;p-&gt;val;</span><br><span class="line">                <span class="keyword">if</span> (Z_TYPE_P(data) == IS_INDIRECT) &#123;</span><br><span class="line">                    data = Z_INDIRECT_P(data);</span><br><span class="line">                    <span class="keyword">if</span> (Z_TYPE_P(data) != IS_UNDEF) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                ZEND_ASSERT(&amp;p-&gt;val != pData);</span><br><span class="line">                data = &amp;p-&gt;val;</span><br><span class="line">                <span class="keyword">if</span> ((flag &amp; HASH_UPDATE_INDIRECT) &amp;&amp; Z_TYPE_P(data) == IS_INDIRECT) &#123;</span><br><span class="line">                    data = Z_INDIRECT_P(data);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ht-&gt;pDestructor) &#123;</span><br><span class="line">                ht-&gt;pDestructor(data);</span><br><span class="line">            &#125;</span><br><span class="line">            ZVAL_COPY_VALUE(data, pData);</span><br><span class="line">            <span class="keyword">return</span> data;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ZEND_HASH_IF_FULL_DO_RESIZE(ht);        <span class="comment">/* If the Hash table is full, resize it */</span></span><br><span class="line"></span><br><span class="line">add_to_hash:</span><br><span class="line">    idx = ht-&gt;nNumUsed++;</span><br><span class="line">    ht-&gt;nNumOfElements++;</span><br><span class="line">    <span class="keyword">if</span> (ht-&gt;nInternalPointer == HT_INVALID_IDX) &#123;</span><br><span class="line">        ht-&gt;nInternalPointer = idx;</span><br><span class="line">    &#125;</span><br><span class="line">    zend_hash_iterators_update(ht, HT_INVALID_IDX, idx);</span><br><span class="line">    p = ht-&gt;arData + idx;</span><br><span class="line">    p-&gt;key = key;</span><br><span class="line">    <span class="keyword">if</span> (!ZSTR_IS_INTERNED(key)) &#123;</span><br><span class="line">        zend_string_addref(key);</span><br><span class="line">        ht-&gt;u.flags &amp;= ~HASH_FLAG_STATIC_KEYS;</span><br><span class="line">        zend_string_hash_val(key);</span><br><span class="line">    &#125;</span><br><span class="line">    p-&gt;h = h = ZSTR_H(key);</span><br><span class="line">    ZVAL_COPY_VALUE(&amp;p-&gt;val, pData);</span><br><span class="line">    nIndex = h  ht-&gt;nTableMask;</span><br><span class="line">    Z_NEXT(p-&gt;val) = HT_HASH(ht, nIndex);</span><br><span class="line">    HT_HASH(ht, nIndex) = HT_IDX_TO_HASH(idx);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &amp;p-&gt;val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先，在赋值之前，会先判断数组是否已经被初始化过，如果初始化那么就进行赋值的操作</li>
+<li>赋值的时候，会把nNumUsed进行累加，然后得到arData的位置</li>
+<li>将赋值的bucket设置hash code和key等成员变量</li>
+<li>根据hash code，计算出在nTableMask对应的位置为nIndex</li>
+<li>将arData的位置，存储到nTableMask对应的nIndex的值上面</li>
+</ul>
+<p><img src="/uploads/2020/01/%E7%BB%98%E5%9B%BE1.png"></p>
+<p>本文链接: <a target="_blank" rel="noopener" href="https://feilong.tech/2020/10/25/php-array">https://feilong.tech/2020/10/25/php-array</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/10/25/php-array/" data-id="cl0oi8mh30055417tepvb853s" data-title="PHP数组的存储" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
 
 
   <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -770,7 +787,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
     </div>
   </div>
 
@@ -781,10 +798,6 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
-        
-          <li>
-            <a href="/2022/03/13/hello-world/">Hello World</a>
-          </li>
         
           <li>
             <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
@@ -800,6 +813,10 @@
         
           <li>
             <a href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/24/eth-contract-demo/">【以太坊】编译智能合约</a>
           </li>
         
       </ul>
