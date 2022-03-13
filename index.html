@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-docker版本mysql5-7及以上版本-only-full-group-by报错的解决方法" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" class="article-date">
+  <time class="dt-published" datetime="2021-10-04T08:26:24.000Z" itemprop="datePublished">2021-10-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>►<a class="article-category-link" href="/categories/Mysql/">Mysql</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近开发的时候，需要使用MySQL的数据库，在使用group by的时候，生产环境使用的是5.6版本，但是开发机上面装的docker版本是5.7，在调用接口的时候，发现报错了，通过查询对应的资料，是因为mysql 5.7版本，默认开启了<code>ONLY_FULL_GROUP_BY</code>，所以在使用group by的时候，不能存在多余的字段信息。</p>
+<h2 id="现象回顾"><a href="#现象回顾" class="headerlink" title="现象回顾"></a>现象回顾</h2><h3 id="表结构准备"><a href="#表结构准备" class="headerlink" title="表结构准备"></a>表结构准备</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE `user` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `name` varchar(255) DEFAULT NULL,</span><br><span class="line">  `sex` varchar(255) DEFAULT NULL,</span><br><span class="line">  `age` int DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">id</th>
+<th align="left">name</th>
+<th align="left">sex</th>
+<th align="left">age</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">张三</td>
+<td align="left">男</td>
+<td align="left">21</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">李四</td>
+<td align="left">男</td>
+<td align="left">20</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">小花</td>
+<td align="left">女</td>
+<td align="left">21</td>
+</tr>
+</tbody></table>
+<p>执行SQL</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM `user` GROUP BY age</span><br></pre></td></tr></table></figure>
+
+<p>出现报错<code>1055 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column &#39;test.user.id&#39; which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by, Time: 0.064000s</code></p>
+<h3 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h3><p>MySQL的官方文档，给出如下的解释:</p>
+<blockquote>
+<p>MySQL 5.7.5 and later implements detection of functional dependence. If the <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_only_full_group_by"><code>ONLY_FULL_GROUP_BY</code></a> SQL mode is enabled (which it is by default), MySQL rejects queries for which the select list, <code>HAVING</code> condition, or <code>ORDER BY</code> list refer to nonaggregated columns that are neither named in the <code>GROUP BY</code> clause nor are functionally dependent on them. (Before 5.7.5, MySQL does not detect functional dependency and <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_only_full_group_by"><code>ONLY_FULL_GROUP_BY</code></a> is not enabled by default. For a description of pre-5.7.5 behavior, see the <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.6/en/sql-mode.html">MySQL 5.6 Reference Manual</a>.)</p>
+</blockquote>
+<p>官方大致的意思是说，在5.7.5版本之后，将会开启<code>ONLY_FULL_GROUP_BY</code>，开启此配置之后，在select、having或者order by的时候，将拒绝使用非聚合列的查询。</p>
+<p>针对上述的SQL，也就是在select+group by的时候，只能查询与group by相关列的查询。</p>
+<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><h3 id="方法一：优化SQL"><a href="#方法一：优化SQL" class="headerlink" title="方法一：优化SQL"></a>方法一：优化SQL</h3><p>其实个人觉得，最好的办法，就是优化SQL，剔除掉无关的查询操作，将与group by相关的查询去掉:</p>
+<p><code>SELECT count(1), age FROM user GROUP BY age</code></p>
+<h3 id="方法二：更改配置文件"><a href="#方法二：更改配置文件" class="headerlink" title="方法二：更改配置文件"></a>方法二：更改配置文件</h3><p>将容器的内的配置文件，拷贝到宿主机，挂接映射关系，然后在mysqld下增加sql_mode的配置 <code>sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION</code></p>
+<p>docker-compose.yml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3.1&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">db:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">mysql</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">--default-authentication-plugin=mysql_native_password</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/root/docker-mysql/conf/mysql:/etc/mysql</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/root/docker-mysql/mysql:/var/lib/mysql</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">MYSQL_ROOT_PASSWORD:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">test-mysql</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">3307</span><span class="string">:3306</span></span><br></pre></td></tr></table></figure>
+
+<p>my.cnf</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">pid-file        = /var/run/mysqld/mysqld.pid</span><br><span class="line">socket          = /var/run/mysqld/mysqld.sock</span><br><span class="line">datadir         = /var/lib/mysql</span><br><span class="line">sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION</span><br><span class="line">secure-file-priv= NULL</span><br><span class="line"># Custom config should go here</span><br><span class="line">!includedir /etc/mysql/conf.d/</span><br></pre></td></tr></table></figure>
+
+<p>重启容器，查看效果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT @@sql_mode;</span><br><span class="line">+----------------------------------------------------------------------------------------------------+</span><br><span class="line"> @@sql_mode                                                                                         </span><br><span class="line">+----------------------------------------------------------------------------------------------------+</span><br><span class="line"> STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION </span><br><span class="line">+----------------------------------------------------------------------------------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT * FROM user GROUP BY age;</span><br><span class="line">+----+--------+------+------+</span><br><span class="line"> id  name    sex   age  </span><br><span class="line">+----+--------+------+------+</span><br><span class="line">  1  张三  男     21 </span><br><span class="line">  2  李四  男     20 </span><br><span class="line">+----+--------+------+------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<h3 id="方法三：更改启动命令"><a href="#方法三：更改启动命令" class="headerlink" title="方法三：更改启动命令"></a>方法三：更改启动命令</h3><p>docker-compose.yml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3.1&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">db:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">mysql</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">mysqld</span> <span class="string">--sql_mode=&quot;STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION&quot;</span> <span class="string">--default-authentication-plugin=mysql_native_password</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/root/docker-mysql/conf/mysql:/etc/mysql</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/root/docker-mysql/mysql:/var/lib/mysql</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">MYSQL_ROOT_PASSWORD:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">test-mysql</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">3307</span><span class="string">:3306</span></span><br></pre></td></tr></table></figure>
+
+<p>销毁容器：<code>docker-compose down</code> 重启容器：<code>docker-compose up -d</code></p>
+<p>查看效果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT @@sql_mode;</span><br><span class="line">+----------------------------------------------------------------------------------------------------+</span><br><span class="line"> @@sql_mode                                                                                         </span><br><span class="line">+----------------------------------------------------------------------------------------------------+</span><br><span class="line"> STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION </span><br><span class="line">+----------------------------------------------------------------------------------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; set names utf8;</span><br><span class="line">Query OK, 0 rows affected, 1 warning (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT * FROM user GROUP BY age;</span><br><span class="line">+----+--------+------+------+</span><br><span class="line"> id  name    sex   age  </span><br><span class="line">+----+--------+------+------+</span><br><span class="line">  1  张三  男     21 </span><br><span class="line">  2  李四  男     20 </span><br><span class="line">+----+--------+------+------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" data-id="cl0oi8mf2001d417telgcd8or" data-title="Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-contract-eth" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/06/16/contract-eth/" class="article-date">
+  <time class="dt-published" datetime="2021-06-16T14:38:37.000Z" itemprop="datePublished">2021-06-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/06/16/contract-eth/">【以太坊】公链上的合约</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>发布智能合约指的就是把智能合约发布到以太坊公链上。但是如果一旦发布到了公链上，那么智能合约就不能再更改了，这里值的更改，含义是修改已经发布的智能合约的代码。所以，这是一个不可逆的过程。</p>
+<p>一般来说，编写完智能合约，会先发布到<a target="_blank" rel="noopener" href="https://rinkeby.etherscan.io/" title="以太坊测试网络的公链">以太坊测试网络的公链</a>上，经过反复的测试，然后再发布到<a target="_blank" rel="noopener" href="https://cn.etherscan.com/" title="以太坊公链">以太坊公链</a>上。</p>
+<p>在公链上，我们可以搜索到已经发布的代币</p>
+<p><img src="/uploads/2021/06/iShot2021-06-16-22.41.21.png"></p>
+<p>也可以在代币的详情页面，查看持有者和合约的信息，发布的代币数量，等等</p>
+<p><img src="/uploads/2021/06/iShot2021-06-16-22.41.53.png"></p>
+<p><img src="/uploads/2021/06/iShot2021-06-16-22.46.47.png"></p>
+<p>上面说到，发布智能合约后，不能进行修改，如果真的公链上的合约出现问题怎么办呢？</p>
+<p>这种情况下只能重新发布一份智能合约了，把之前的智能合约废弃掉。</p>
+<p>但是如果之前的发布的代币已经开始交易了，这里有一个思路，可以选择一个固定的区块高度，然后把这个区块高度的持有者的代币映射到新的合约上，宣布旧合约作废。这种操作其实对于持有者是有损失的，因为在这个高度之后的交易，其实是无效的。所以为了杜绝这种情况的发生，在测试阶段，一定要充分的进行测试才能发布到公链上。</p>
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/2021/06/16/contract-eth">https://feilong.tech/2021/06/16/contract-eth</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/06/16/contract-eth/" data-id="cl0oi8me2000f417te8cm9scf" data-title="【以太坊】公链上的合约" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-approve-transfer" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/06/07/approve-transfer/" class="article-date">
+  <time class="dt-published" datetime="2021-06-07T14:06:30.000Z" itemprop="datePublished">2021-06-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/06/07/approve-transfer/">【以太坊】实现智能合约授权与余额转账</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>上一节实现了智能合约的基本编写以及solidity的基本的函数修饰关键字。这一节开始进行合约的授权和余额的转账。</p>
+<h3 id="代币授权"><a href="#代币授权" class="headerlink" title="代币授权"></a>代币授权</h3><p>首先，代币的授权与余额是一个map，对应key是以太坊钱包的地址，value是对应的授权额度，查询的时间复杂度是O(1)，查询效率会比较高。现在需要实现的是代币余额查询（balanceOf），代币的额度申请（approve）和授权额度查询（allowance）这三个函数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">event Transfer(address indexed _from, address indexed _to, uint256 _value);</span><br><span class="line">event Approval(address indexed _owner, address indexed _spender, uint256 _value);</span><br><span class="line"></span><br><span class="line">// 根据地址获取获取代币金额 </span><br><span class="line"><span class="keyword">function</span> balanceOf(address _owner) public view returns (uint256 balance) &#123;</span><br><span class="line">    <span class="built_in">return</span> balances[_owner];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 授权额度申请 </span><br><span class="line"><span class="keyword">function</span> approve(address _spender, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">    allowed[msg.sender][_spender] = _value;</span><br><span class="line">    emit Approval(msg.sender, _spender, _value);</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 根据 _owner和 _spender查询 _owner给 _spender授权了多少额度 </span><br><span class="line"><span class="keyword">function</span> allowance(address _owner, address _spender) public view returns (uint256 remaining) &#123;</span><br><span class="line">    <span class="built_in">return</span> allowed[_owner][_spender];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在approve函数中，emit的关键字含义是触发一个事件授权事件<code>Approval</code>。</p>
+<p>我们在发布智能合约的第一件事，就是设置代币总金额：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">constructor() public&#123;</span><br><span class="line">    totalPublic = 1000000000;</span><br><span class="line">    balances[msg.sender] = totalPublic;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>msg.sender</code>代表智能合约发布者的以太坊地址，我们把发行量<code>totalPublic</code>给予了这个地址。当然这个是可以控制的，只给予一小部分也是允许的。</p>
+<h3 id="转账函数"><a href="#转账函数" class="headerlink" title="转账函数"></a>转账函数</h3><p>一下是智能合约的转账函数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 转账 </span><br><span class="line"> <span class="keyword">function</span> transfer(address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">     require(balances[msg.sender] &gt;= _value);</span><br><span class="line">     require(balances[_to] + _value &gt;= balances[_to]);</span><br><span class="line">     balances[msg.sender] -= _value;</span><br><span class="line">     balances[_to] += _value;</span><br><span class="line">     emit Transfer(msg.sender, _to, _value);</span><br><span class="line">     <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>转账函数的一些参数校验，一般使用solidity语法中的require函数，首先，验真剩余的额度不能小于转账额度；转账的额度不能是赋值；依次在对收款方和付款方进行额度的增加和减少；然后触发转账事件<code>Transfer</code>,把对应的数据写到区块里面。 以上的这个函数，只是合约发布方转账给其他地址。还会有地址之间的代币转账：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> transferFrom(address _from, address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">    uint256 allowanceValue = allowed[_from][msg.sender];</span><br><span class="line">    require(balances[_from] &gt;= _value &amp;&amp; allowanceValue &gt;= _value);</span><br><span class="line">    require(balances[_to] + _value &gt; balances[_to]);</span><br><span class="line">    allowed[_from][msg.sender] -= _value;</span><br><span class="line">    balances[_to] += _value;</span><br><span class="line">    balances[_from] -= _value;</span><br><span class="line">    emit Transfer(_from, _to, _value);</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，一份标准的ERC20代币的智能合约就编写完成了，完整代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic;//代币发行量</span><br><span class="line"></span><br><span class="line">    mapping (address =&gt; uint256) public balances;// 余额map </span><br><span class="line">    mapping (address =&gt; mapping(address =&gt;uint256)) public allowed;// 授权map</span><br><span class="line"></span><br><span class="line">    event Transfer(address indexed _from, address indexed _to, uint256 _value);</span><br><span class="line">    event Approval(address indexed _owner, address indexed _spender, uint256 _value);</span><br><span class="line"></span><br><span class="line">    constructor() public&#123;</span><br><span class="line">        totalPublic = 1000000000;</span><br><span class="line">        balances[msg.sender] = totalPublic;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 根据地址获取获取代币金额 </span><br><span class="line">    <span class="keyword">function</span> balanceOf(address _owner) public view returns (uint256 balance) &#123;</span><br><span class="line">        <span class="built_in">return</span> balances[_owner];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 授权额度申请 </span><br><span class="line">    <span class="keyword">function</span> approve(address _spender, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">        allowed[msg.sender][_spender] = _value;</span><br><span class="line">        emit Approval(msg.sender, _spender, _value);</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 根据 _owner和 _spender查询 _owner给 _spender授权了多少额度 </span><br><span class="line">    <span class="keyword">function</span> allowance(address _owner, address _spender) public view returns (uint256 remaining) &#123;</span><br><span class="line">        <span class="built_in">return</span> allowed[_owner][_spender];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 转账 </span><br><span class="line">    <span class="keyword">function</span> transfer(address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">        require(balances[msg.sender] &gt;= _value);</span><br><span class="line">        require(balances[_to] + _value &gt;= balances[_to]);</span><br><span class="line">        balances[msg.sender] -= _value;</span><br><span class="line">        balances[_to] += _value;</span><br><span class="line">        emit Transfer(msg.sender, _to, _value);</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> transferFrom(address _from, address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">        uint256 allowanceValue = allowed[_from][msg.sender];</span><br><span class="line">        require(balances[_from] &gt;= _value &amp;&amp; allowanceValue &gt;= _value);</span><br><span class="line">        require(balances[_to] + _value &gt; balances[_to]);</span><br><span class="line">        allowed[_from][msg.sender] -= _value;</span><br><span class="line">        balances[_to] += _value;</span><br><span class="line">        balances[_from] -= _value;</span><br><span class="line">        emit Transfer(_from, _to, _value);</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="合约的代码安全"><a href="#合约的代码安全" class="headerlink" title="合约的代码安全"></a>合约的代码安全</h3><p>由于智能合约是代码编写的，所以就可能存在代码的漏洞。最著名的合约的漏洞是2018年的“美链BEC合约漏洞事件”。该事件的后果就是“BEC”代币价值归零，以下是漏洞代码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> batchTransfer(address[] _receivers, uint256 _value) public whenNotPaused returns (bool) &#123;</span><br><span class="line">    uint cnt = _receivers.length;</span><br><span class="line">    uint256 amount = uint256(cnt) * _value;</span><br><span class="line">    require(cnt &gt; 0 &amp;&amp; cnt &lt;= 20);</span><br><span class="line">    require(_value &gt; 0 &amp;&amp; balances[msg.sender] &gt;= amount);</span><br><span class="line"></span><br><span class="line">    balances[msg.sender] = balances[msg.sender].sub(amount);</span><br><span class="line">    <span class="keyword">for</span> (uint i = 0; i &lt; cnt; i++) &#123;</span><br><span class="line">        balances[_receivers[i]] = balances[_receivers[i]].add(_value);</span><br><span class="line">        Transfer(msg,sender, _receivers[i], _value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>batchTransfer是一个批量函数，可以实现批量转账，但是代码<code>uint256 amount = uint256(cnt) * _value</code>存在风险，加入<code>_value</code>是一个在uint256范围内，但是乘以cnt得到的<code>amount</code>超过了uint256而造成溢出，就会变成一个比较小的数字，当执行代码<code>require(_value &gt; 0 &amp;&amp; balances[msg.sender] &gt;= amount);</code>也校验通过了，在循环执行转账操作的时候就会出现扣除很少的<code>amount</code>，而收款方获得了很大的<code>_value</code>，造成了资产的被盗。</p>
+<p>解决这种溢出，可以通过除法进行验证，比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> batchTransfer(address[] _receivers, uint256 _value) public whenNotPaused returns (bool) &#123;</span><br><span class="line">    uint cnt = _receivers.length;</span><br><span class="line">    uint256 amount = uint256(cnt) * _value;</span><br><span class="line">    require(_value &gt; 0 &amp;&amp; amount / _value == cnt);</span><br><span class="line">    require(cnt &gt; 0 &amp;&amp; cnt &lt;= 20);</span><br><span class="line">    require(_value &gt; 0 &amp;&amp; balances[msg.sender] &gt;= amount);</span><br><span class="line"></span><br><span class="line">    balances[msg.sender] = balances[msg.sender].sub(amount);</span><br><span class="line">    <span class="keyword">for</span> (uint i = 0; i &lt; cnt; i++) &#123;</span><br><span class="line">        balances[_receivers[i]] = balances[_receivers[i]].add(_value);</span><br><span class="line">        Transfer(msg,sender, _receivers[i], _value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上只是合约安全的一个简单的例子。在实际开发中，涉及到复杂的运算，一定要谨慎编写代码，以免出现代码漏洞。</p>
+<p>本文链接：<a target="_blank" rel="noopener" href="https://feilong.tech/approve_transfer/">https://feilong.tech/approve_transfer&#x2F;</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/06/07/approve-transfer/" data-id="cl0oi8mdq0003417thk1ncp52" data-title="【以太坊】实现智能合约授权与余额转账" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/token/" rel="tag">token</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-solidity-keyword" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/05/30/solidity-keyword/" class="article-date">
+  <time class="dt-published" datetime="2021-05-30T14:01:11.000Z" itemprop="datePublished">2021-05-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Go/">Go</a>►<a class="article-category-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>以太坊发布的大多数代币的智能合约，都是参照了“ERC20”的标准协议，本节也主要是根据“ERC20”开发一份代币的智能合约，根据上一节的步骤，提前创建一个FeilongToken.sol的文件</p>
+<h4 id="创建智能合约"><a href="#创建智能合约" class="headerlink" title="创建智能合约"></a>创建智能合约</h4><p>solidity 其实和普通的编程语言有异曲同工之妙，一下的我定义的一些成员变量，我们定义了一些基本的信息，比如代币的名称、代币单位精确的小数点、代币的符号以及发行量。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic = 100;//代币发行量</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h4><p>solidity也支持构造函数的使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic;//代币发行量</span><br><span class="line"></span><br><span class="line">    constructor() public &#123;</span><br><span class="line">        totalPublic = 100;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="solidity-关键字"><a href="#solidity-关键字" class="headerlink" title="solidity 关键字"></a>solidity 关键字</h4><p>下面给大家介绍一些常用的关键字</p>
+<blockquote>
+<h6 id="public-可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型"><a href="#public-可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型" class="headerlink" title="public 可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型"></a>public 可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型</h6><h6 id="private-可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。"><a href="#private-可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。" class="headerlink" title="private 可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。"></a>private 可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。</h6><h6 id="external-只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。"><a href="#external-只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。" class="headerlink" title="external 只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。"></a>external 只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。</h6><h6 id="internal-可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问"><a href="#internal-可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问" class="headerlink" title="internal 可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问"></a>internal 可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问</h6><h6 id="view-只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改"><a href="#view-只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改" class="headerlink" title="view 只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改"></a>view 只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改</h6><h6 id="pure-只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作"><a href="#pure-只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作" class="headerlink" title="pure 只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作"></a>pure 只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作</h6></blockquote>
+<p>这几个关键字，不光是约束了外部对自己的调用，view和pure也约束了自己对外部变量的操作限制。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic;//代币发行量</span><br><span class="line"></span><br><span class="line">    constructor() public&#123;</span><br><span class="line">        totalPublic = 100;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> getHalfPublic() external view returns (uint half) &#123;</span><br><span class="line">        <span class="built_in">return</span> totalPublic/2;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">function</span> internalFunc() internal view returns (uint half) &#123;</span><br><span class="line">        <span class="built_in">return</span> totalPublic/2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Parent &#123;</span><br><span class="line">    uint64 age = 30;</span><br><span class="line">    address public addr = 0x753B5C00b357b1536aE206C3319582A5A00b9c02;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> func() public view &#123;</span><br><span class="line">        FeilongToken m = FeilongToken(addr);</span><br><span class="line">        m.getHalfPublic(); // 可以访问</span><br><span class="line">        m.internalFunc(); // 报错，因为internal类型，外部不能进行访问</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">function</span> publicFunc() public &#123;</span><br><span class="line">        age += 16;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> privateFunc() private returns (uint64 ret) &#123;</span><br><span class="line">        uint64 t = internalFunc();</span><br><span class="line">        age = t / 2;</span><br><span class="line">        <span class="built_in">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> internalFunc() internal returns (uint64 ret) &#123;</span><br><span class="line">        age *= 2;</span><br><span class="line">        <span class="built_in">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> viewFunc(uint64 arg1) public view returns (uint64 ret) &#123;</span><br><span class="line">        arg1 = arg1 + age + 9; // 这里不会报错，因为view是允许访问函数外部变量的</span><br><span class="line">        age += 7; // 这里会报错，因为是view类型，不能修改外部的变量</span><br><span class="line">        uint64 d = age + arg1;  // 这里不会报错，因为view是允许访问函数外部变量的</span><br><span class="line">        uint64 c = d/2;</span><br><span class="line">        <span class="built_in">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> pureFunc(uint64 arg1) public pure returns (uint64 ret) &#123;</span><br><span class="line">        arg1 += 9;</span><br><span class="line">        uint64 d = age + arg1; // 这里会报错，因为pure不允许读取函数外部的变量</span><br><span class="line">        <span class="built_in">return</span> arg1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract child is Parent &#123;</span><br><span class="line">    <span class="keyword">function</span> usePrivateFunc() public returns (uint64 ret) &#123;</span><br><span class="line">        uint64 v = privateFunc(); // 这里进行报错，因为private的函数不能被继承</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> useInternalFunc() public returns (uint64 ret) &#123;</span><br><span class="line">        uint64 v = internalFunc();// 这里不会报错，因为internal的函数可以被继承</span><br><span class="line">        <span class="built_in">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>solidity的语法其实和其他编程语言类似，但是有所不同。我们一般的语言，大多数都是限制了外部对自己的调用权限控制，solidity也限定了函数本身对外部的操作。比如view和pure，限制了自己对外部变量的读取和修改的权限控制。这个是其中一个不同点。</p>
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/solidity-keyword">https://feilong.tech/solidity-keyword</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/05/30/solidity-keyword/" data-id="cl0oi8mid007p417t1f33dgpk" data-title="【以太坊】实现ERC20代币智能合约" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-eth-contract-demo" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/05/24/eth-contract-demo/" class="article-date">
+  <time class="dt-published" datetime="2021-05-24T14:22:19.000Z" itemprop="datePublished">2021-05-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Go/">Go</a>►<a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/05/24/eth-contract-demo/">【以太坊】编译智能合约</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="智能合约"><a href="#智能合约" class="headerlink" title="智能合约"></a>智能合约</h4><p>说到以太坊开发，就肯定绕不开智能合约。</p>
+<p>智能合约，其实是一种协议，就相当于是一种规则，他规定了交易、转账等。智能合约也可以理解成是“一段代码”，开发在通过执行“这段代码”，获得一个结果，这个结果可能是转账结果，或者其他等等。</p>
+<p>在开发以太坊的时候，开发者需要先编写智能合约，然后将智能合约部署到对应的以太坊节点，以太坊被部署到不同的服务器上，节点共同维护以太坊公链，调用者通过调用以太坊接口，访问智能合约，获得对应的结果。</p>
+<p><img src="/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-220210.png"></p>
+<h4 id="remix"><a href="#remix" class="headerlink" title="remix"></a>remix</h4><p>以太坊也给开发者准备了响应的开发工具————remix，线上地址：<a target="_blank" rel="noopener" href="https://remix.ethereum.org/#optimize=false&runs=200&evmVersion=null" title="remix-online">remix-online</a>，同时也提供了IDE开发工具，<a target="_blank" rel="noopener" href="https://github.com/ethereum/remix-desktop" title="remix-desktop">remix-desktop</a></p>
+<p><img src="/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png"></p>
+<h5 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h5><p>和普通的IDE工具一样，remix也支持语法高亮和代码提示，以及报错信息</p>
+<p><img src="/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-222130.png"></p>
+<p>开启自动编译之后，就能实时的预览编辑结果，方便我们及时更正语法错误。</p>
+<h5 id="简单的智能合约"><a href="#简单的智能合约" class="headerlink" title="简单的智能合约"></a>简单的智能合约</h5><p>我们编写一个简单的加法智能合约</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">contract Test &#123;</span><br><span class="line">    function add(uint8 arg1, uint8 arg2) public pure returns (uint8) &#123;</span><br><span class="line">        return arg1 + arg2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png"></p>
+<p>一个简单的智能合约就实现了。</p>
+<p>本文地址： <a target="_blank" rel="noopener" href="https://feilong.tech/2021/05/24/eth-contract-demo/">https://feilong.tech/2021/05/24/eth-contract-demo/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/05/24/eth-contract-demo/" data-id="cl0oi8mfc001r417tacy4gtcj" data-title="【以太坊】编译智能合约" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-install-abigen" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/05/19/install-abigen/" class="article-date">
+  <time class="dt-published" datetime="2021-05-19T00:30:41.000Z" itemprop="datePublished">2021-05-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Go/">Go</a>►<a class="article-category-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/05/19/install-abigen/">【以太坊】Mac安装abigen遇到的坑</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="安装devtools报错"><a href="#安装devtools报错" class="headerlink" title="安装devtools报错"></a>安装devtools报错</h3><p>想要开发以太坊，就需要开发智能合约，需要安装aligen，Mac版本需要通过安装devtools的方式安装abigen</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ make devtools</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install golang.org/x/tools/cmd/stringer@latest</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install github.com/kevinburke/go-bindata/go-bindata@latest</span><br><span class="line">go: downloading github.com/kevinburke/go-bindata v3.11.0</span><br><span class="line"></span><br><span class="line">go install github.com/kevinburke/go-bindata/go-bindata@latest: zip <span class="keyword">for</span> github.com/kevinburke/go-bindata@v3.11.0 has unexpected file github.com/kevinburke/go-bindata@v0.0.0-20180804232615-06af60a4461b/.gitignore</span><br></pre></td></tr></table></figure>
+
+<p>这个原因是和镜像云有关系，导致不能安装go-bindata，我之前使用的是阿里云的镜像库，切换成官方的镜像，重新安装一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ go <span class="built_in">env</span> -w  GOPROXY=https://goproxy.io,direct</span><br><span class="line">$ make devtools</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install golang.org/x/tools/cmd/stringer@latest</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install github.com/kevinburke/go-bindata/go-bindata@latest</span><br><span class="line">go: downloading github.com/kevinburke/go-bindata v3.22.0+incompatible</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install github.com/fjl/gencodec@latest</span><br><span class="line">go: downloading github.com/fjl/gencodec v0.0.0-20191126094850-e283372f291f</span><br><span class="line">go: downloading github.com/garslo/gogen v0.0.0-20170306192744-1d203ffc1f61</span><br><span class="line">go: downloading golang.org/x/tools v0.0.0-20191126055441-b0650ceb63d9</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install github.com/golang/protobuf/protoc-gen-go@latest</span><br><span class="line">go: downloading github.com/golang/protobuf v1.5.2</span><br><span class="line">go: downloading google.golang.org/protobuf v1.26.0</span><br><span class="line"><span class="built_in">env</span> GOBIN= go install ./cmd/abigen</span><br><span class="line"><span class="comment"># gopkg.in/olebedev/go-duktape.v3</span></span><br><span class="line">In file included from _cgo_export.c:4:</span><br><span class="line">debugger.go:23:13: warning: unused <span class="keyword">function</span> <span class="string">&#x27;_duk_debugger_attach&#x27;</span> [-Wunused-<span class="keyword">function</span>]</span><br><span class="line">Please install solc</span><br><span class="line">Please install protoc</span><br></pre></td></tr></table></figure>
+
+<p>看到最后两句意思应该是缺少了<code>solc</code>和<code>protoc</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g solc-cli solc protoc</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew install protoc-gen-go</span><br></pre></td></tr></table></figure>
+
+<p>重试下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ make devtools</span><br><span class="line">In file included from _cgo_export.c:4:</span><br><span class="line">debugger.go:23:13: warning: unused <span class="keyword">function</span> <span class="string">&#x27;_duk_debugger_attach&#x27;</span> [-Wunused-<span class="keyword">function</span>]</span><br></pre></td></tr></table></figure>
+
+<p>还是有报错，</p>
+<p>没办法，只能换个思路，</p>
+<p>后来通过官网发现，有现成的build工具 <a target="_blank" rel="noopener" href="https://geth.ethereum.org/downloads/">https://geth.ethereum.org/downloads/</a></p>
+<p><img src="/uploads/2021/05/WX20210519-082736.png"></p>
+<p>所以又重新下载解压了一次</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">$ wget -c https://gethstore.blob.core.windows.net/builds/geth-alltools-darwin-amd64-1.10.4-unstable-b3a1fda6.tar.gz</span><br><span class="line">--2021-05-19 08:18:56--  https://gethstore.blob.core.windows.net/builds/geth-alltools-darwin-amd64-1.10.4-unstable-b3a1fda6.tar.gz</span><br><span class="line">Resolving gethstore.blob.core.windows.net... 40.113.27.176</span><br><span class="line">Connecting to gethstore.blob.core.windows.net40.113.27.176:443... connected.</span><br><span class="line">HTTP request sent, awaiting response... 200 OK</span><br><span class="line">Length: 45363864 (43M) [application/octet-stream]</span><br><span class="line">Saving to: ‘geth-alltools-darwin-amd64-1.10.4-unstable-b3a1fda6.tar.gz’</span><br><span class="line"></span><br><span class="line">geth-alltools-darwin-amd64-1.10.4-unsta 100%[=============================================================================&gt;]  43.26M   324KB/s    <span class="keyword">in</span> 3m 19s</span><br><span class="line"></span><br><span class="line">2021-05-19 08:22:16 (223 KB/s) - ‘geth-alltools-darwin-amd64-1.10.4-unstable-b3a1fda6.tar.gz’ saved [45363864/45363864]</span><br><span class="line"></span><br><span class="line">$ tar zxvf geth-alltools-darwin-amd64-1.10.4-unstable-b3a1fda6.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> geth-alltools-darwin-amd64-1.10.4-unstable-b3a1fda6</span><br><span class="line">$ ./abigen --<span class="built_in">help</span></span><br><span class="line">abigen [global options] <span class="built_in">command</span> [<span class="built_in">command</span> options] [arguments...]</span><br><span class="line"></span><br><span class="line">VERSION:</span><br><span class="line">   1.10.4-unstable-b3a1fda6-20210518</span><br><span class="line"></span><br><span class="line">COMMANDS:</span><br><span class="line">   <span class="built_in">help</span>                               Shows a list of commands or <span class="built_in">help</span> <span class="keyword">for</span> one <span class="built_in">command</span></span><br><span class="line"></span><br><span class="line">GLOBAL OPTIONS:</span><br><span class="line">   --abi value                        Path to the Ethereum contract ABI json to <span class="built_in">bind</span>, - <span class="keyword">for</span> STDIN</span><br><span class="line">   --bin value                        Path to the Ethereum contract bytecode (generate deploy method)</span><br><span class="line">   --<span class="built_in">type</span> value                       Struct name <span class="keyword">for</span> the binding (default = package name)</span><br><span class="line">   --combined-json value              Path to the combined-json file generated by compiler</span><br><span class="line">   --sol value                        Path to the Ethereum contract Solidity <span class="built_in">source</span> to build and <span class="built_in">bind</span></span><br><span class="line">   --solc value                       Solidity compiler to use <span class="keyword">if</span> <span class="built_in">source</span> builds are requested (default: <span class="string">&quot;solc&quot;</span>)</span><br><span class="line">   --vy value                         Path to the Ethereum contract Vyper <span class="built_in">source</span> to build and <span class="built_in">bind</span></span><br><span class="line">   --vyper value                      Vyper compiler to use <span class="keyword">if</span> <span class="built_in">source</span> builds are requested (default: <span class="string">&quot;vyper&quot;</span>)</span><br><span class="line">   --exc value                        Comma separated types to exclude from binding</span><br><span class="line">   --pkg value                        Package name to generate the binding into</span><br><span class="line">   --out value                        Output file <span class="keyword">for</span> the generated binding (default = stdout)</span><br><span class="line">   --lang value                       Destination language <span class="keyword">for</span> the bindings (go, java, objc) (default: <span class="string">&quot;go&quot;</span>)</span><br><span class="line">   --<span class="built_in">alias</span> value                      Comma separated aliases <span class="keyword">for</span> <span class="keyword">function</span> and event renaming, e.g. original1=alias1, original2=alias2</span><br><span class="line">   --<span class="built_in">help</span>, -h                         show <span class="built_in">help</span></span><br><span class="line">   --version, -v                      <span class="built_in">print</span> the version</span><br></pre></td></tr></table></figure>
+
+<p>安装成功了</p>
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/2021/05/19/install-abigen">https://feilong.tech/2021/05/19/install-abigen</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/05/19/install-abigen/" data-id="cl0oi8mfp002i417tbudmas2q" data-title="【以太坊】Mac安装abigen遇到的坑" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-brew-update-error1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/05/16/brew-update-error1/" class="article-date">
+  <time class="dt-published" datetime="2021-05-16T08:39:28.000Z" itemprop="datePublished">2021-05-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Git/">Git</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/05/16/brew-update-error1/">brew update的时候提示：fatal: It seems that there is already a rebase-apply directory, and....</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天在更新brew update的时候，提示了报错信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ brew update</span><br><span class="line">fatal: It seems that there is already a rebase-apply directory, and</span><br><span class="line">I wonder <span class="keyword">if</span> you are <span class="keyword">in</span> the middle of another rebase.  If that is the</span><br><span class="line"><span class="keyword">case</span>, please try</span><br><span class="line">    git rebase (--<span class="built_in">continue</span>  --abort  --skip)</span><br><span class="line">If that is not the <span class="keyword">case</span>, please</span><br><span class="line">    <span class="built_in">rm</span> -fr <span class="string">&quot;.git/rebase-apply&quot;</span></span><br><span class="line">and run me again.  I am stopping <span class="keyword">in</span> <span class="keyword">case</span> you still have something</span><br><span class="line">valuable there.</span><br><span class="line"></span><br><span class="line">Already up-to-date.</span><br></pre></td></tr></table></figure>
+
+<p>解决这个的办法就是，重新将brew的update reset下，就OK了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew update-reset</span><br></pre></td></tr></table></figure>
+
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/2021/05/16/brew-update-error1">https://feilong.tech/2021/05/16/brew-update-error1</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/05/16/brew-update-error1/" data-id="cl0oi8mdy000a417t3zvmd030" data-title="brew update的时候提示：fatal: It seems that there is already a rebase-apply directory, and...." class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-mac-phpbrew" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/12/13/mac-phpbrew/" class="article-date">
+  <time class="dt-published" datetime="2020-12-13T11:30:41.000Z" itemprop="datePublished">2020-12-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/PHP/">PHP</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/12/13/mac-phpbrew/">Mac快捷安装PHP多版本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="程序员的苦恼"><a href="#程序员的苦恼" class="headerlink" title="程序员的苦恼"></a>程序员的苦恼</h2><p>作为程序员，我们经常会面临一个比较痛苦的事情，那就是环境版本的问题。以PHP为例，有些框架或者工具，会对PHP版本有不同的要求。举个例子，我在公司开发使用的是PHP-7.3版本。但是周末在家，想做些其他有意思的事情，这个时候，发现有些框架或者工具的语言要求是&gt;&#x3D;PHP-7.0和&lt;PHP-7.3。</p>
+<p>有些同学会说，用docker啊！</p>
+<p>没错，docker可以解决，但是有没有更加方便的工具来解决PHP版本切换的问题呢？当然有，那就是<strong>phpbrew</strong>!</p>
+<h2 id="phpbrew"><a href="#phpbrew" class="headerlink" title="phpbrew"></a>phpbrew</h2><p>项目地址，可以异步：<a target="_blank" rel="noopener" href="https://github.com/phpbrew/phpbrew/blob/master/README.cn.md" title="phpbrew">phpbrew</a></p>
+<p>phpbrew 主要解决了什么问题呢？</p>
+<p>就像上面说的，它能更快和更加方便的让我们的Mac安装多个版本的PHP，以及PHP扩展，这样可以很快的提高我们的效率，作为Mac的PHP coder，也不用发愁找相应的PHP版本的解决方案。</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ curl -L -O https://github.com/phpbrew/phpbrew/releases/latest/download/phpbrew.phar</span><br><span class="line">$ <span class="built_in">chmod</span> +x phpbrew.phar</span><br><span class="line"></span><br><span class="line"><span class="comment"># Move the file to some directory within your $PATH</span></span><br><span class="line">$ sudo <span class="built_in">mv</span> phpbrew.phar /usr/local/bin/phpbrew</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>初始化</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">phpbrew init</span><br></pre></td></tr></table></figure>
+
+<p>接着在 .bashrc 或 .zshrc 文件增加如下行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[ -e ~/.phpbrew/bashrc ]] &amp;&amp; <span class="built_in">source</span> ~/.phpbrew/bashrc</span><br></pre></td></tr></table></figure>
+
+<h3 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h3><p>列出已知的PHP版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ phpbrew known</span><br><span class="line">Read <span class="built_in">local</span> release list (last update: 2020-11-23 12:49:58 UTC).</span><br><span class="line">You can run `phpbrew update` or `phpbrew known --update` to get a newer release list.</span><br><span class="line">7.4: 7.4.12, 7.4.11, 7.4.10, 7.4.9, 7.4.8, 7.4.7, 7.4.6, 7.4.5 ...</span><br><span class="line">7.3: 7.3.24, 7.3.23, 7.3.22, 7.3.21, 7.3.20, 7.3.19, 7.3.18, 7.3.17 ...</span><br><span class="line">7.2: 7.2.34, 7.2.33, 7.2.32, 7.2.31, 7.2.30, 7.2.29, 7.2.28, 7.2.27 ...</span><br><span class="line">7.1: 7.1.33, 7.1.32, 7.1.31, 7.1.30, 7.1.29, 7.1.28, 7.1.27, 7.1.26 ...</span><br><span class="line">7.0: 7.0.33, 7.0.32, 7.0.31, 7.0.30, 7.0.29, 7.0.28, 7.0.27 ...</span><br><span class="line">5.6: 5.6.40, 5.6.39, 5.6.38, 5.6.37, 5.6.36, 5.6.35, 5.6.34, 5.6.33 ...</span><br><span class="line">5.5: 5.5.38, 5.5.37, 5.5.36, 5.5.35, 5.5.34, 5.5.33, 5.5.32, 5.5.31 ...</span><br><span class="line">5.4: 5.4.45, 5.4.44, 5.4.43, 5.4.42, 5.4.41, 5.4.40, 5.4.39, 5.4.38 ...</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装拓展"><a href="#安装拓展" class="headerlink" title="安装拓展"></a>安装拓展</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ phpbrew install 5.3.10 +mysql+sqlite+cgi</span><br><span class="line"></span><br><span class="line">$ phpbrew install 5.3.10 +mysql+debug+pgsql +apxs2</span><br><span class="line"></span><br><span class="line">$ phpbrew install 5.3.10 +pdo +mysql +pgsql +apxs2=/usr/bin/apxs2</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看安装的版本"><a href="#查看安装的版本" class="headerlink" title="查看安装的版本"></a>查看安装的版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ phpbrew list</span><br><span class="line">  php-7.2.34</span><br><span class="line">* php-5.6.40</span><br></pre></td></tr></table></figure>
+
+<h3 id="切换版本"><a href="#切换版本" class="headerlink" title="切换版本"></a>切换版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ phpbrew switch php-5.6.40</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动fpm"><a href="#启动fpm" class="headerlink" title="启动fpm"></a>启动fpm</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ phpbrew fpm start</span><br><span class="line">$ phpbrew fpm <span class="built_in">test</span></span><br><span class="line">[13-Dec-2020 19:29:42] NOTICE: configuration file /Users/feilong/.phpbrew/php/php-5.6.40/etc/php-fpm.conf <span class="built_in">test</span> is successful</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看版本"><a href="#查看版本" class="headerlink" title="查看版本"></a>查看版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PHP 5.6.40 (cli) (built: Dec 13 2020 19:11:35)</span><br><span class="line">Copyright (c) 1997-2016 The PHP Group</span><br><span class="line">Zend Engine v2.6.0, Copyright (c) 1998-2016 Zend Technologies</span><br></pre></td></tr></table></figure>
+
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>当我在安装php-7.2的时候，发生了一个问题，<code>checking for the location of zlib... configure: error: zip support requires ZLIB. Use --with-zlib-dir=&lt;DIR&gt; to specify prefix where ZLIB include and library are located</code></p>
+<p>这个是zlib的扩展没有找到对应的类库</p>
+<p>如果没有安装，则先进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ brew reinstall zlib</span><br><span class="line">==&gt; Downloading https://homebrew.bintray.com/bottles/zlib-1.2.11.mojave.bottle.tar.gz</span><br><span class="line"><span class="comment">######################################################################## 100.0%</span></span><br><span class="line">==&gt; Reinstalling zlib</span><br><span class="line">==&gt; Pouring zlib-1.2.11.mojave.bottle.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>重新安装php</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$  phpbrew install 7.2 -- \--with-zlib-dir=`brew --prefix zlib`</span><br></pre></td></tr></table></figure>
+
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/2020/12/13/mac-phpbrew/">https://feilong.tech/2020/12/13/mac-phpbrew/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/13/mac-phpbrew/" data-id="cl0oi8mg5003m417teur9dwhh" data-title="Mac快捷安装PHP多版本" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/brew/" rel="tag">brew</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-empty-and-count" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/10/25/empty-and-count/" class="article-date">
+  <time class="dt-published" datetime="2020-10-25T12:44:59.000Z" itemprop="datePublished">2020-10-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/10/25/empty-and-count/">empty和count哪个性能会更好？</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h3><p>有些事情其实是比较让我感到疑惑的，就是关于使用empty和count函数，对数组判空，哪个性能会更好？</p>
+<p>一般来说，我们对数组判空，常用的就是empty和count。即：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$arr</span>)) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">count</span>(<span class="variable">$arr</span>) == <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="论证"><a href="#论证" class="headerlink" title="论证"></a>论证</h3><p>是的，这两种都能实现，但是哪种性能会更好呢？所以，我做了简单对比：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$arr</span> = <span class="title function_ invoke__">array_fill</span>(<span class="number">0</span>, <span class="number">100</span>, <span class="number">1</span>);</span><br><span class="line"><span class="variable">$startTime</span> = <span class="title function_ invoke__">markTime</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">10000000</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$arr</span>)) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$endTime</span> = <span class="title function_ invoke__">markTime</span>();</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;使用empty判空花了: &quot;</span> . (<span class="title function_ invoke__">floatval</span>(<span class="variable">$endTime</span>) - <span class="title function_ invoke__">floatval</span>(<span class="variable">$startTime</span>)) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$startTime</span> = <span class="title function_ invoke__">markTime</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">10000000</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">count</span>(<span class="variable">$arr</span>) == <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$endTime</span> = <span class="title function_ invoke__">markTime</span>();</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;使用count判空花了: &quot;</span> . (<span class="title function_ invoke__">floatval</span>(<span class="variable">$endTime</span>) - <span class="title function_ invoke__">floatval</span>(<span class="variable">$startTime</span>)) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">markTime</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">list</span>(<span class="variable">$mic</span>, <span class="variable">$sec</span>) = <span class="title function_ invoke__">explode</span>(<span class="string">&quot; &quot;</span>, <span class="title function_ invoke__">microtime</span>());</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$mic</span> + <span class="variable">$sec</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的例子，我通过循环1kw次，计算前后执行的时间情况，得到了一下数据：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用empty判空花了: 0.15395402908325</span><br><span class="line">使用count判空花了: 0.2148220539093</span><br></pre></td></tr></table></figure>
+
+<p>我担心某次的试验结果不准确，所以进行了多次了试验，试验结果都是一样的，那就是<code>empty</code>比<code>count</code>性能更好。</p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><p>对比下opcode:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">php7 -dvld.active=1 test1.php</span><br><span class="line">Finding entry points</span><br><span class="line">Branch analysis from position: 0</span><br><span class="line">1 jumps found. (Code = 62) Position 1 = -2</span><br><span class="line">filename:       /Users/feilong/data/service/i.api-big.crep.ke.com/test1.php</span><br><span class="line">function name:  (null)</span><br><span class="line">number of ops:  4</span><br><span class="line">compiled vars:  none</span><br><span class="line">line     #* E I O op                           fetch          ext  return  operands</span><br><span class="line">-------------------------------------------------------------------------------------</span><br><span class="line">   3     0  E &gt;   INIT_FCALL                                               &#x27;count&#x27;</span><br><span class="line">         1        SEND_VAL                                                 &lt;array&gt;</span><br><span class="line">         2        DO_ICALL                                                 </span><br><span class="line">         3      &gt; RETURN                                                   1</span><br><span class="line"></span><br><span class="line">branch: #  0; line:     3-    3; sop:     0; eop:     3; out0:  -2</span><br><span class="line">path #1: 0,</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">php7 -dvld.active=1 count.php</span><br><span class="line">Finding entry points</span><br><span class="line">Branch analysis from position: 0</span><br><span class="line">1 jumps found. (Code = 62) Position 1 = -2</span><br><span class="line">filename:       /Users/feilong/data/service/test/count.php</span><br><span class="line">function name:  (null)</span><br><span class="line">number of ops:  4</span><br><span class="line">compiled vars:  none</span><br><span class="line">line     #* E I O op                           fetch          ext  return  operands</span><br><span class="line">-------------------------------------------------------------------------------------</span><br><span class="line">   3     0  E &gt;   INIT_FCALL                                               &#x27;count&#x27;</span><br><span class="line">         1        SEND_VAL                                                 &lt;array&gt;</span><br><span class="line">         2        DO_ICALL                                                 </span><br><span class="line">         3      &gt; RETURN                                                   1</span><br><span class="line"></span><br><span class="line">branch: #  0; line:     3-    3; sop:     0; eop:     3; out0:  -2</span><br><span class="line">path #1: 0,</span><br><span class="line"></span><br><span class="line">php7 -dvld.active=1 empty.php</span><br><span class="line">Finding entry points</span><br><span class="line">Branch analysis from position: 0</span><br><span class="line">1 jumps found. (Code = 62) Position 1 = -2</span><br><span class="line">filename:       /Users/feilong/data/service/test/empty.php</span><br><span class="line">function name:  (null)</span><br><span class="line">number of ops:  1</span><br><span class="line">compiled vars:  none</span><br><span class="line">line     #* E I O op                           fetch          ext  return  operands</span><br><span class="line">-------------------------------------------------------------------------------------</span><br><span class="line">   3     0  E &gt; &gt; RETURN                                                   1</span><br><span class="line"></span><br><span class="line">branch: #  0; line:     3-    3; sop:     0; eop:     0; out0:  -2</span><br><span class="line">path #1: 0, </span><br></pre></td></tr></table></figure>
+
+<p>通过opcode，可以清晰看出，count的函数，生成的opcode总共是4行<code>INIT_FCALL</code>，<code>SEND_VAL</code>,<code>DO_ICALL</code>, <code>RETURN</code>；而empty的opcode只有<code>RETURN</code>。这是因为count是使用拓展方式，将函数加载到PHP内核，所以在执行的时候，会进行一些模块的初始化操作，而empty是在代码扫描的阶段，就已经进行了加载。所以执行效率会更高。</p>
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/2020/10/25/empty_and_count/">https://feilong.tech/2020/10/25/empty_and_count&#x2F;</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/10/25/empty-and-count/" data-id="cl0oi8mf7001j417tg08a3y5l" data-title="empty和count哪个性能会更好？" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-php-array" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/10/25/php-array/" class="article-date">
+  <time class="dt-published" datetime="2020-10-25T11:54:17.000Z" itemprop="datePublished">2020-10-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/10/25/php-array/">PHP数组的存储</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>PHP数组是PHP最复杂的数据结构，没有之一，如果能把数据彻底搞透，那么其他的数据结构也能理解的差不多了。</p>
+<h4 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">Bucket</span> &#123;</span></span><br><span class="line">    zval              val;</span><br><span class="line">    zend_ulong        h;                <span class="comment">/* hash value (or numeric index)   */</span></span><br><span class="line">    zend_string      *key;              <span class="comment">/* string key or NULL for numerics */</span></span><br><span class="line">&#125; Bucket;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">zend_array</span> <span class="title">HashTable</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">zend_array</span> &#123;</span></span><br><span class="line">    zend_refcounted_h gc;</span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">            ZEND_ENDIAN_LOHI_4(</span><br><span class="line">                zend_uchar    flags,</span><br><span class="line">                zend_uchar    nApplyCount,</span><br><span class="line">                zend_uchar    nIteratorsCount,</span><br><span class="line">                zend_uchar    consistency)</span><br><span class="line">        &#125; v;</span><br><span class="line">        <span class="type">uint32_t</span> flags;</span><br><span class="line">    &#125; u;</span><br><span class="line">    <span class="type">uint32_t</span>          nTableMask; <span class="comment">// 中间映射表，用来映射在arData的存储位置</span></span><br><span class="line">    Bucket           *arData; <span class="comment">// 元素的存储数据结构，默认指向第一个元素</span></span><br><span class="line">    <span class="type">uint32_t</span>          nNumUsed; <span class="comment">// arData使用的个数</span></span><br><span class="line">    <span class="type">uint32_t</span>          nNumOfElements; <span class="comment">// 数组的个数</span></span><br><span class="line">    <span class="type">uint32_t</span>          nTableSize; <span class="comment">// 数组的大小</span></span><br><span class="line">    <span class="type">uint32_t</span>          nInternalPointer;</span><br><span class="line">    zend_long         nNextFreeElement;</span><br><span class="line">    <span class="type">dtor_func_t</span>       pDestructor;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="数组的初始化"><a href="#数组的初始化" class="headerlink" title="数组的初始化"></a>数组的初始化</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">ZEND_API <span class="type">void</span> ZEND_FASTCALL _zend_hash_init(HashTable *ht, <span class="type">uint32_t</span> nSize, <span class="type">dtor_func_t</span> pDestructor, zend_bool persistent ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    GC_REFCOUNT(ht) = <span class="number">1</span>;</span><br><span class="line">    GC_TYPE_INFO(ht) = IS_ARRAY;</span><br><span class="line">    ht-&gt;u.flags = (persistent ? HASH_FLAG_PERSISTENT : <span class="number">0</span>)  HASH_FLAG_APPLY_PROTECTION  HASH_FLAG_STATIC_KEYS;</span><br><span class="line">    ht-&gt;nTableMask = HT_MIN_MASK;</span><br><span class="line">    HT_SET_DATA_ADDR(ht, &amp;uninitialized_bucket);</span><br><span class="line">    ht-&gt;nNumUsed = <span class="number">0</span>;</span><br><span class="line">    ht-&gt;nNumOfElements = <span class="number">0</span>;</span><br><span class="line">    ht-&gt;nInternalPointer = HT_INVALID_IDX;</span><br><span class="line">    ht-&gt;nNextFreeElement = <span class="number">0</span>;</span><br><span class="line">    ht-&gt;pDestructor = pDestructor;</span><br><span class="line">    ht-&gt;nTableSize = zend_hash_check_size(nSize);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> zend_always_inline <span class="type">void</span> <span class="title function_">zend_hash_real_init_ex</span><span class="params">(HashTable *ht, <span class="type">int</span> packed)</span></span><br><span class="line">&#123;</span><br><span class="line">    HT_ASSERT(GC_REFCOUNT(ht) == <span class="number">1</span>);</span><br><span class="line">    ZEND_ASSERT(!((ht)-&gt;u.flags &amp; HASH_FLAG_INITIALIZED));</span><br><span class="line">    <span class="keyword">if</span> (packed) &#123;</span><br><span class="line">        HT_SET_DATA_ADDR(ht, pemalloc(HT_SIZE(ht), (ht)-&gt;u.flags &amp; HASH_FLAG_PERSISTENT));</span><br><span class="line">        (ht)-&gt;u.flags = HASH_FLAG_INITIALIZED  HASH_FLAG_PACKED;</span><br><span class="line">        HT_HASH_RESET_PACKED(ht);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        (ht)-&gt;nTableMask = -(ht)-&gt;nTableSize;</span><br><span class="line">        HT_SET_DATA_ADDR(ht, pemalloc(HT_SIZE(ht), (ht)-&gt;u.flags &amp; HASH_FLAG_PERSISTENT));</span><br><span class="line">        (ht)-&gt;u.flags = HASH_FLAG_INITIALIZED;</span><br><span class="line">        <span class="keyword">if</span> (EXPECTED(ht-&gt;nTableMask == (<span class="type">uint32_t</span>)<span class="number">-8</span>)) &#123;</span><br><span class="line">            Bucket *arData = ht-&gt;arData;</span><br><span class="line"></span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-8</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-7</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-6</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-5</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-4</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-3</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-2</span>) = <span class="number">-1</span>;</span><br><span class="line">            HT_HASH_EX(arData, <span class="number">-1</span>) = <span class="number">-1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            HT_HASH_RESET(ht);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在初始化之前，会先调用_zend_hash_init进行一些简单的初始化操作，但是这部分做的事情比较少，只是初始化了nTableSize&#x3D;8，arData的内存大小是根据这个值确定的，它的大小是8的幂次方，最小为8；</p>
+<p>其他的初始化操作，是通过zend_hash_real_init_ex函数进行的：</p>
+<ul>
+<li>首先，将u.flags设置为<code>初始化</code>的状态</li>
+<li>将映射关系nTableMask设置为nTableSize大小的相反数</li>
+<li>申请地址空间，设备的地址空间大小是nTableMask和nTableSize的两个地址空间大小</li>
+<li>设置arData的每个元素的值为-1</li>
+</ul>
+<h4 id="数组的赋值-zend-hash-add-or-update-i"><a href="#数组的赋值-zend-hash-add-or-update-i" class="headerlink" title="数组的赋值_zend_hash_add_or_update_i"></a>数组的赋值_zend_hash_add_or_update_i</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> zend_always_inline zval *_zend_hash_add_or_update_i(HashTable *ht, zend_string *key, zval *pData, <span class="type">uint32_t</span> flag ZEND_FILE_LINE_DC)</span><br><span class="line">&#123;</span><br><span class="line">    zend_ulong h;</span><br><span class="line">    <span class="type">uint32_t</span> nIndex;</span><br><span class="line">    <span class="type">uint32_t</span> idx;</span><br><span class="line">    Bucket *p;</span><br><span class="line"></span><br><span class="line">    IS_CONSISTENT(ht);</span><br><span class="line">    HT_ASSERT(GC_REFCOUNT(ht) == <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (UNEXPECTED(!(ht-&gt;u.flags &amp; HASH_FLAG_INITIALIZED))) &#123;</span><br><span class="line">        CHECK_INIT(ht, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">goto</span> add_to_hash;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ht-&gt;u.flags &amp; HASH_FLAG_PACKED) &#123;</span><br><span class="line">        zend_hash_packed_to_hash(ht);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((flag &amp; HASH_ADD_NEW) == <span class="number">0</span>) &#123;</span><br><span class="line">        p = zend_hash_find_bucket(ht, key);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (p) &#123;</span><br><span class="line">            zval *data;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (flag &amp; HASH_ADD) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!(flag &amp; HASH_UPDATE_INDIRECT)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                ZEND_ASSERT(&amp;p-&gt;val != pData);</span><br><span class="line">                data = &amp;p-&gt;val;</span><br><span class="line">                <span class="keyword">if</span> (Z_TYPE_P(data) == IS_INDIRECT) &#123;</span><br><span class="line">                    data = Z_INDIRECT_P(data);</span><br><span class="line">                    <span class="keyword">if</span> (Z_TYPE_P(data) != IS_UNDEF) &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                ZEND_ASSERT(&amp;p-&gt;val != pData);</span><br><span class="line">                data = &amp;p-&gt;val;</span><br><span class="line">                <span class="keyword">if</span> ((flag &amp; HASH_UPDATE_INDIRECT) &amp;&amp; Z_TYPE_P(data) == IS_INDIRECT) &#123;</span><br><span class="line">                    data = Z_INDIRECT_P(data);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ht-&gt;pDestructor) &#123;</span><br><span class="line">                ht-&gt;pDestructor(data);</span><br><span class="line">            &#125;</span><br><span class="line">            ZVAL_COPY_VALUE(data, pData);</span><br><span class="line">            <span class="keyword">return</span> data;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ZEND_HASH_IF_FULL_DO_RESIZE(ht);        <span class="comment">/* If the Hash table is full, resize it */</span></span><br><span class="line"></span><br><span class="line">add_to_hash:</span><br><span class="line">    idx = ht-&gt;nNumUsed++;</span><br><span class="line">    ht-&gt;nNumOfElements++;</span><br><span class="line">    <span class="keyword">if</span> (ht-&gt;nInternalPointer == HT_INVALID_IDX) &#123;</span><br><span class="line">        ht-&gt;nInternalPointer = idx;</span><br><span class="line">    &#125;</span><br><span class="line">    zend_hash_iterators_update(ht, HT_INVALID_IDX, idx);</span><br><span class="line">    p = ht-&gt;arData + idx;</span><br><span class="line">    p-&gt;key = key;</span><br><span class="line">    <span class="keyword">if</span> (!ZSTR_IS_INTERNED(key)) &#123;</span><br><span class="line">        zend_string_addref(key);</span><br><span class="line">        ht-&gt;u.flags &amp;= ~HASH_FLAG_STATIC_KEYS;</span><br><span class="line">        zend_string_hash_val(key);</span><br><span class="line">    &#125;</span><br><span class="line">    p-&gt;h = h = ZSTR_H(key);</span><br><span class="line">    ZVAL_COPY_VALUE(&amp;p-&gt;val, pData);</span><br><span class="line">    nIndex = h  ht-&gt;nTableMask;</span><br><span class="line">    Z_NEXT(p-&gt;val) = HT_HASH(ht, nIndex);</span><br><span class="line">    HT_HASH(ht, nIndex) = HT_IDX_TO_HASH(idx);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &amp;p-&gt;val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先，在赋值之前，会先判断数组是否已经被初始化过，如果初始化那么就进行赋值的操作</li>
+<li>赋值的时候，会把nNumUsed进行累加，然后得到arData的位置</li>
+<li>将赋值的bucket设置hash code和key等成员变量</li>
+<li>根据hash code，计算出在nTableMask对应的位置为nIndex</li>
+<li>将arData的位置，存储到nTableMask对应的nIndex的值上面</li>
+</ul>
+<p><img src="/uploads/2020/01/%E7%BB%98%E5%9B%BE1.png"></p>
+<p>本文链接: <a target="_blank" rel="noopener" href="https://feilong.tech/2020/10/25/php-array">https://feilong.tech/2020/10/25/php-array</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/10/25/php-array/" data-id="cl0oi8mh30055417tepvb853s" data-title="PHP数组的存储" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nodejs/">Nodejs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E6%88%91%E5%8F%8D%E6%80%9D/">自我反思</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apollo/" rel="tag">Apollo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HyperLogLog/" rel="tag">HyperLogLog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">PHP7垃圾回收</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">PHP原型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E7%B2%BE%E5%BA%A6/" rel="tag">PHP精度</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">PHP设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ascii/" rel="tag">ascii</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/brew/" rel="tag">brew</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cli/" rel="tag">cli</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-network/" rel="tag">docker network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker%E5%AE%89%E5%85%A8/" rel="tag">docker安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/" rel="tag">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libnetwork/" rel="tag">libnetwork</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/" rel="tag">shell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/token/" rel="tag">token</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ulimit/" rel="tag">ulimit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unicode/" rel="tag">unicode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/utf-8/" rel="tag">utf-8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E5%BA%B7/" rel="tag">健康</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E8%BA%AB/" rel="tag">健身</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98/" rel="tag">内存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%8F%E8%82%A5/" rel="tag">减肥</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" rel="tag">出国游</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%A2%E5%BB%BA/" rel="tag">团建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" rel="tag">成长进阶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" rel="tag">普吉岛</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%B0%E5%9B%BD/" rel="tag">泰国</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" rel="tag">私有链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" rel="tag">程序员</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1/" rel="tag">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A0%81/" rel="tag">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" rel="tag">自我表达</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" rel="tag">贪心算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Apollo/" style="font-size: 10px;">Apollo</a> <a href="/tags/HyperLogLog/" style="font-size: 10px;">HyperLogLog</a> <a href="/tags/Linux/" style="font-size: 14.29px;">Linux</a> <a href="/tags/Mac/" style="font-size: 10px;">Mac</a> <a href="/tags/MySQL/" style="font-size: 11.43px;">MySQL</a> <a href="/tags/PHP/" style="font-size: 20px;">PHP</a> <a href="/tags/PHP7/" style="font-size: 17.14px;">PHP7</a> <a href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">PHP7垃圾回收</a> <a href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">PHP原型模式</a> <a href="/tags/PHP%E6%BA%90%E7%A0%81/" style="font-size: 18.57px;">PHP源码</a> <a href="/tags/PHP%E7%B2%BE%E5%BA%A6/" style="font-size: 10px;">PHP精度</a> <a href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 11.43px;">PHP设计模式</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/ascii/" style="font-size: 10px;">ascii</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/brew/" style="font-size: 10px;">brew</a> <a href="/tags/cli/" style="font-size: 10px;">cli</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 17.14px;">docker</a> <a href="/tags/docker-network/" style="font-size: 10px;">docker network</a> <a href="/tags/docker%E5%AE%89%E5%85%A8/" style="font-size: 10px;">docker安全</a> <a href="/tags/http/" style="font-size: 12.86px;">http</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/libnetwork/" style="font-size: 10px;">libnetwork</a> <a href="/tags/nginx/" style="font-size: 12.86px;">nginx</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/tcp/" style="font-size: 11.43px;">tcp</a> <a href="/tags/token/" style="font-size: 10px;">token</a> <a href="/tags/ulimit/" style="font-size: 10px;">ulimit</a> <a href="/tags/unicode/" style="font-size: 10px;">unicode</a> <a href="/tags/utf-8/" style="font-size: 10px;">utf-8</a> <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" style="font-size: 15.71px;">以太坊</a> <a href="/tags/%E5%81%A5%E5%BA%B7/" style="font-size: 10px;">健康</a> <a href="/tags/%E5%81%A5%E8%BA%AB/" style="font-size: 10px;">健身</a> <a href="/tags/%E5%86%85%E5%AD%98/" style="font-size: 10px;">内存</a> <a href="/tags/%E5%87%8F%E8%82%A5/" style="font-size: 10px;">减肥</a> <a href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" style="font-size: 12.86px;">出国游</a> <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 14.29px;">区块链</a> <a href="/tags/%E5%9B%A2%E5%BB%BA/" style="font-size: 12.86px;">团建</a> <a href="/tags/%E5%AE%B9%E5%99%A8/" style="font-size: 12.86px;">容器</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" style="font-size: 10px;">微服务</a> <a href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" style="font-size: 11.43px;">成长进阶</a> <a href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" style="font-size: 12.86px;">普吉岛</a> <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 11.43px;">智能合约</a> <a href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" style="font-size: 10px;">比特币</a> <a href="/tags/%E6%B3%B0%E5%9B%BD/" style="font-size: 12.86px;">泰国</a> <a href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" style="font-size: 10px;">私有链</a> <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" style="font-size: 11.43px;">程序员</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">统计</a> <a href="/tags/%E7%BC%96%E7%A0%81/" style="font-size: 10px;">编码</a> <a href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" style="font-size: 10px;">自我表达</a> <a href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" style="font-size: 10px;">贪心算法</a> <a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 11.43px;">面试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/16/contract-eth/">【以太坊】公链上的合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/07/approve-transfer/">【以太坊】实现智能合约授权与余额转账</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/24/eth-contract-demo/">【以太坊】编译智能合约</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2022 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

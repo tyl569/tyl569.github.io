@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Redis数据类型之HyperLogLog | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Redis相对于memcache的优势之一就是支持丰富的数据结构，比如Hash、List、Set、Zset等。除了这些以外，redis还支持HyperLogLog HyperLogLog假如有个需求，需要统计UV情况，我们的思路是什么？  Hash: 我们可以使用Hash的结构，使用用户的ip当做元素的key，最后使用HLEN统计下个数 Set: Set是无序唯一的，同样可以使用用户的IP作为ke">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis数据类型之HyperLogLog">
+<meta property="og:url" content="http://example.com/2019/11/21/redis-hyperloglog/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Redis相对于memcache的优势之一就是支持丰富的数据结构，比如Hash、List、Set、Zset等。除了这些以外，redis还支持HyperLogLog HyperLogLog假如有个需求，需要统计UV情况，我们的思路是什么？  Hash: 我们可以使用Hash的结构，使用用户的ip当做元素的key，最后使用HLEN统计下个数 Set: Set是无序唯一的，同样可以使用用户的IP作为ke">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-11-21T14:59:54.000Z">
+<meta property="article:modified_time" content="2022-03-12T23:52:58.859Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="HyperLogLog">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="统计">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-redis-hyperloglog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2019/11/21/redis-hyperloglog/" class="article-date">
+  <time class="dt-published" datetime="2019-11-21T14:59:54.000Z" itemprop="datePublished">2019-11-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Redis数据类型之HyperLogLog
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Redis相对于memcache的优势之一就是支持丰富的数据结构，比如Hash、List、Set、Zset等。除了这些以外，redis还支持HyperLogLog</p>
+<h3 id="HyperLogLog"><a href="#HyperLogLog" class="headerlink" title="HyperLogLog"></a>HyperLogLog</h3><p>假如有个需求，需要统计UV情况，我们的思路是什么？</p>
+<ul>
+<li>Hash: 我们可以使用Hash的结构，使用用户的ip当做元素的key，最后使用<code>HLEN</code>统计下个数</li>
+<li>Set: Set是无序唯一的，同样可以使用用户的IP作为key，最后使用<code>SCARD</code>统计个数</li>
+</ul>
+<p>没错，这两种都可以实现需求，但是对内存的占用是惊人的，如果是上千万的UV，那么会占用大量的内存。那么有没有<code>物美价廉</code>的方式呢？那就是HyperLogLog。</p>
+<h3 id="HyperLogLog的优势和劣势"><a href="#HyperLogLog的优势和劣势" class="headerlink" title="HyperLogLog的优势和劣势"></a>HyperLogLog的优势和劣势</h3><p>HyperLogLog只会占用<code>12KB</code>左右的存储空间，这个既是优势，优势劣势，因为如果数量比较小，这个<code>12KB</code>左右的空间是非常不划算的。</p>
+<p>但是redis也对HyperLogLog进行了优化，在计数比较小的时候，采用稀疏矩阵存储，占用的空间比较小，只有当超过了某个阈值，才会一次性变得稠密，才会占用<code>12KB</code>.</p>
+<p>HyperLogLog的劣势就是会出现统计的误差，并不能精确的进行个数统计.</p>
+<h3 id="对比情况"><a href="#对比情况" class="headerlink" title="对比情况"></a>对比情况</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">##伪代码</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$redisObj</span> = <span class="keyword">new</span> <span class="title class_">Redis</span>();</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">add2HyperLogLog</span>();</span><br><span class="line"><span class="title function_ invoke__">add2Hash</span>();</span><br><span class="line"><span class="title function_ invoke__">add2Set</span>();</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add2HyperLogLog</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$redisObj</span>;</span><br><span class="line">    <span class="variable">$connect</span> = <span class="variable">$redisObj</span>::<span class="title function_ invoke__">getConn</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">100000</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">        <span class="variable">$user</span>[<span class="string">&quot;user_name_&quot;</span>.<span class="variable">$i</span>] = <span class="string">&quot;user_&quot;</span> . <span class="variable">$i</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$connect</span>-&gt;<span class="title function_ invoke__">pfAdd</span>(<span class="string">&quot;user_by_hyper_log_log&quot;</span>, <span class="variable">$user</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add2Hash</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$redisObj</span>;</span><br><span class="line">    <span class="variable">$redisObj</span> = <span class="keyword">new</span> <span class="title class_">\Lta\Redis</span>();</span><br><span class="line">    <span class="variable">$connect</span> = <span class="variable">$redisObj</span>::<span class="title function_ invoke__">getConn</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">100000</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">        <span class="variable">$connect</span>-&gt;<span class="title function_ invoke__">sAdd</span>(<span class="string">&quot;user_by_set&quot;</span>, <span class="string">&quot;user_&quot;</span> . <span class="variable">$i</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add2Set</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$redisObj</span>;</span><br><span class="line">    <span class="variable">$redisObj</span> = <span class="keyword">new</span> <span class="title class_">\Lta\Redis</span>();</span><br><span class="line">    <span class="variable">$connect</span> = <span class="variable">$redisObj</span>::<span class="title function_ invoke__">getConn</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">100000</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">        <span class="variable">$connect</span>-&gt;<span class="title function_ invoke__">hSet</span>(<span class="string">&quot;user_by_hash&quot;</span>, <span class="string">&quot;user_name_&quot;</span>.<span class="variable">$i</span>,<span class="string">&quot;user_&quot;</span> . <span class="variable">$i</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">10.188.40.78:6379&gt; DEBUG OBJECT user_by_hash</span><br><span class="line">Value at:0x7fc170333f10 refcount:1 encoding:hashtable serializedlength:2677785 lru:14064726 lru_seconds_idle:147</span><br><span class="line">10.188.40.78:6379&gt; DEBUG OBJECT user_by_hyper_log_log</span><br><span class="line">Value at:0x7fc1700a6000 refcount:1 encoding:raw serializedlength:10592 lru:14064728 lru_seconds_idle:150</span><br><span class="line">10.188.40.78:6379&gt; DEBUG OBJECT user_by_set</span><br><span class="line">Value at:0x7fc1700a6010 refcount:1 encoding:hashtable serializedlength:1088895 lru:14064734 lru_seconds_idle:150</span><br><span class="line"></span><br><span class="line">10.188.40.78:6379&gt; PFCOUNT user_by_hyper_log_log</span><br><span class="line">(<span class="built_in">integer</span>) 99839</span><br><span class="line">10.188.40.78:6379&gt; SCARD user_by_set</span><br><span class="line">(<span class="built_in">integer</span>) 100000</span><br><span class="line">10.188.40.78:6379&gt; HLEN user_by_hash</span><br><span class="line">(<span class="built_in">integer</span>) 100000</span><br></pre></td></tr></table></figure>
+
+<p>键名</p>
+<p>长度</p>
+<p>元素个数</p>
+<p>user_by_hash</p>
+<p>2677785</p>
+<p>100000</p>
+<p>user_by_hyper_log_log</p>
+<p>10592</p>
+<p>99839</p>
+<p>user_by_set</p>
+<p>1088895</p>
+<p>100000</p>
+<p>可以看到，使用user_by_hyper_log_log的存储，长度要小很多，但是统计的元素格式是不完整的，误差率是<code>0.161%</code>，对于统计UV来说，是可以接受的。</p>
+<h3 id="使用rdbtools"><a href="#使用rdbtools" class="headerlink" title="使用rdbtools"></a>使用rdbtools</h3><p>但是serializedlength并不是真实的占用空间，并且在存储的时候，可能会进行序列化，要想查看真实的空间，需要使用另外的工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ pip install rdbtools</span><br><span class="line">Successfully built rdbtools</span><br><span class="line">Installing collected packages: rdbtools</span><br><span class="line">Successfully installed rdbtools-0.1.14</span><br><span class="line"></span><br><span class="line">$ redis-memory-for-key -s 10.188.40.78 user_by_hyper_log_log</span><br><span class="line">Key             user_by_hyper_log_log</span><br><span class="line">Bytes               14400</span><br><span class="line">Type                string</span><br><span class="line">$ redis-memory-for-key -s 10.188.40.78 user_by_hash</span><br><span class="line">Key             user_by_hash</span><br><span class="line">Bytes               7892932.0</span><br><span class="line">Type                <span class="built_in">hash</span></span><br><span class="line">Encoding            hashtable</span><br><span class="line">Number of Elements      100000</span><br><span class="line">Length of Largest Element   15</span><br><span class="line">$ redis-memory-for-key -s 10.188.40.78 user_by_set</span><br><span class="line">Key             user_by_set</span><br><span class="line">Bytes               5572932.0</span><br><span class="line">Type                <span class="built_in">set</span></span><br><span class="line">Encoding            hashtable</span><br><span class="line">Number of Elements      100000</span><br><span class="line">Length of Largest Element   10</span><br></pre></td></tr></table></figure>
+
+<p>这个对比结果就很明显了，Hash占用的空间是HyperLogLog的548倍，Set占用的空间是HyperLogLog的387倍！</p>
+<p>换算下占用的HyperLogLog的占用空间，大概是<code>14KB</code></p>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>前面有说道，HyperLogLog是存在误差的，一般是一些对可接受小误差的统计，比如：</p>
+<ul>
+<li>统计注册 IP 数</li>
+<li>统计每日访问 IP 数</li>
+<li>统计页面实时 UV 数</li>
+<li>统计在线用户数</li>
+<li>统计用户每天搜索不同词条的个数</li>
+</ul>
+<h3 id="参考文献："><a href="#参考文献：" class="headerlink" title="参考文献："></a>参考文献：</h3><ul>
+<li>《Redis深度历险》–钱文品</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/maoyuanming0806/article/details/81814610">Redis：HyperLogLog使用与应用场景</a></li>
+</ul>
+<p>本文链接： <a target="_blank" rel="noopener" href="https://feilong.tech/2019/11/21/redis-hyperloglog">https://feilong.tech/2019/11/21/redis-hyperloglog</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2019/11/21/redis-hyperloglog/" data-id="cl0oi8mia007j417tg3o86238" data-title="Redis数据类型之HyperLogLog" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HyperLogLog/" rel="tag">HyperLogLog</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1/" rel="tag">统计</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/20/php-parse-post/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          PHP $_POST接收大量form表单数据缺失探究
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/11/make-php-error/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">mac 由于libiconv导致编译PHP7 ld: symbol(s) not found for architecture x86_64错误</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nodejs/">Nodejs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E6%88%91%E5%8F%8D%E6%80%9D/">自我反思</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apollo/" rel="tag">Apollo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HyperLogLog/" rel="tag">HyperLogLog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">PHP7垃圾回收</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">PHP原型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E7%B2%BE%E5%BA%A6/" rel="tag">PHP精度</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">PHP设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ascii/" rel="tag">ascii</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/brew/" rel="tag">brew</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cli/" rel="tag">cli</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-network/" rel="tag">docker network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker%E5%AE%89%E5%85%A8/" rel="tag">docker安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/" rel="tag">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libnetwork/" rel="tag">libnetwork</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/" rel="tag">shell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/token/" rel="tag">token</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ulimit/" rel="tag">ulimit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unicode/" rel="tag">unicode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/utf-8/" rel="tag">utf-8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E5%BA%B7/" rel="tag">健康</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E8%BA%AB/" rel="tag">健身</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98/" rel="tag">内存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%8F%E8%82%A5/" rel="tag">减肥</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" rel="tag">出国游</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%A2%E5%BB%BA/" rel="tag">团建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" rel="tag">成长进阶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" rel="tag">普吉岛</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%B0%E5%9B%BD/" rel="tag">泰国</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" rel="tag">私有链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" rel="tag">程序员</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1/" rel="tag">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A0%81/" rel="tag">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" rel="tag">自我表达</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" rel="tag">贪心算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Apollo/" style="font-size: 10px;">Apollo</a> <a href="/tags/HyperLogLog/" style="font-size: 10px;">HyperLogLog</a> <a href="/tags/Linux/" style="font-size: 14.29px;">Linux</a> <a href="/tags/Mac/" style="font-size: 10px;">Mac</a> <a href="/tags/MySQL/" style="font-size: 11.43px;">MySQL</a> <a href="/tags/PHP/" style="font-size: 20px;">PHP</a> <a href="/tags/PHP7/" style="font-size: 17.14px;">PHP7</a> <a href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">PHP7垃圾回收</a> <a href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">PHP原型模式</a> <a href="/tags/PHP%E6%BA%90%E7%A0%81/" style="font-size: 18.57px;">PHP源码</a> <a href="/tags/PHP%E7%B2%BE%E5%BA%A6/" style="font-size: 10px;">PHP精度</a> <a href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 11.43px;">PHP设计模式</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/ascii/" style="font-size: 10px;">ascii</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/brew/" style="font-size: 10px;">brew</a> <a href="/tags/cli/" style="font-size: 10px;">cli</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 17.14px;">docker</a> <a href="/tags/docker-network/" style="font-size: 10px;">docker network</a> <a href="/tags/docker%E5%AE%89%E5%85%A8/" style="font-size: 10px;">docker安全</a> <a href="/tags/http/" style="font-size: 12.86px;">http</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/libnetwork/" style="font-size: 10px;">libnetwork</a> <a href="/tags/nginx/" style="font-size: 12.86px;">nginx</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/tcp/" style="font-size: 11.43px;">tcp</a> <a href="/tags/token/" style="font-size: 10px;">token</a> <a href="/tags/ulimit/" style="font-size: 10px;">ulimit</a> <a href="/tags/unicode/" style="font-size: 10px;">unicode</a> <a href="/tags/utf-8/" style="font-size: 10px;">utf-8</a> <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" style="font-size: 15.71px;">以太坊</a> <a href="/tags/%E5%81%A5%E5%BA%B7/" style="font-size: 10px;">健康</a> <a href="/tags/%E5%81%A5%E8%BA%AB/" style="font-size: 10px;">健身</a> <a href="/tags/%E5%86%85%E5%AD%98/" style="font-size: 10px;">内存</a> <a href="/tags/%E5%87%8F%E8%82%A5/" style="font-size: 10px;">减肥</a> <a href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" style="font-size: 12.86px;">出国游</a> <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 14.29px;">区块链</a> <a href="/tags/%E5%9B%A2%E5%BB%BA/" style="font-size: 12.86px;">团建</a> <a href="/tags/%E5%AE%B9%E5%99%A8/" style="font-size: 12.86px;">容器</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" style="font-size: 10px;">微服务</a> <a href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" style="font-size: 11.43px;">成长进阶</a> <a href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" style="font-size: 12.86px;">普吉岛</a> <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 11.43px;">智能合约</a> <a href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" style="font-size: 10px;">比特币</a> <a href="/tags/%E6%B3%B0%E5%9B%BD/" style="font-size: 12.86px;">泰国</a> <a href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" style="font-size: 10px;">私有链</a> <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" style="font-size: 11.43px;">程序员</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">统计</a> <a href="/tags/%E7%BC%96%E7%A0%81/" style="font-size: 10px;">编码</a> <a href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" style="font-size: 10px;">自我表达</a> <a href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" style="font-size: 10px;">贪心算法</a> <a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 11.43px;">面试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/16/contract-eth/">【以太坊】公链上的合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/07/approve-transfer/">【以太坊】实现智能合约授权与余额转账</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/24/eth-contract-demo/">【以太坊】编译智能合约</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2022 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

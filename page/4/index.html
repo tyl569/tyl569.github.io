@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/page/4/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-docker-safe-and-config" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/09/23/docker-safe-and-config/" class="article-date">
+  <time class="dt-published" datetime="2018-09-23T16:49:34.000Z" itemprop="datePublished">2018-09-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/09/23/docker-safe-and-config/">Docker之安全防护与配置</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="1-风险的来源"><a href="#1-风险的来源" class="headerlink" title="1. 风险的来源"></a>1. 风险的来源</h2><p>docker的安全性，在很大程度上来自于Linux的本身。目前，我们考虑到的安全性时，主要考虑下面几个方面：</p>
+<ul>
+<li>Linux内核的命名空间机制提供的容器隔离安全</li>
+<li>Linux控制组机制对容器资源的控制能力安全</li>
+<li>Linux内核的能力机制所带来的操作权限安全</li>
+<li>docker程序（尤其是服务端）本身的抗攻击性</li>
+<li>其他安全增强机制（包括APPArmor、SELinux等）对容器安全的影响</li>
+<li>通过第三方工具（包括docker bench工具）对docker环境的安全性的评估</li>
+</ul>
+<h2 id="2-风险的分析"><a href="#2-风险的分析" class="headerlink" title="2. 风险的分析"></a>2. 风险的分析</h2><h3 id="2-1-命名空间隔离的安全"><a href="#2-1-命名空间隔离的安全" class="headerlink" title="2.1 命名空间隔离的安全"></a>2.1 命名空间隔离的安全</h3><p>当我们在运行docker run的时候，docker会对针对容器创建一个隔离的命名空间，通过这个命名空间，将容器之间的进程和网络进行隔离，这就意味着容器不能独立的访问其他容器的接口或者套接字。</p>
+<p>我们知道，所有容器的网络都是通过docker0进行桥接，当然，如果宿主机上面做一些特殊的配置，可以实现 container1-&gt;宿主机-&gt;container2 网络的交互方式。</p>
+<p>那么，命名空间的架构设计本身，是否是足够安全呢？</p>
+<p>其实，命名空间出现的历史很长了，从Linux内核2.6.15的版本（大概是2008年）就已经开始引用了命名空间，但是实际上，“命名空间”这个含义要更早，最开始是从2005年开始提出来的，所以设计和实现足够成熟。</p>
+<p>当然，和虚拟机相比，命名空间并不是绝对。因为命名空间，实际上是“假隔离”，虚拟机是“真隔离”。运行在容器内的应用，会直接访问宿主机上面的内核和部分文件。所以，归根结底，我们应该保证的是镜像是足够安全的，只有镜像是安全的，才能保证我们能够在Linux运行安全可信的服务。</p>
+<h3 id="2-2-控制组资源控制的安全"><a href="#2-2-控制组资源控制的安全" class="headerlink" title="2.2 控制组资源控制的安全"></a>2.2 控制组资源控制的安全</h3><p>CGroups有一个重要的作用就是资源审计和资源限制</p>
+<p>当我们再运行docker run的时候，docker会通过Linux的相关调用，在后台创建一个控制组，用来控制容器对宿主机的资源消耗，比如控制容器使用内存、CPU等。</p>
+<p>控制组有很多重要的作用。比如确保每个容器能够合理的使用共享资源，最重要的是可以通过控制组限制资源的使用，这一点在防止DDoS的时候尤其重要。</p>
+<p><strong><em>对于PaaS、容器云这样的容器服务平台，运行着成千上万个容器的实例，如果一旦某个容器被DDoS攻击，那么就会控制组的作用就显现出来，这样可以防止单个容器抢占过多资源，导致整个服务平台出现雪崩！</em></strong></p>
+<h3 id="2-3-内核能力机制"><a href="#2-3-内核能力机制" class="headerlink" title="2.3 内核能力机制"></a>2.3 内核能力机制</h3><p>传统的Unix系统对进程的权限其实只有root权限和非root权限两种粗粒度。</p>
+<p>后来，随着Linux内核的升级，开始对权限的粒度越来越灵活，例如，可以给用户分配某个文件的修改权限、可以给某个用户操作某个进程的权限等等。</p>
+<p>默认情况下，docker在运行容器的时候，只使用Linux内核的一部分能力，而且，容器的一些能力往往也是由宿主机上面的一些服务进行支持，比如网络的管理等。所以docker其实并不需要获取真正的“root权限”，此外，容器还能禁用一些不必要的权限，比如：</p>
+<ul>
+<li>禁止任何文件挂载操作（挂载实际上是宿主机，而不是容器本身）；</li>
+<li>禁止访问宿主机上面的套接字；</li>
+<li>禁止访问一些文件系统的操作，比如创建新设备；</li>
+<li>禁止模板加载</li>
+</ul>
+<p><strong><em>所以，及时攻击者入侵到容器内部，在容器内部获取了root权限，也并不是真正的宿主机上面的“root权限”，能进行的破坏也是有限的。</em></strong></p>
+<h3 id="2-4-Docker服务端的防护"><a href="#2-4-Docker服务端的防护" class="headerlink" title="2.4 Docker服务端的防护"></a>2.4 Docker服务端的防护</h3><p>使用docker最核心的就是docker服务器了。由于现在启动docker服务器需要使用root权限，所以服务端的权限显得尤其重要。</p>
+<p>首先，我们应该确保运行docker的用户是可信的人。由于容器的内部一般都是root权限，如果某个恶意的用户，将宿主机上面的&#x2F;目录映射到容器内部，那么容器理论上就会有修改根目录下面的权限。因此，在创建容器的时候，我们应该详细检查运行的参数。</p>
+<p>尽量将容器映射到非root权限的用户目录下面，这样，可以有效减轻容器和宿主机上面因为权限而导致的安全隐患。</p>
+<p>允许docker服务端在非root权限下运行，利用安全可靠的子进程限制特殊权限的操作。比如，这些子进程只能负责文件管理、配置等操作。</p>
+<h3 id="2-5-更多安全特性的使用"><a href="#2-5-更多安全特性的使用" class="headerlink" title="2.5 更多安全特性的使用"></a>2.5 更多安全特性的使用</h3><p>除了docker能力机制之外，我们可以使用一些安全软件增加docker的安全性。比如APParmor等。</p>
+<p>docker默认只启用了能力机制。用户还可以启用更多的方案加强docker安全：</p>
+<ul>
+<li>在内核中启用GRSEC和PAX，这样可以增加更多编译和运行的检查；并且通过地址随机化机制避免恶意探测。启动该特性不需要docker进行任何配置。<a target="_blank" rel="noopener" href="https://hardenedlinux.github.io/system-security/2015/09/06/hardening-es-in-docker-with-grsec.html">社区最佳实践：基于PaX&#x2F;Grsecurity &amp; STIG &amp; Sheild针对es的Docker场景化加固</a></li>
+<li>使用一些增强安全特性的容器模板，比如带APParmor的模板和Redhat带SELinux的策略的模板。这些模板提供了额外的安全特性。<a href="%22https://docs.docker.com/engine/security/apparmor">AppArmor security profiles for Docker</a></li>
+<li>用户可以自定义更加严格的访问控制机制来制定安全策略。</li>
+</ul>
+<p>此外，将宿主机的文件挂载到容器内部的时候，可以通过设置一些只读（read-only）权限来避免容器对宿主机文件系统的破坏，特别是一些系统运行状态的目录，包括&#x2F;proc&#x2F;sys、&#x2F;proc&#x2F;irq、&#x2F;proc&#x2F;bus等等。</p>
+<h3 id="2-6-使用第三方检测工具"><a href="#2-6-使用第三方检测工具" class="headerlink" title="2.6 使用第三方检测工具"></a>2.6 使用第三方检测工具</h3><p>前面说了很多加强docker安全性的方式，但是注意去检查，会比较繁琐。幸亏现在有一些自动化的检测工具，比较出名的就是docker bench和Clair。</p>
+<h4 id="2-6-1-docker-bench"><a href="#2-6-1-docker-bench" class="headerlink" title="2.6.1 docker bench"></a>2.6.1 docker bench</h4><p>docker bench其实是一个docker的镜像，仓库地址：<a target="_blank" rel="noopener" href="https://hub.docker.com/r/docker/docker-bench-security/">https://hub.docker.com/r/docker/docker-bench-security/</a> 通过运行docker bench，可以对docker的一些配置做自动化安全检测。检测的标准是CIS Docker，检测项包括主机配置、Docker引擎、配置文件权限、镜像管理、容器运行时环境、安全项等6大方面。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --net host --pid host --userns host --cap-add audit_control \</span><br><span class="line">    -e DOCKER_CONTENT_TRUST=<span class="variable">$DOCKER_CONTENT_TRUST</span> \</span><br><span class="line">    -v /var/lib:/var/lib \</span><br><span class="line">    -v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">    -v /usr/lib/systemd:/usr/lib/systemd \</span><br><span class="line">    -v /etc:/etc --label docker_bench_security \</span><br><span class="line">    docker/docker-bench-security</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/09/docker-bench-1.png" alt="Alt text"> <img src="/uploads/2018/09/docker-bench-2-1024x650.png" alt="Alt text"></p>
+<p>在输出的结果中，会给出响应的提示信息，然后用户可以根据对应的提示，进行一些配置的更改等操作。一般是避免出现WARN或以上的问题。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>docker其实自身携带的一些基本的抵御安全风险的机制，配合APParmor等安全机制，可以让docker容器更加安全。任何技术层面的实现，都需要合理的使用才能等到巩固，特别是生产环境，可能遭遇很多位置的安全风险，所以需要配合完善的监控系统来加强管理。</p>
+<p>Docker使用的时候需要注意：</p>
+<ul>
+<li>容器自身携带的隔离，并不是很完善，需要加强对容器的安全审查。</li>
+<li>尽量使用官方的镜像，降低安全风险。</li>
+<li>采用专门的服务器用来管理docker服务，加强对容器的监控机制。</li>
+<li>随着容器的大规模使用，甚至构成容器集群的时候，需要考虑容器网络上必备的安全防护，比如DDoS攻击等。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/09/23/docker-safe-and-config/" data-id="cl0oi8mev0017417t5dozdhk8" data-title="Docker之安全防护与配置" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker%E5%AE%89%E5%85%A8/" rel="tag">docker安全</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-unionfs" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/09/16/docker-unionfs/" class="article-date">
+  <time class="dt-published" datetime="2018-09-16T16:45:44.000Z" itemprop="datePublished">2018-09-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/09/16/docker-unionfs/">docker之联合文件系统</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="1-作用"><a href="#1-作用" class="headerlink" title="1. 作用"></a>1. 作用</h2><p>联合文件系统（UnionFS） 是一种轻量级的高性能分层文件系统，它支持将文件系统中的修改信息当做一次提交，然后层层叠加（有点像git），同时可以将不同的目录挂载到同一个虚拟文件系统下，应用看到的是挂载的最终结果。</p>
+<p>Debian&#x2F;Ubuntu上成熟的AUFS（Another Union File System）就是一种联合文件系统的实现。AUFS支持为每个成员目录设定只读权限（readonly）、读写权限（readwrite）或（whiteout-able）权限，同时AUFS里有一个类似分层的概念，对只读权限的分支可以在逻辑上进行增量地修改（不影响其他只读部分）。</p>
+<p>Docker镜像自身就是由多个文件层组成，每一层组成有唯一的编号（层ID）</p>
+<h2 id="2-docker存储"><a href="#2-docker存储" class="headerlink" title="2. docker存储"></a>2. docker存储</h2><p>联合文件是docker镜像技术的基础。docker镜像就是根据分层技术来进行继承的。</p>
+<p><img src="/uploads/2018/09/20160819173838.png" alt="Alt text"></p>
+<p>举个例子，用户基于一些基础镜像，来制作另外的一个镜像。这些镜像共享同一个基础镜像层，提高的存储的效率和空间利用率。</p>
+<p>假如，我们使用php7做基础镜像，来制作多个不同的镜像，那么这些镜像，就会公用一个基础镜像作为“底层”，这样做，提高了利用率，因为不用每个自定义镜像都要创建php7的“底层”。这也就是，为什么我们再build一个镜像的时候，会把基础镜像pull下来。当我们创建的自定义镜像还要有变动的时候，至于要创建一个新的层就好了。这样，也就不用我们从头开始构建镜像，节省了构建时间。</p>
+<p><code>这也是docker十分轻量级和快速的重要原因！</code></p>
+<p>docker安装自带了查看镜像层的命令：docker history</p>
+<p>下面我们来看下基础镜像和自定义镜像层的比较：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">localhost:~ feilong$ docker pull php:7.0</span><br><span class="line">7.0: Pulling from library/php</span><br><span class="line">7.0: Pulling from library/php</span><br><span class="line">802b00ed6f79: Pull complete</span><br><span class="line">59f5a5a895f8: Pull complete</span><br><span class="line">6898b2dbcfeb: Pull complete</span><br><span class="line">8e0903aaa47e: Pull complete</span><br><span class="line">b627a118b728: Pull complete</span><br><span class="line">e2e2cb10942b: Pull complete</span><br><span class="line">e63e2fa0c7d4: Pull complete</span><br><span class="line">57c09353077e: Pull complete</span><br><span class="line">Digest: sha256:f0e774402dd485c11c60f52c05989da088c5debb44d1126cc089970e1bfca002</span><br><span class="line">Status: Downloaded newer image <span class="keyword">for</span> php:7.0</span><br><span class="line">localhost:~ feilong$</span><br><span class="line">localhost:~ feilong$</span><br><span class="line">localhost:~ feilong$</span><br><span class="line">localhost:~ feilong$</span><br><span class="line">localhost:~ feilong$</span><br><span class="line">localhost:~ feilong$ docker <span class="built_in">history</span> php:7.0</span><br><span class="line">IMAGE CREATED CREATED BY SIZE COMMENT</span><br><span class="line">a6c560acbfc5 9 hours ago /bin/sh -c <span class="comment">#(nop) CMD [&quot;php&quot; &quot;-a&quot;] 0B</span></span><br><span class="line">&lt;missing&gt; 9 hours ago /bin/sh -c <span class="comment">#(nop) ENTRYPOINT [&quot;docker-php-e… 0B</span></span><br><span class="line">&lt;missing&gt; 9 hours ago /bin/sh -c <span class="comment">#(nop) COPY multi:2cdcedabcf5a3b9… 6.42kB</span></span><br><span class="line">&lt;missing&gt; 9 hours ago /bin/sh -c <span class="built_in">set</span> -eux; savedAptMark=<span class="string">&quot;<span class="subst">$(apt-m… 79.4MB</span></span></span><br><span class="line"><span class="subst"><span class="string">&lt;missing&gt; 9 hours ago /bin/sh -c #(nop)</span> COPY file:207c686e3fed4f71… 587B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 9 hours ago /bin/sh -c set -xe; fetchDeps=&#x27; wget &#x27;;… 13.3MB</span></span><br><span class="line"><span class="string">&lt;missing&gt; 9 hours ago /bin/sh -c #(nop) ENV PHP_SHA256=ff6f62afeb… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 9 hours ago /bin/sh -c #(nop) ENV PHP_URL=https://secur… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 9 hours ago /bin/sh -c #(nop) ENV PHP_VERSION=7.0.32 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ENV GPG_KEYS=1A4E8B7277C4… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ENV PHP_LDFLAGS=-Wl,-O1 -… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ENV PHP_CPPFLAGS=-fstack-… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ENV PHP_CFLAGS=-fstack-pr… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c mkdir -p <span class="variable">$PHP_INI_DIR</span>/conf.d 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ENV PHP_INI_DIR=/usr/loca… 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c apt-get update &amp;&amp; apt-get install… 209MB</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ENV PHPIZE_DEPS=autoconf … 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c set -eux; &#123; echo &#x27;Package: php… 46B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) CMD [&quot;</span>bash<span class="string">&quot;] 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt; 10 days ago /bin/sh -c #(nop) ADD file:e6ca98733431f75e9… 55.3MB</span></span><br></pre></td></tr></table></figure>
+
+<p>我pull了一个php:7.0的镜像，可以看到，整个过程分为20层，每个层级都会执行对应的命令，然后我们基于php7在做一些自定义的操作：安装mysqli和redis的扩展，构建一个新的镜像：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Dockerfile</span></span><br><span class="line">FROM php:7.0</span><br><span class="line">RUN apt-get update \</span><br><span class="line">    &amp;&amp; docker-php-ext-install mysqli \</span><br><span class="line">    &amp;&amp; curl -L -o ./redis-4.1.0.tgz http://pecl.php.net/get/redis-4.1.0.tgz \</span><br><span class="line">    &amp;&amp; tar zxvf redis-4.1.0.tgz \</span><br><span class="line">    &amp;&amp; <span class="built_in">cd</span> redis-4.1.0 \</span><br><span class="line">    &amp;&amp; phpize \</span><br><span class="line">    &amp;&amp; ./configure \</span><br><span class="line">    &amp;&amp; make &amp;&amp; make install \</span><br><span class="line">    &amp;&amp; <span class="built_in">echo</span> <span class="string">&quot;extension=redis.so&quot;</span> &gt; /usr/local/etc/php/conf.d/redis.ini \</span><br><span class="line">    &amp;&amp; <span class="built_in">cd</span> .. \</span><br><span class="line">    &amp;&amp; <span class="built_in">rm</span> -rf redis-4.1.0.tgz redis-4.1.0</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">localhost:feilong_test feilong$ docker build -t feilongtest .</span><br><span class="line">Sending build context to Docker daemon  2.048kB</span><br><span class="line">Step 1/2 : FROM php:7.0</span><br><span class="line"> ---&gt; a6c560acbfc5</span><br><span class="line">Step 2/2 : RUN apt-get update     &amp;&amp; docker-php-ext-install mysqli     &amp;&amp; curl -L -o ./redis-4.1.0.tgz http://pecl.php.net/get/redis-4.1.0.tgz     &amp;&amp; tar zxvf redis-4.1.0.tgz     &amp;&amp; <span class="built_in">cd</span> redis-4.1.0     &amp;&amp; phpize     &amp;&amp; ./configure     &amp;&amp; make &amp;&amp; make install     &amp;&amp; <span class="built_in">echo</span> <span class="string">&quot;extension=redis.so&quot;</span> &gt; /usr/local/etc/php/conf.d/redis.ini     &amp;&amp; <span class="built_in">cd</span> ..     &amp;&amp; <span class="built_in">rm</span> -rf redis-4.1.0.tgz redis-4.1.0</span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> bd2e3fbbde25</span><br><span class="line">Get:3 http://security.debian.org/debian-security stretch/updates InRelease [94.3 kB]</span><br><span class="line">Get:4 http://security.debian.org/debian-security stretch/updates/main amd64 Packages [414 kB]</span><br><span class="line">Ign:1 http://cdn-fastly.deb.debian.org/debian stretch InRelease</span><br><span class="line">Get:2 http://cdn-fastly.deb.debian.org/debian stretch-updates InRelease [91.0 kB]</span><br><span class="line">Get:5 http://cdn-fastly.deb.debian.org/debian stretch-updates/main amd64 Packages [5148 B]</span><br><span class="line">Get:6 http://cdn-fastly.deb.debian.org/debian stretch Release [118 kB]</span><br><span class="line">Get:7 http://cdn-fastly.deb.debian.org/debian stretch Release.gpg [2434 B]</span><br><span class="line">Get:8 http://cdn-fastly.deb.debian.org/debian stretch/main amd64 Packages [7099 kB]</span><br><span class="line">省略</span><br><span class="line">Installing shared extensions: /usr/local/lib/php/extensions/no-debug-non-zts-20151012/</span><br><span class="line">Removing intermediate container bd2e3fbbde25</span><br><span class="line"> ---&gt; 41b978fc1549</span><br><span class="line">Successfully built 41b978fc1549</span><br><span class="line">Successfully tagged feilongtest:latest</span><br></pre></td></tr></table></figure>
+
+<p>然后我们看下自己构建的镜像层</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">localhost:feilong_test feilong$ docker <span class="built_in">history</span> feilongtest</span><br><span class="line">IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT</span><br><span class="line">41b978fc1549        48 seconds ago      /bin/sh -c apt-get update     &amp;&amp; docker-php-…   18.3MB</span><br><span class="line">a6c560acbfc5        10 hours ago        /bin/sh -c <span class="comment">#(nop)  CMD [&quot;php&quot; &quot;-a&quot;]             0B</span></span><br><span class="line">&lt;missing&gt;           10 hours ago        /bin/sh -c <span class="comment">#(nop)  ENTRYPOINT [&quot;docker-php-e…   0B</span></span><br><span class="line">&lt;missing&gt;           10 hours ago        /bin/sh -c <span class="comment">#(nop) COPY multi:2cdcedabcf5a3b9…   6.42kB</span></span><br><span class="line">&lt;missing&gt;           10 hours ago        /bin/sh -c <span class="built_in">set</span> -eux;   savedAptMark=<span class="string">&quot;<span class="subst">$(apt-m…   79.4MB</span></span></span><br><span class="line"><span class="subst"><span class="string">&lt;missing&gt;           10 hours ago        /bin/sh -c #(nop)</span> COPY file:207c686e3fed4f71…   587B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 hours ago        /bin/sh -c set -xe;   fetchDeps=&#x27;   wget  &#x27;;…   13.3MB</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 hours ago        /bin/sh -c #(nop)  ENV PHP_SHA256=ff6f62afeb…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 hours ago        /bin/sh -c #(nop)  ENV PHP_URL=https://secur…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 hours ago        /bin/sh -c #(nop)  ENV PHP_VERSION=7.0.32       0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  ENV GPG_KEYS=1A4E8B7277C4…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  ENV PHP_LDFLAGS=-Wl,-O1 -…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  ENV PHP_CPPFLAGS=-fstack-…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  ENV PHP_CFLAGS=-fstack-pr…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c mkdir -p <span class="variable">$PHP_INI_DIR</span>/conf.d         0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  ENV PHP_INI_DIR=/usr/loca…   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c apt-get update &amp;&amp; apt-get install…   209MB</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  ENV PHPIZE_DEPS=autoconf …   0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c set -eux;  &#123;   echo &#x27;Package: php…   46B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop)  CMD [&quot;</span>bash<span class="string">&quot;]                 0B</span></span><br><span class="line"><span class="string">&lt;missing&gt;           10 days ago         /bin/sh -c #(nop) ADD file:e6ca98733431f75e9…   55.3MB</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看出，在dockerfile里面，增加了1步操作，分别是按照mysqli和redis扩展，然后在build镜像的时候，在原有的20层的基础上，继续添加了1层。</p>
+<p>基础镜像层的层内容都是不可用自改的、只读的。当docker利用镜像创建容器的时候，会在最顶端创建一个可以读写的层给容器。容器内的数据，都会写到这个读写层里面。当所操作的对象位于比较深的层时，需要先复制到最上层的可读写层。当数据对象较大的时候，往往意味着IO性能比较差。因此，一般推荐奖容器修改数据通过volume方式挂载，而不是直接修改镜像内的数据。</p>
+<p>Docker的所有存储，都是在docker文件夹下面，以Centos或者Ubuntu为例，默认的路径一般是&#x2F;var&#x2F;lib&#x2F;docker。（我仅仅以Centos为例）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z docker]<span class="comment"># ll</span></span><br><span class="line">total 52</span><br><span class="line">drwx------ 2 root root 4096 Sep  6 20:09 builder</span><br><span class="line">drwx------ 4 root root 4096 Sep  6 20:09 buildkit</span><br><span class="line">drwx------ 3 root root 4096 Sep  6 20:09 containerd</span><br><span class="line">drwx------ 2 root root 4096 Sep 17 00:07 containers</span><br><span class="line">drwx------ 3 root root 4096 Sep  6 20:09 image</span><br><span class="line">drwxr-x--- 3 root root 4096 Sep  6 20:09 network</span><br><span class="line">drwx------ 4 root root 4096 Sep 17 00:07 overlay2</span><br><span class="line">drwx------ 4 root root 4096 Sep  6 20:09 plugins</span><br><span class="line">drwx------ 2 root root 4096 Sep  6 20:09 runtimes</span><br><span class="line">drwx------ 2 root root 4096 Sep  6 20:09 swarm</span><br><span class="line">drwx------ 2 root root 4096 Sep 16 23:56 tmp</span><br><span class="line">drwx------ 2 root root 4096 Sep  6 20:09 trust</span><br><span class="line">drwx------ 2 root root 4096 Sep  6 20:55 volumes</span><br></pre></td></tr></table></figure>
+
+<p>docker的镜像层基本上都是在overlay2里面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z overlay2]<span class="comment"># docker images</span></span><br><span class="line">REPOSITORY TAG IMAGE ID CREATED SIZE</span><br><span class="line">busybox latest e1ddd7948a1c 6 weeks ago 1.16MB</span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z docker]<span class="comment"># cd overlay2/</span></span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z overlay2]<span class="comment"># ll</span></span><br><span class="line">total 8</span><br><span class="line">drwx------ 3 root root 4096 Sep 16 23:56 4c819c3673c3416b65c2cf6394818d270363cfd53a0389a5f6c237e1c8ad3ef4</span><br><span class="line">drwxr-xr-x 2 root root 4096 Sep 17 00:07 l</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们只有一个busybox的镜像，该目录下面包括diff文件夹，diff文件夹就是我们创建容器之后，初始化的文件夹</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment"># ll</span></span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x 2 root      root      12288 Aug  1 04:20 bin</span><br><span class="line">drwxr-xr-x 2 root      root       4096 Aug  1 04:20 dev</span><br><span class="line">drwxr-xr-x 3 root      root       4096 Aug  1 04:20 etc</span><br><span class="line">drwxr-xr-x 2 nfsnobody nfsnobody  4096 Aug  1 04:20 home</span><br><span class="line">drwx------ 2 root      root       4096 Aug  1 04:20 root</span><br><span class="line">drwxrwxrwt 2 root      root       4096 Sep 17 00:06 tmp</span><br><span class="line">drwxr-xr-x 3 root      root       4096 Aug  1 04:20 usr</span><br><span class="line">drwxr-xr-x 4 root      root       4096 Aug  1 04:20 var</span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>为了验证我们说的是否是正确的，我们在tmp的文件夹里面创建一个测试的文件a.txt，然后写入Hello world</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment"># touch  tmp/a.txt</span></span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment"># echo &#x27;Hello world&#x27; &gt; tmp/a.txt</span></span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment"># cat tmp/a.txt</span></span><br><span class="line">Hello world</span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>如果分析是正确的，那么创建的容器中，也会存在这个文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z diff]<span class="comment"># docker run -it --rm --name test busybox</span></span><br><span class="line">/ <span class="comment"># ll</span></span><br><span class="line">sh: ll: not found</span><br><span class="line">/ <span class="comment"># ls -l</span></span><br><span class="line">total 36</span><br><span class="line">drwxr-xr-x    2 root     root         12288 Jul 31 20:20 bin</span><br><span class="line">drwxr-xr-x    5 root     root           360 Sep 16 16:19 dev</span><br><span class="line">drwxr-xr-x    1 root     root          4096 Sep 16 16:19 etc</span><br><span class="line">drwxr-xr-x    2 nobody   nogroup       4096 Jul 31 20:20 home</span><br><span class="line">dr-xr-xr-x  131 root     root             0 Sep 16 16:19 proc</span><br><span class="line">drwx------    1 root     root          4096 Sep 16 16:19 root</span><br><span class="line">dr-xr-xr-x   13 root     root             0 Sep 16 16:19 sys</span><br><span class="line">drwxrwxrwt    2 root     root          4096 Sep 16 16:17 tmp</span><br><span class="line">drwxr-xr-x    3 root     root          4096 Jul 31 20:20 usr</span><br><span class="line">drwxr-xr-x    4 root     root          4096 Jul 31 20:20 var</span><br><span class="line">/ <span class="comment"># ls -l tmp</span></span><br><span class="line">total 4</span><br><span class="line">-rw-r--r--    1 root     root            12 Sep 16 16:17 a.txt</span><br><span class="line">/ <span class="comment"># cat tmp/a.txt</span></span><br><span class="line">Hello world</span><br><span class="line">/ <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>在创建的容器中，我们果然看到了内容为Hello world的tmp&#x2F;a.txt文件</p>
+<p>在创建容器之后，我们会发现多了两个文件夹</p>
+<p><img src="/uploads/2018/09/WX20180917-002724@2x-1024x494.png" alt="Alt text"></p>
+<p>这两个文件夹，是用来存储一些容器的数据，如果容器一旦删除，那么这些数据也会随着一块被清理掉，这就是为什么建议我们把一些重要的数据，挂载到外部的原因！</p>
+<p><img src="/uploads/2018/09/WX20180917-003010@2x-1024x368.png" alt="Alt text"></p>
+<h2 id="3-多种文件系统比较"><a href="#3-多种文件系统比较" class="headerlink" title="3. 多种文件系统比较"></a>3. 多种文件系统比较</h2><p>Docker目前支持多种联合文件系统：AUFS、OverlayFS、btrfs、vfs、zfs和Device Mapper等。</p>
+<p>AUFS：最早支持的文件系统，对Debian&#x2F;Ubuntu支持比较好，虽然没有合并到Linux内核，但是成熟度很高</p>
+<p>OverlayFS：类似AUFS，性能更好，上面的例子明显就是OverlayFS，已经合并到内核，将来会取代AUFS</p>
+<p>Device Mapper：Redhat和Docker团队一起开发并用于支持RHEL的文件系统，内核支持，性能略慢，成熟度高</p>
+<p>…</p>
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>docker的镜像层级设计，让docker的性能更高，更加符合软件设计，具有很高的复用性，这个也是docker镜像编译迅速的重要原因。</p>
+<p>此外，docker容器默认将数据存储到docker文件夹下，如果容器被删除，那么容器数据也将被删除掉，所以，对于容器的重要数据，我们应该映射到宿主机上面，避免由于容器删除，而导致的数据丢失。</p>
+<p>另：关于镜像层ID为missing，请参阅论坛：<a target="_blank" rel="noopener" href="https://forums.docker.com/t/layer-ids-shown-as-missing-in-history/6325">Layer IDs shown as \<missing> in history</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/09/16/docker-unionfs/" data-id="cl0oi8mf1001a417tgj8l6db5" data-title="docker之联合文件系统" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-cgroups" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/09/12/docker-cgroups/" class="article-date">
+  <time class="dt-published" datetime="2018-09-12T10:55:50.000Z" itemprop="datePublished">2018-09-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/09/12/docker-cgroups/">docker之控制组</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="1-作用"><a href="#1-作用" class="headerlink" title="1. 作用"></a>1. 作用</h3><p>控制度(CGroups) 其实是Linux内核的一个特性，主要是用来控制共享资源，比如限制内存、CPU的的一些使用等。容器使用的CPU、内存等硬件信息，其实就是使用的宿主机上面的硬件设备，所以合理的分配资源，也是为了避免不同容器之间、容器和宿主机进程之间，产生资源的抢占。</p>
+<h2 id="2-容器控制组"><a href="#2-容器控制组" class="headerlink" title="2. 容器控制组"></a>2. 容器控制组</h2><h3 id="2-1-资源限制"><a href="#2-1-资源限制" class="headerlink" title="2.1 资源限制"></a>2.1 资源限制</h3><p>比如我们要限制容器的使用内存，可以在run的时候加上–memory的参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:~ feilong$ docker run -it --<span class="built_in">rm</span> --name <span class="built_in">test</span> --memory 10m busybox</span><br></pre></td></tr></table></figure>
+
+<p>然后新打开一个窗口，可以实时查看下容器的内存使用情况</p>
+<p><img src="/uploads/2018/09/WX20180912-000121.png"></p>
+<p>TIP:</p>
+<p>使用docker-compose的时候需要注意一下，设置内存限制的参数是mem_limit，但是在docker-compose的3.x版本之后，不支持这个参数，所以在写docker-compose.yaml 的时候，会出现 Unsupported config option for xxxx: ‘mem_limit’ 的错误信息，所以需要指定 version: ‘2’</p>
+<h3 id="2-2-优先级"><a href="#2-2-优先级" class="headerlink" title="2.2 优先级"></a>2.2 优先级</h3><p>docker run的时候支持使用-c 或者 –cpu-shares 用来指定容器使用CPU的加权值。如果不指定，那么就是使用的是默认值，一般是1024。</p>
+<p>-c 或者 –cpu-shares并不能指定容器能够使用多少CPU或者多少GHz，而是一个加权值。有点类似nginx的负载均衡配置。</p>
+<p>这个配置在少量容器的时候，并没有太大的实际意义。只有CPU资源比较紧缺的时候，这个配置参数才会展现出来。</p>
+<p>比如，一个容器的加权值是100，另一个加权值是50，那么加权值为100的容器，获取CPU时间片的概率就是另一个的2倍</p>
+<p>如果只有一个容器，那么CPU时间片肯定都会给这个容器使用。</p>
+<p>创建一个容器，安装stress软件，然后开启10个进程，看下CPU占用情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">localhost:marvin feilong$ docker run -itd --name cpu512  --cpu-shares 512 ubuntu</span><br><span class="line">localhost:marvin feilong$ docker <span class="built_in">exec</span> -it cpu512</span><br><span class="line"><span class="comment"># apt update</span></span><br><span class="line"><span class="comment"># apt install stress</span></span><br><span class="line"><span class="comment"># stress -c 10</span></span><br><span class="line">stress: info: [250] dispatching hogs: 10 cpu, 0 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>打开一个新窗口，然后登录到这个容器，使用top查看下CPU占用情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">localhost:~ feilong$ docker <span class="built_in">exec</span> -it cpu512 sh</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/09/WX20180912-185154.png"></p>
+<p>可以从截图看到cpu大概占用了3.3%左右</p>
+<p>新打开另一个窗口，创建新容器，一样的操作，安装stress，然后开10个进程，查看下CPU占用情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">localhost:~ feilong$ docker run -itd --name cpu1024  --cpu-shares 1024 ubuntu</span><br><span class="line"><span class="comment"># apt update</span></span><br><span class="line"><span class="comment"># apt install stress</span></span><br><span class="line"><span class="comment"># stress -c 10</span></span><br><span class="line">stress: info: [241] dispatching hogs: 10 cpu, 0 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>新开窗口，进入cpu1024容器，然后使用top查看CPU占用情况</p>
+<p><img src="/uploads/2018/09/WX20180912-185440.png" alt="Alt text"></p>
+<p>可以看出CPU占用情况大概是6.6%左右，基本上是cpu是cpu512的两倍。</p>
+<h3 id="2-3-资源审计"><a href="#2-3-资源审计" class="headerlink" title="2.3 资源审计"></a>2.3 资源审计</h3><p>资源审计主要是做一些审计操作，用来统计系统实际上把多少资源用到适合的目的上，可以使用cpuacct子系统记录某个进程组使用的CPU时间</p>
+<h3 id="2-4-隔离"><a href="#2-4-隔离" class="headerlink" title="2.4 隔离"></a>2.4 隔离</h3><p>为组隔离命名空间，这样一个组不会看到另一个组的进程、网络连接和文件系统</p>
+<h3 id="2-5-控制"><a href="#2-5-控制" class="headerlink" title="2.5 控制"></a>2.5 控制</h3><p>挂起、恢复和重启动等操作</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/09/12/docker-cgroups/" data-id="cl0oi8mef000q417tf39h0c0g" data-title="docker之控制组" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-namespace" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/09/10/docker-namespace/" class="article-date">
+  <time class="dt-published" datetime="2018-09-10T15:19:32.000Z" itemprop="datePublished">2018-09-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>►<a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/09/10/docker-namespace/">docker之命名空间</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="1-基本架构"><a href="#1-基本架构" class="headerlink" title="1. 基本架构"></a>1. 基本架构</h2><p>docker目前采用了标准的C&#x2F;S架构。客户端和服务端既可以运行在一个机器上，又可以通过socket或者restful API来进行通信。</p>
+<h3 id="1-1-服务端"><a href="#1-1-服务端" class="headerlink" title="1.1 服务端"></a>1.1 服务端</h3><p>docker服务端一般都是在宿主机上，来接受客户端的命令。docker默认使用套接字的方式，但是也是允许使用tcp进行端口的监听，可以使用docker daemon -H IP:PORT的方式进行监听。</p>
+<h3 id="1-2-客户端"><a href="#1-2-客户端" class="headerlink" title="1.2 客户端"></a>1.2 客户端</h3><p>docker的客户端主要作用是向服务端发送操作的指令。客户端默认也是采用套接字的方式，向本地的docker服务端发送命令。当然，客户端也是可以使用tcp的方式进行发送指令，使用docker -H tcp:&#x2F;&#x2F;IP:PORT，用来指定接收命令的docker服务端。</p>
+<h2 id="2-命名空间"><a href="#2-命名空间" class="headerlink" title="2. 命名空间"></a>2. 命名空间</h2><p>大家在平时使用Linux或者macos的时候，我们并没有拆分多个环境的需求。但是在服务器上面，加入一台服务器运行多个进程，进程之间是相互影响的，比如共享内存，操作相同的文件。我们其实更希望能够将这些进程分离开，这样情况下，如果服务受到攻击，不会影响其他的服务。</p>
+<p><img src="/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8810.59.44.png" alt="Alt text"></p>
+<p>docker目前主要有6命名空间的隔离方式</p>
+<h3 id="2-1-进程空间隔离"><a href="#2-1-进程空间隔离" class="headerlink" title="2.1 进程空间隔离"></a>2.1 进程空间隔离</h3><p>进程在操作系统中是一个很重要的概念，也就是大家认为的正在运行中的程序。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:~ feilong$ ps -ef</span><br><span class="line">UID PID PPID C STIME TTY TIME CMD</span><br><span class="line">0 1 0 0 9:31下午 ?? 0:10.07 /sbin/launchd</span><br><span class="line">0 44 1 0 9:31下午 ?? 0:00.65 /usr/sbin/syslogd</span><br><span class="line">0 45 1 0 9:31下午 ?? 0:01.37 /usr/libexec/UserEventAgent (System)</span><br><span class="line">0 48 1 0 9:31下午 ?? 0:00.25 /System/Library/PrivateFrameworks/Uninstall.framework/Resources/uninstalld</span><br><span class="line">0 49 1 0 9:31下午 ?? 0:02.57 /usr/libexec/kextd</span><br><span class="line">0 50 1 0 9:31下午 ?? 0:02.40 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd</span><br><span class="line">0 52 1 0 9:31下午 ?? 0:00.16 /System/Library/PrivateFrameworks/MediaRemote.framework/Support/mediaremoted</span><br><span class="line">55 55 1 0 9:31下午 ?? 0:00.38 /System/Library/CoreServices/appleeventsd --server</span><br><span class="line">0 56 1 0 9:31下午 ?? 0:00.75 /usr/sbin/systemstats --daemon</span><br></pre></td></tr></table></figure>
+
+<p>可见当前系统运行了很多“程序”。</p>
+<p>我们现在新建一个容器，然后进入容器看下，docker容器里面的进程列表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:~ feilong$ docker run -it --<span class="built_in">rm</span> --name <span class="built_in">test</span> busybox</span><br><span class="line">/ <span class="comment"># ps -ef</span></span><br><span class="line">PID   USER     TIME  COMMAND</span><br><span class="line">    1 root      0:00 sh</span><br><span class="line">    6 root      0:00 ps -ef</span><br></pre></td></tr></table></figure>
+
+<p>对比很明显，容器内部只有很少的几个正在运行的进程。</p>
+<p>我们新建一个窗口，然后看下宿主机上面和docker相关的进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">localhost:~ feilong$ ps -ef  grep docker</span><br><span class="line">    0    82     1   0  9:31下午 ??         0:00.02 /Library/PrivilegedHelperTools/com.docker.vmnetd</span><br><span class="line">  501   918   879   0 10:26下午 ??         0:00.14 /Applications/Docker.app/Contents/MacOS/com.docker.supervisor -watchdog fd:0</span><br><span class="line">  501   920   918   0 10:26下午 ??         0:03.32 com.docker.osxfs serve --address fd:3 --connect vms/0/connect --control fd:4 --log-destination asl</span><br><span class="line">  501   921   918   0 10:26下午 ??         0:00.73 com.docker.vpnkit --ethernet fd:3 --port fd:4 --diagnostics fd:5 --pcap fd:6 --vsock-path vms/0/connect --host-names host.docker.internal,docker.for.mac.host.internal,docker.for.mac.localhost --gateway-names gateway.docker.internal,docker.for.mac.gateway.internal,docker.for.mac.http.internal --vm-names docker-for-desktop --listen-backlog 32 --mtu 1500 --allowed-bind-addresses 0.0.0.0 --http /Users/feilong/Library/Group Containers/group.com.docker/http_proxy.json --dhcp /Users/feilong/Library/Group Containers/group.com.docker/dhcp.json --port-max-idle-time 300 --max-connections 2000 --gateway-ip 192.168.65.1 --host-ip 192.168.65.2 --lowest-ip 192.168.65.3 --highest-ip 192.168.65.254 --log-destination asl --udpv4-forwards 123:127.0.0.1:59434 --gc-compact-interval 1800</span><br><span class="line">  501   922   918   0 10:26下午 ??         0:01.17 com.docker.driver.amd64-linux -addr fd:3 -debug</span><br><span class="line">  501   928   922   0 10:26下午 ??         2:40.08 com.docker.hyperkit -A -u -F vms/0/hyperkit.pid -c 2 -m 2048M -s 0:0,hostbridge -s 31,lpc -s 1:0,virtio-vpnkit,path=vpnkit.eth.sock,uuid=246fb3f9-3ad5-4683-837a-33ac39f57f25 -U 5a3669ae-b209-443a-a074-312cd32a258a -s 2:0,ahci-hd,/Users/feilong/Library/Containers/com.docker.docker/Data/vms/0/Docker.raw -s 3,virtio-sock,guest_cid=3,path=vms/0,guest_forwards=2376;1525 -s 4,ahci-cd,/Applications/Docker.app/Contents/Resources/linuxkit/docker-for-mac.iso -s 5,ahci-cd,vms/0/config.iso -s 6,virtio-rnd -s 7,virtio-9p,path=vpnkit.port.sock,tag=port -l com1,autopty=vms/0/tty,asl -f bootrom,/Applications/Docker.app/Contents/Resources/uefi/UEFI.fd,,</span><br><span class="line">  501  2074  1102   0 11:21下午 ??         0:00.50 /Applications/Visual Studio Code.app/Contents/Frameworks/Code Helper.app/Contents/MacOS/Code Helper /Users/feilong/.vscode/extensions/peterjausovec.vscode-docker-0.1.0/node_modules/vscode-languageclient/lib/utils/electronForkStart /Users/feilong/.vscode/extensions/peterjausovec.vscode-docker-0.1.0/node_modules/dockerfile-language-server-nodejs/lib/server.js --node-ipc --node-ipc --clientProcessId=1102</span><br><span class="line">  501  2100  1065   0 11:24下午 ttys001    0:00.12 docker run -it --<span class="built_in">rm</span> --name <span class="built_in">test</span> busybox</span><br><span class="line">  501  2086  2083   0 11:21下午 ttys002    0:00.19 docker <span class="built_in">exec</span> -it 910aa64a312b3a884f4efb059e47ee601bbd3ba3d62f4c92abd4120cff770828 /bin/sh</span><br><span class="line">  501  2090  2087   0 11:21下午 ttys003    0:00.12 docker <span class="built_in">exec</span> -it 73f8fbcc50651fd4fea9fe0be7fe4066ea78efd7e9b2438fe657a3e7725e7903 /bin/sh</span><br><span class="line">  501  2115  2111   0 11:27下午 ttys004    0:00.00 grep docker</span><br></pre></td></tr></table></figure>
+
+<p>在进程列表中，我们没有看到容器内部运行的进程，说明相对于容器的“外部”，容器“内部”的进程是隔离的。但是我们也可以发现，刚刚创建的名字为test的容器，实质上就是宿主机上面的一个PID为2090的进程。</p>
+<p>所以，我们可以理解docker的进程树是这个状态：</p>
+<p><img src="/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-04-%E4%B8%8B%E5%8D%8811.43.31.png" alt="Alt text"></p>
+<h3 id="2-2-网络空间隔离"><a href="#2-2-网络空间隔离" class="headerlink" title="2.2 网络空间隔离"></a>2.2 网络空间隔离</h3><p>容器其实不能完全和宿主机器隔离网络，要不然的话容器就没办法通过外部进行访问，那么也就没有实际的意义。但是容器之间是网络隔离的，这种隔离的方式，就是通过网络命名空间实现的。</p>
+<p>docker有四种不同的网络模式：Host、Container、None和bridge</p>
+<p>docker默认的是桥接模式。</p>
+<p>docker在创建容器的时候， 不仅会给容器创建IP地址，还会在宿主机上面创建一个虚拟网桥docker0，在运行的时候，将容器和该网桥进行相连。</p>
+<p>在默认的情况下，创建容器的时候，都会创建一对虚拟网卡，两个虚拟网卡组成数据通道，一个在容器内部，另外一个加入到docker0的网桥中。</p>
+<p>打开两个窗口，分别创建redis和redis2容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z feilong]<span class="comment"># docker run -it --rm --name redis  -p 6379:6379 redis:latest /bin/bash</span></span><br><span class="line">root@d89535b59b0b:/data<span class="comment">#</span></span><br><span class="line">[root@izj6c9b96ia369l2i47yq3z feilong]<span class="comment"># docker run -it --rm --name redis2 -p 6378:6379 redis:latest /bin/bash</span></span><br><span class="line">root@7736850135af:/data<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">打开第三个窗口，查看网桥的状态</span><br><span class="line">&lt;pre class=<span class="string">&quot;prettyprint&quot;</span>&gt;[feilong@izj6c9b96ia369l2i47yq3z ~]$ brctl show</span><br><span class="line">bridge name     bridge <span class="built_in">id</span>               STP enabled     interfaces</span><br><span class="line">docker0         8000.024219a15f9d       no              veth8331b03</span><br><span class="line">                                                        vethc5f3cb9</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/09/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7-2018-09-06-%E4%B8%8B%E5%8D%888.43.46.png" alt="Alt text"></p>
+<p>docker0 会为每一个容器分配一个新的 IP 地址并将 docker0 的 IP 地址设置为默认的网关。网桥 docker0 通过 iptables 中的配置与宿主机器上的网卡相连，所有符合条件的请求都会通过 iptables 转发到 docker0 并由网桥分发给对应的机器。同时也会在防火墙加上一条新的规则。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@izj6c9b96ia369l2i47yq3z feilong]<span class="comment"># iptables -L</span></span><br><span class="line">Chain INPUT (policy ACCEPT)</span><br><span class="line">target     prot opt <span class="built_in">source</span>               destination</span><br><span class="line"></span><br><span class="line">Chain FORWARD (policy ACCEPT)</span><br><span class="line">target     prot opt <span class="built_in">source</span>               destination</span><br><span class="line">DOCKER-USER  all  --  anywhere             anywhere</span><br><span class="line">DOCKER-ISOLATION-STAGE-1  all  --  anywhere             anywhere</span><br><span class="line">ACCEPT     all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED</span><br><span class="line">DOCKER     all  --  anywhere             anywhere</span><br><span class="line">ACCEPT     all  --  anywhere             anywhere</span><br><span class="line">ACCEPT     all  --  anywhere             anywhere</span><br><span class="line"></span><br><span class="line">Chain OUTPUT (policy ACCEPT)</span><br><span class="line">target     prot opt <span class="built_in">source</span>               destination</span><br><span class="line"></span><br><span class="line">Chain DOCKER (1 references)</span><br><span class="line">target     prot opt <span class="built_in">source</span>               destination</span><br><span class="line">ACCEPT     tcp  --  anywhere             172.17.0.2           tcp dpt:6379</span><br><span class="line">ACCEPT     tcp  --  anywhere             172.17.0.3           tcp dpt:6379</span><br><span class="line">ACCEPT     tcp  --  anywhere             172.17.0.4           tcp dpt:http</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-挂载点命名空间"><a href="#2-3-挂载点命名空间" class="headerlink" title="2.3 挂载点命名空间"></a>2.3 挂载点命名空间</h3><p>docker已经可以通过命名空间将网络和进程进行隔离。挂载命名空间，允许不同的容器，查看到不同的文件结构，这样，每个命名空间的进程所看到的文件目录彼此被隔离。每个容器内的进程只会更改容器内部的文件目录。</p>
+<h3 id="2-4-IPC命名空间"><a href="#2-4-IPC命名空间" class="headerlink" title="2.4 IPC命名空间"></a>2.4 IPC命名空间</h3><p>容器中的进程交互采用的是Linux中常见的进程间交互方式（Interprocess Communication， IPC），包括信号量、消息队列和内存共享等。IPC命名空间和PID命名空间可以组合使用，同一个IPC命名空间的进程可以彼此可见，允许进行交互，不同空间的进程无法交互。</p>
+<h3 id="2-5-UTS-命名空间"><a href="#2-5-UTS-命名空间" class="headerlink" title="2.5 UTS 命名空间"></a>2.5 UTS 命名空间</h3><p>UTS（Unix time-sharing system）命名空间允许每个容器拥有一个独立的主机名和域名，从而可以虚拟出一个独立的主机名和网络空间的环境，就可以跟网络上的一台独立主机一样。</p>
+<p>默认情况下，docker的主机名是容器的id</p>
+<p><img src="/uploads/2018/09/WX20180908-004426@2x-1024x293.png" alt="Alt text"></p>
+<p><img src="/uploads/2018/09/WX20180908-004332@2x-1024x55.png" alt="Alt text"></p>
+<h3 id="2-6-用户命名空间"><a href="#2-6-用户命名空间" class="headerlink" title="2.6 用户命名空间"></a>2.6 用户命名空间</h3><p>每个容器内部都有不同的用户组和组id，也就是说可以在容器内部使用特定的内部用户执行程序，而不是宿主机上的用户。每个容器都有root账号，但是和宿主机都不在一个命名空间。通过使用命名空间隔离，来保证容器内部用户无法操作容器外部的操作权限。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>6种命名空间让容器之间松耦合，也让容器与宿主机松偶尔。同时，也保证了安全性。容器内部不能操作其他容器内部的东西，docker的这种命名空间隔离的方式，也比较符合Linux的系统设计。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/09/10/docker-namespace/" data-id="cl0oi8met0016417t46s7gda6" data-title="docker之命名空间" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-golang" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/09/01/docker-golang/" class="article-date">
+  <time class="dt-published" datetime="2018-09-01T16:21:04.000Z" itemprop="datePublished">2018-09-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>►<a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/09/01/docker-golang/">docker之运行golang</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>众所周知，docker解决了编程的痛点问题——运行环境，所以我先走基本上尽量都使用docker运行。这样做，首先就是让我不必关心配置复杂的运行环境，另外也可以让我更加熟练的使用docker。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//go-sample.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Golang-onbuild"><a href="#Golang-onbuild" class="headerlink" title="Golang:onbuild"></a>Golang:onbuild</h2><p>现在关于go的docker镜像也发布了很多个版本，我们首先介绍一下<code>golang:onbuild</code>以及如何使用。 <code>golang:onbuild</code>是go语言官方发布的一款很小的镜像(只有几KB大小)，目的是为了让我们可以编译go文件，并且运行。使用的方式很简单，只需要创建一个Dockerfile，然后在首行加上<code>FROM golang:onbuild</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">-rw-r--r--@ 1 feilong wheel 20 9 2 00:23 Dockerfile</span><br><span class="line">-rw-r--r-- 1 feilong wheel 72 9 2 00:03 go-sample.go</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$ <span class="built_in">cat</span> Dockerfile</span><br><span class="line">FROM golang:onbuild</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$ docker build -t golang_onbuild .</span><br><span class="line">Sending build context to Docker daemon  3.072kB</span><br><span class="line">Step 1/1 : FROM golang:onbuild</span><br><span class="line">onbuild: Pulling from library/golang</span><br><span class="line">ad74af05f5a2: Pull complete</span><br><span class="line">2b032b8bbe8b: Pull complete</span><br><span class="line">a9a5b35f6ead: Pull complete</span><br><span class="line">25d9840c55bc: Pull complete</span><br><span class="line">d792ec7d64a3: Pull complete</span><br><span class="line">be556a93c22e: Pull complete</span><br><span class="line">3a5fce283a1e: Pull complete</span><br><span class="line">0621865a0c2e: Pull complete</span><br><span class="line">Digest: sha256:c0ec19d49014d604e4f62266afd490016b11ceec103f0b7ef44875801ef93f36</span><br><span class="line">Status: Downloaded newer image <span class="keyword">for</span> golang:onbuild</span><br><span class="line"><span class="comment"># Executing 3 build triggers</span></span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> 109c7a7ebeb5</span><br><span class="line">+ <span class="built_in">exec</span> go get -v -d</span><br><span class="line">Removing intermediate container 109c7a7ebeb5</span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> c0dfd28de95e</span><br><span class="line">+ <span class="built_in">exec</span> go install -v</span><br><span class="line">app</span><br><span class="line">Removing intermediate container c0dfd28de95e</span><br><span class="line"> ---&gt; 820e315d7160</span><br><span class="line">Successfully built 820e315d7160</span><br><span class="line">Successfully tagged golang_onbuild:latest</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$ docker run -it --<span class="built_in">rm</span> --name go_onbuild golang_onbuild</span><br><span class="line">+ <span class="built_in">exec</span> app</span><br><span class="line">hello world</span><br></pre></td></tr></table></figure>
+
+<p>我们根据docker:onbuild的Dockerfile文件具体分析一个整个编译的过程(以1.3.1版本为例)</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.3</span>.<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">mkdir</span> -p /go/src/app</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /go/src/app</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># this will ideally be built by the ONBUILD below ;)</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;go-wrapper&quot;</span>, <span class="string">&quot;run&quot;</span>]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ONBUILD</span> <span class="keyword">COPY</span><span class="language-bash"> . /go/src/app</span></span><br><span class="line"><span class="keyword">ONBUILD</span> <span class="keyword">RUN</span><span class="language-bash"> go-wrapper download</span></span><br><span class="line"><span class="keyword">ONBUILD</span> <span class="keyword">RUN</span><span class="language-bash"> go-wrapper install</span></span><br></pre></td></tr></table></figure>
+
+<p>从Dockerfile和build过程可以看出，在进行build的时候，经历了三次触发器:</p>
+<ul>
+<li>首先，将当前目录拷贝到<code>. /go/src/app</code></li>
+<li>下载对应的依赖包</li>
+<li>编译安装</li>
+</ul>
+<p>编译之后，golang:onbuild镜像默认包含了一个CMD [“app”] 命令，用来执行编译后的go文件。</p>
+<p>我们通过实际run一个容器验证一下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:go feilong$ docker run -it --<span class="built_in">rm</span> --name golang_onbuild golang_onbuild</span><br><span class="line">+ <span class="built_in">exec</span> app</span><br><span class="line">hello world</span><br></pre></td></tr></table></figure>
+
+<h2 id="Golang-latest"><a href="#Golang-latest" class="headerlink" title="Golang:latest"></a>Golang:latest</h2><p>相比较golang:onbuild的便利性，golang:latest就变得很灵活了，需要我们手动编译go文件，然后手动执行编译后的文件。因为毕竟电脑并不知道你具体想要编译的顺序，以及你要想要执行的编译文件。运行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:go feilong$ ll</span><br><span class="line">total 16</span><br><span class="line">-rw-r--r--@ 1 feilong  wheel  133  9  2 00:04 Dockerfile</span><br><span class="line">-rw-r--r--  1 feilong  wheel   72  9  2 00:03 go-sample.go</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$ <span class="built_in">cat</span> Dockerfile</span><br><span class="line">FROM golang:latest</span><br><span class="line"></span><br><span class="line">RUN <span class="built_in">mkdir</span> -p /go/src/app</span><br><span class="line">WORKDIR /go/src/app</span><br><span class="line"></span><br><span class="line">COPY . /go/src/app</span><br><span class="line">RUN go build -o app .</span><br><span class="line">CMD [ <span class="string">&quot;/go/src/app/app&quot;</span> ]</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$</span><br><span class="line">feilongdeMBP:go feilong$ docker build -t go_go .</span><br><span class="line">Sending build context to Docker daemon 3.072kB</span><br><span class="line">Step 1/6 : FROM golang:latest</span><br><span class="line"> ---&gt; 7e9ac7032e33</span><br><span class="line">Step 2/6 : RUN <span class="built_in">mkdir</span> -p /go/src/app</span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> b5d3f63578ed</span><br><span class="line">Removing intermediate container b5d3f63578ed</span><br><span class="line"> ---&gt; 95c2beb49121</span><br><span class="line">Step 3/6 : WORKDIR /go/src/app</span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> 3011d74944c9</span><br><span class="line">Removing intermediate container 3011d74944c9</span><br><span class="line"> ---&gt; 82d6a45aa3e3</span><br><span class="line">Step 4/6 : COPY . /go/src/app</span><br><span class="line"> ---&gt; 475b2bdd5769</span><br><span class="line">Step 5/6 : RUN go build -o app .</span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> 5802ac0c98b4</span><br><span class="line">Removing intermediate container 5802ac0c98b4</span><br><span class="line"> ---&gt; 7a019370f09d</span><br><span class="line">Step 6/6 : CMD [ <span class="string">&quot;/go/src/app/app&quot;</span> ]</span><br><span class="line"> ---&gt; Running <span class="keyword">in</span> a3f6ad19d2ef</span><br><span class="line">Removing intermediate container a3f6ad19d2ef</span><br><span class="line"> ---&gt; 635417bdcda8</span><br><span class="line">Successfully built 635417bdcda8</span><br><span class="line">Successfully tagged go_go:latest</span><br></pre></td></tr></table></figure>
+
+<p>run一个容器，查看运行效果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:go feilong$ docker run -it --<span class="built_in">rm</span> --name go go_go</span><br><span class="line">hello world</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>golang:onbuild和golang:lastest各有利弊，前者更加简单，能够更加简明扼要的告诉我们运行过程，而后者更加灵活，将更多的操作命令交给了开发人员。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://time-track.cn/build-minimal-go-image.html">https://time-track.cn/build-minimal-go-image.html</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/09/01/docker-golang/" data-id="cl0oi8meh000t417t3772eqza" data-title="docker之运行golang" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-link" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/08/31/docker-link/" class="article-date">
+  <time class="dt-published" datetime="2018-08-31T14:52:43.000Z" itemprop="datePublished">2018-08-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>►<a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/08/31/docker-link/">docker之link的使用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Docker功能可以说是非常强大，但是如果想要短时间掌握docker的使用，还是有一些难度的。之前有了解一些docker的知识，但是大多数都是囫囵吞枣。并没有从最基础的知识学起，所以现在想要系统的学习一下docker的知识。</p>
+<h3 id="通信的痛点"><a href="#通信的痛点" class="headerlink" title="通信的痛点"></a>通信的痛点</h3><p>link的主要作用是实现不同容器之间的连接。 举个例子，我现在有个PHP的容器，我又创建了一个mysql的容器，这个时候，如果我想要使用PHP连接mysql的容器，最常规的方式就是通过ip连接。但是这样的话，如果mysql的容器一旦重启或者重新编译，那么ip就会有可能变动，我们就需要手动更改PHP容器内连接的ip，这样的维护成本太高了。 link的作用就是要解决这个痛点问题。</p>
+<h3 id="link的实现"><a href="#link的实现" class="headerlink" title="link的实现"></a>link的实现</h3><p>我们首先pull一个busybox的镜像，busybox是一个非常小巧的Linux镜像，占用的空间只有几MB，但是相比较Ubuntu的镜像，要小很多倍，而且也集成了很全的Linux命令 <img src="/uploads/2018/08/pull-busybox.png"> <img src="/uploads/2018/08/busyboxandubuntu.png"></p>
+<h4 id="创建test1容器"><a href="#创建test1容器" class="headerlink" title="创建test1容器"></a>创建test1容器</h4><p><img src="/uploads/2018/08/test1.png"> 从截图中，我们可以看出test1的ip是172.17.0.2</p>
+<h4 id="创建test2容器"><a href="#创建test2容器" class="headerlink" title="创建test2容器"></a>创建test2容器</h4><p>我们需要新打开一个窗口，然后创建test2容器 <img src="/uploads/2018/08/test2.png"> 这个时候我们ping test1的容器，是不能ping通的。</p>
+<h4 id="使用link关联test1和test2"><a href="#使用link关联test1和test2" class="headerlink" title="使用link关联test1和test2"></a>使用link关联test1和test2</h4><p>我们推出test2，删除test2容器，重新run一个容器 <img src="/uploads/2018/08/test22.png"> 这个时候我们发现test2里面是可以通过别名test1去进行连接， 所以，比如test1里面运行了mysql，test2里面运行了PHP，那么，连接mysql的地方，完全可以把主机的地址写成test1</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>使用link的作用显而易见，我们可以通过别名，直接让两个容器进行通信，使用容器名称通信的优势：</p>
+<ol>
+<li>不用担心ip的变动，因为name是唯一的</li>
+<li>极大的增加了可读性</li>
+<li>降低了运维成本</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/08/31/docker-link/" data-id="cl0oi8mel000x417tbikwbv35" data-title="docker之link的使用" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-reading" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/08/25/reading/" class="article-date">
+  <time class="dt-published" datetime="2018-08-25T04:14:15.000Z" itemprop="datePublished">2018-08-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Life/">Life</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/08/25/reading/">读《财富自由之路》</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>有人说李笑来是骗子，但是就算是骗子又能怎样，只要他的想法能够帮助我们能够成长，能够变得强大，难道不就足够了吗？</p>
+<h3 id="初次了解"><a href="#初次了解" class="headerlink" title="初次了解"></a>初次了解</h3><p>第一次听说李笑来基本上和其他人是一样的，最开始是通过比特币疯长，然后就是比特币最多的中国人。另一个就是我的一个朋友是李笑来的特粉。后来就直接在网上购买了一本《财富自由之路》。</p>
+<p>这本书和他的《把时间当朋友》都卖的不错（当然《TOEFL核心词汇21天突破》卖的也很好，但是偏向于英语专业），所以就在京东买了一本。</p>
+<p>买书的初衷基本上和大家的想法一致，准备依靠这本书走向财富自由（天真脸），但是看了一半才知道，这本书其实偏重于方法论。</p>
+<h3 id="什么叫做财富自由"><a href="#什么叫做财富自由" class="headerlink" title="什么叫做财富自由"></a>什么叫做财富自由</h3><p>这个问题既简单又困难，我觉得一般人很难给出具体的概念。“我觉得我不用上班就是实现财富既有”，“我有xxx钱就是实现财富自由”…，但是这些说法似乎都不能让人信服，因为毕竟马云还要继续工作，况且，不工作，一直享受的人生，真的没什么意义。</p>
+<p>“财富自由就是某个人不用再因为满足生活必需而出卖自己的时间”。</p>
+<p>是的，我们的工作都算是因为生活必需而出卖自己的时候。每个人的工资的高低，也是因为单位时间产生的价值更高。</p>
+<p>所以，想要实现财富自由，那就嘴根本的办法，就是让我们单位时间产生的价值更高，换句话来讲，实现财富自由只能靠提升我们自己的价值来实现。</p>
+<h3 id="元认知"><a href="#元认知" class="headerlink" title="元认知"></a>元认知</h3><p><code>元认知</code>这个词应该算是书中出现的最频繁的词汇。<code>元认知</code> 按照书中说法就是<code>对认知的认知，对思考的思考</code>。这句话听着虽然有些拗口，但是其实和<code>三思而后行</code> 是有些类似的。</p>
+<p>当我们遇到一些困难的时候，我们会想到一些解决的办法，但是这些解决办法并不都是合理的，所以我们就需要在这些方法里面做一些筛选，这就是所谓的<code>元认知</code>。</p>
+<h3 id="笃信"><a href="#笃信" class="headerlink" title="笃信"></a>笃信</h3><p>除了<code>元认知</code>以外，还有一个词，我觉得对我也很有意义——笃信。笃信，也就是120%的相信。当真的能够把这个词汇加到自己的脑子里面，然后再加上<code>元认知</code>，基本上就不会害怕所谓的新东西和新事物了。</p>
+<p>举个例子，公司前段时间新买了一台咖啡机，我算是对新事物感兴趣的人。新买的咖啡机，基本上很少人会用，但是有一本说明书。我拿起来看了起来，然后按照说明书，做一些笨拙的操作。但是我并不会在意别人的看法：使用咖啡机居然还要看说明书。这个时候，我的<code>元认知</code>开始启动，它告诉我：“并不是每个人都会使用咖啡机，最开始学习使用的时候，都是从笨拙的操作开始，不用担心自己笨拙，使用的次数多了，也就是越来越熟练了”，然后我<code>笃信</code>自己能够学会使用咖啡机，现在，基本上公司里面我算是非常熟练的使用咖啡机的人了。</p>
+<p>很多人，很在意别人的看法，然后放弃解除新事物，新东西。但是，任何学习，都是从笨拙的操作开始的，难道最开始学习算是的时候，不是掰着手指计算的吗？</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>书中除了<code>元认知</code>和<code>笃信</code>，还有其他很多内容，比如，如何投资…，但是那些都不重要了，重要的是，只要学会结合使用<code>元认知</code>和<code>笃信</code>，那么基本上不用再担心遇到问题了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>其实<code>元认知</code>我们一直都是存在的，但是很多时候，我们并没有注意到。</p>
+<p>不管怎么说，这本书都算是提高自己的好书。</p>
+<p>在写这篇博客的时候，我不再害怕自己写不好文字，因为我笃信自己会把自己的写作水平一点点提高，我笃信总有一天，我的写作水平能够到达一个比较好的水平 ：）</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/08/25/reading/" data-id="cl0oi8mi8007f417t2869huo1" data-title="读《财富自由之路》" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-mysqldump-excel" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/08/07/mysqldump-excel/" class="article-date">
+  <time class="dt-published" datetime="2018-08-07T04:23:18.000Z" itemprop="datePublished">2018-08-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Mysql/">Mysql</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/08/07/mysqldump-excel/">将MySQL数据导出到Excel</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>有一天PM跑来找我，让我导出一部分数据。之前做导出的功能，基本上都是依靠代码的方式，如果针对这种临时性需求，如果还要临时写代码，加上自测，一天的时间就这样没了。</p>
+<h4 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -uroot -proot -e <span class="string">&#x27;select * from test&#x27;</span> &gt; test.xls</span><br></pre></td></tr></table></figure>
+
+<h4 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h4><p>本来以为只要这条命令就行，但是发现导出的Excel是乱码，原来是因为配置文件里面，客户端连接的编码方式不是utf8</p>
+<h4 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -uroot -proot -e <span class="string">&#x27;set names utf8; select * from test&#x27;</span> &gt; test.xls</span><br></pre></td></tr></table></figure>
+
+<p>网上找了一下方案，需要使用记事本打开，然后另存为中文的编码方式。</p>
+<p>但是我使用Mac打开的时候，没有找到<code>另存为</code>选项 - -</p>
+<p><img src="/uploads/2018/08/WX20180807-121223@2x.png"></p>
+<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>文件-&gt;复制-&gt;存储(副本)-&gt;纯文本编码:(中文 GB18030)-&gt;更改文件拓展名为xls 即可</p>
+<p><img src="/uploads/2018/08/20180807121627.jpg"></p>
+<p><img src="/uploads/2018/08/WX20180807-122030@2x.png"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/08/07/mysqldump-excel/" data-id="cl0oi8mgk0045417t5a4329yu" data-title="将MySQL数据导出到Excel" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-vscode-install-psr2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/07/25/vscode-install-psr2/" class="article-date">
+  <time class="dt-published" datetime="2018-07-25T16:14:21.000Z" itemprop="datePublished">2018-07-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/07/25/vscode-install-psr2/">vscode安装psr2格式化工具</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="关于"><a href="#关于" class="headerlink" title="关于"></a>关于</h3><p>PSR应该算得上是PHP比较权威的codestyle的标准了，大多数的PHP届都是沿用psr的风格。当然，其中也会或多或少的有一些自己的风格，比如PHP Ci框架，也有一些自己的代码风格。</p>
+<p>vscode是我用了这么多编译器中最好用的了，它虽然不想sublime那样轻便，但是他自带的一些工具非常好用。比如，集成git之后，不用再使用命令行提交变更，解决冲突直接一个按钮操作。用金星姐姐的话来说，“完美”。</p>
+<h3 id="开始安装"><a href="#开始安装" class="headerlink" title="开始安装"></a>开始安装</h3><p>VScode有一款插件，是用来做PHP代码格式化的，叫做 <code>PHP Formatter</code>， 如果你们公司使用PSR的命名规范，那么这个简直就是福音啊。 下载链接 <a target="_blank" rel="noopener" href="https://marketplace.visualstudio.com/items?itemName=Sophisticode.php-formatter">https://marketplace.visualstudio.com/items?itemName=Sophisticode.php-formatter</a></p>
+<h4 id="安装php-cs-fixer"><a href="#安装php-cs-fixer" class="headerlink" title="安装php-cs-fixer"></a>安装php-cs-fixer</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ composer require fabpot/php-cs-fixer <span class="comment">#使用composer安装依赖</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/07/QQ20180725-235749@2x-1024x350.png"></p>
+<h4 id="在VScode上面下载插件"><a href="#在VScode上面下载插件" class="headerlink" title="在VScode上面下载插件"></a>在VScode上面下载插件</h4><p><img src="/uploads/2018/07/QQ20180726-000004-1024x859.png"></p>
+<h4 id="配置插件"><a href="#配置插件" class="headerlink" title="配置插件"></a>配置插件</h4><p>VScode-&gt;Code-&gt;首选项-&gt;设置 在<code>用户设置</code>增加截图的json的配置项 <img src="/uploads/2018/07/475A8C81-7869-4446-AD83-3EC62F51A6E7-1024x588.png"></p>
+<h3 id="enjoin"><a href="#enjoin" class="headerlink" title="enjoin"></a>enjoin</h3>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/07/25/vscode-install-psr2/" data-id="cl0oi8mim008c417t18wr67jn" data-title="vscode安装psr2格式化工具" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-php-json-encode" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/07/05/php-json-encode/" class="article-date">
+  <time class="dt-published" datetime="2018-07-05T07:57:10.000Z" itemprop="datePublished">2018-07-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/07/05/php-json-encode/">让Json更懂中文(JSON_UNESCAPED_UNICODE)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>在工作期间，遇到一个关于json的问题，就是如果是中文，那么json就会自动将中文编码成Unicode，这样并不是说有问题，只是可读性大大降低。</p>
+<p>之前遇到这个问题的时候，一直以为是在http传输过程中造成的，但是真是原因是由于json_encode的时候，中文自动被编码成了Unicode。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$array</span> = <span class="keyword">array</span>(</span><br><span class="line">    <span class="string">&#x27;name&#x27;</span> =&gt; <span class="string">&#x27;肥龙&#x27;</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">json_encode</span>(<span class="variable">$array</span>);</span><br></pre></td></tr></table></figure>
+
+<p>执行结果:</p>
+<p><img src="/uploads/2018/07/json_encode.png"></p>
+<h4 id="PHP新特性"><a href="#PHP新特性" class="headerlink" title="PHP新特性"></a>PHP新特性</h4><p>但是从<code>PHP5.4</code>之后，这个更新了一个新的json_encode的特性，是专门针对中文问题的。那就是增加新特性——JSON_UNESCAPED_UNICODE。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$array</span> = <span class="keyword">array</span>(</span><br><span class="line">    <span class="string">&#x27;name&#x27;</span> =&gt; <span class="string">&#x27;肥龙&#x27;</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">json_encode</span>(<span class="variable">$array</span>, JSON_UNESCAPED_UNICODE);</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<p><img src="/uploads/2018/07/json_encode2.png"></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这个特性帮助我们编码更高可读性的json，但是这个特性是在PHP5.4之后才增加的，所以PHP5.3版本暂不支持，会提示 <code>Use of undefined constant JSON_UNESCAPED_UNICODE</code></p>
+<p><img src="/uploads/2018/07/json_encode3-1024x82.png"></p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul>
+<li><a target="_blank" rel="noopener" href="http://www.laruence.com/2011/10/10/2239.html">让Json更懂中文(JSON_UNESCAPED_UNICODE)</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/07/05/php-json-encode/" data-id="cl0oi8mhf005q417t0u5o2mg9" data-title="让Json更懂中文(JSON_UNESCAPED_UNICODE)" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nodejs/">Nodejs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E6%88%91%E5%8F%8D%E6%80%9D/">自我反思</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apollo/" rel="tag">Apollo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HyperLogLog/" rel="tag">HyperLogLog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">PHP7垃圾回收</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">PHP原型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E7%B2%BE%E5%BA%A6/" rel="tag">PHP精度</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">PHP设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ascii/" rel="tag">ascii</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/brew/" rel="tag">brew</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cli/" rel="tag">cli</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-network/" rel="tag">docker network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker%E5%AE%89%E5%85%A8/" rel="tag">docker安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/" rel="tag">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libnetwork/" rel="tag">libnetwork</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/" rel="tag">shell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/token/" rel="tag">token</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ulimit/" rel="tag">ulimit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unicode/" rel="tag">unicode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/utf-8/" rel="tag">utf-8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E5%BA%B7/" rel="tag">健康</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E8%BA%AB/" rel="tag">健身</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98/" rel="tag">内存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%8F%E8%82%A5/" rel="tag">减肥</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" rel="tag">出国游</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%A2%E5%BB%BA/" rel="tag">团建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" rel="tag">成长进阶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" rel="tag">普吉岛</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%B0%E5%9B%BD/" rel="tag">泰国</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" rel="tag">私有链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" rel="tag">程序员</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1/" rel="tag">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A0%81/" rel="tag">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" rel="tag">自我表达</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" rel="tag">贪心算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Apollo/" style="font-size: 10px;">Apollo</a> <a href="/tags/HyperLogLog/" style="font-size: 10px;">HyperLogLog</a> <a href="/tags/Linux/" style="font-size: 14.29px;">Linux</a> <a href="/tags/Mac/" style="font-size: 10px;">Mac</a> <a href="/tags/MySQL/" style="font-size: 11.43px;">MySQL</a> <a href="/tags/PHP/" style="font-size: 20px;">PHP</a> <a href="/tags/PHP7/" style="font-size: 17.14px;">PHP7</a> <a href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">PHP7垃圾回收</a> <a href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">PHP原型模式</a> <a href="/tags/PHP%E6%BA%90%E7%A0%81/" style="font-size: 18.57px;">PHP源码</a> <a href="/tags/PHP%E7%B2%BE%E5%BA%A6/" style="font-size: 10px;">PHP精度</a> <a href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 11.43px;">PHP设计模式</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/ascii/" style="font-size: 10px;">ascii</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/brew/" style="font-size: 10px;">brew</a> <a href="/tags/cli/" style="font-size: 10px;">cli</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 17.14px;">docker</a> <a href="/tags/docker-network/" style="font-size: 10px;">docker network</a> <a href="/tags/docker%E5%AE%89%E5%85%A8/" style="font-size: 10px;">docker安全</a> <a href="/tags/http/" style="font-size: 12.86px;">http</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/libnetwork/" style="font-size: 10px;">libnetwork</a> <a href="/tags/nginx/" style="font-size: 12.86px;">nginx</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/tcp/" style="font-size: 11.43px;">tcp</a> <a href="/tags/token/" style="font-size: 10px;">token</a> <a href="/tags/ulimit/" style="font-size: 10px;">ulimit</a> <a href="/tags/unicode/" style="font-size: 10px;">unicode</a> <a href="/tags/utf-8/" style="font-size: 10px;">utf-8</a> <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" style="font-size: 15.71px;">以太坊</a> <a href="/tags/%E5%81%A5%E5%BA%B7/" style="font-size: 10px;">健康</a> <a href="/tags/%E5%81%A5%E8%BA%AB/" style="font-size: 10px;">健身</a> <a href="/tags/%E5%86%85%E5%AD%98/" style="font-size: 10px;">内存</a> <a href="/tags/%E5%87%8F%E8%82%A5/" style="font-size: 10px;">减肥</a> <a href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" style="font-size: 12.86px;">出国游</a> <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 14.29px;">区块链</a> <a href="/tags/%E5%9B%A2%E5%BB%BA/" style="font-size: 12.86px;">团建</a> <a href="/tags/%E5%AE%B9%E5%99%A8/" style="font-size: 12.86px;">容器</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" style="font-size: 10px;">微服务</a> <a href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" style="font-size: 11.43px;">成长进阶</a> <a href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" style="font-size: 12.86px;">普吉岛</a> <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 11.43px;">智能合约</a> <a href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" style="font-size: 10px;">比特币</a> <a href="/tags/%E6%B3%B0%E5%9B%BD/" style="font-size: 12.86px;">泰国</a> <a href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" style="font-size: 10px;">私有链</a> <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" style="font-size: 11.43px;">程序员</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">统计</a> <a href="/tags/%E7%BC%96%E7%A0%81/" style="font-size: 10px;">编码</a> <a href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" style="font-size: 10px;">自我表达</a> <a href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" style="font-size: 10px;">贪心算法</a> <a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 11.43px;">面试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/16/contract-eth/">【以太坊】公链上的合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/07/approve-transfer/">【以太坊】实现智能合约授权与余额转账</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/24/eth-contract-demo/">【以太坊】编译智能合约</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2022 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
