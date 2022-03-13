@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/page/6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-limit-req-limit-conn" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/26/limit-req-limit-conn/" class="article-date">
+  <time class="dt-published" datetime="2018-01-26T15:34:13.000Z" itemprop="datePublished">2018-01-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/26/limit-req-limit-conn/">关于limit_req和limit_conn的区别</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="request和connection区别"><a href="#request和connection区别" class="headerlink" title="request和connection区别"></a>request和connection区别</h4><p>在nginx里面，limit_req和limit_conn都是用来限流的但是两者不在一个层次上，在此之前，需要先清楚request和connect的区别。 request是请求，是http层面的。connection是链接，指的是tcp层面。所以，从含义上面可以知道两者不在一个层次。 我们在打开一个网页的时候，请求过程一般就是先经过tcp三次握手，然后在进行http请求。也就是一个connection建立之后，可以有很多request。</p>
+<p>一个connection建立，只要服务器处理的过来，可以处理任意多的request都是没有问题的</p>
+<p>好了，现在知道区别了。</p>
+<h4 id="limit-conn"><a href="#limit-conn" class="headerlink" title="limit_conn"></a>limit_conn</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">limit_conn_zone</span> <span class="variable">$binary_remote_addr</span> zone=one:<span class="number">20m</span>;</span><br><span class="line">    <span class="attribute">limit_conn</span> one <span class="number">1</span>; <span class="comment">#最多可以进行1个connection</span></span><br><span class="line">    <span class="attribute">client_body_buffer_size</span> <span class="number">256M</span>;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">log_format</span>  main  <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot; &quot;<span class="variable">$request_filename</span>&quot;&#x27;</span>;</span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line">    <span class="attribute">include</span> servers/<span class="regexp">*.conf</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的配置文件的含义很明白，nginx只接受最多一个connect，我们使用ab命令查看下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ab -n10  http://sdeno-api/info/php <span class="comment">#默认通过一个connect送10个request</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/01/limit_conn_00.png"></p>
+<p>从截图看来，在一个并发下，处理10个request下完全没有问题</p>
+<p>接下来我们使用2个并发，2个请求试下，也就是两个用户，每个用户发送一个request</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ab -n2 -c2 http://sdeno-api/info/php</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/01/limit_conn_01.png"></p>
+<p>从截图中可以看到，由于nginx设置了至多限制一个并发，所以导致两个用户的请求只能有一个被处理掉，另外一个返回http 503</p>
+<h4 id="limit-req"><a href="#limit-req" class="headerlink" title="limit_req"></a>limit_req</h4><p>下面更改下nginx.conf配置文件</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">limit_conn_zone</span> <span class="variable">$binary_remote_addr</span> zone=one:<span class="number">20m</span>;</span><br><span class="line">    <span class="attribute">limit_req_zone</span> <span class="variable">$binary_remote_addr</span> zone=req_one:<span class="number">20m</span> rate=1r/s;</span><br><span class="line">    <span class="attribute">limit_conn</span> one <span class="number">20</span>;</span><br><span class="line">    <span class="attribute">limit_req</span> zone=req_one burst=<span class="number">5</span>;</span><br><span class="line">    <span class="attribute">client_body_buffer_size</span> <span class="number">256M</span>;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">log_format</span>  main  <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot; &quot;<span class="variable">$request_filename</span>&quot;&#x27;</span>;</span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line">    <span class="attribute">include</span> servers/<span class="regexp">*.conf</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的配置的含义是请求速率限制为1r&#x2F;s，然后再缓存5个request，然后再依次处理请求（令牌桶算法）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ab -n10 -c10 http://sdeno-api/info/php</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/01/limit_conn_02-1.png"></p>
+<p>我们使用压测命令，10个并发，10个请求，根据配置的文件，当有请求过来，nginx先处理一个请求，然后将5个请求缓存下来(burst&#x3D;5)，根据设置的速率1r&#x2F;s进行处理，也就是一共能够处理6个请求，其余的请求则被丢掉。</p>
+<p>接下来我们再继续更改下nginx配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ab -n10 -c10 http://sdeno-api/info/php</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">limit_conn_zone</span> <span class="variable">$binary_remote_addr</span> zone=one:<span class="number">20m</span>;</span><br><span class="line">    <span class="attribute">limit_req_zone</span> <span class="variable">$binary_remote_addr</span> zone=req_one:<span class="number">20m</span> rate=1r/s;</span><br><span class="line">    <span class="attribute">limit_conn</span> one <span class="number">20</span>;</span><br><span class="line">    <span class="attribute">limit_req</span> zone=req_one burst=<span class="number">5</span> nodelay;</span><br><span class="line">    <span class="attribute">client_body_buffer_size</span> <span class="number">256M</span>;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">log_format</span>  main  <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot; &quot;<span class="variable">$request_filename</span>&quot;&#x27;</span>;</span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line">    <span class="attribute">include</span> servers/<span class="regexp">*.conf</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/01/limit_conn_03.png"></p>
+<p>咦？增加了nodelay好像和不加有点不同。这是因为请求过来的时候，会爆发出一个峰值的处理能力，处理的总的请求数是burst+1，其余的请求丢弃。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
+<li><p>request和connect是完全不同层面的含义，一个属于http，一个属于tcp</p>
+</li>
+<li><p><code>limit_req zone=req_zone burst=5</code> 依照在limti_req_zone中配置的rate来处理请求，同时设置了一个大小为5的缓冲队列，在缓冲队列中的请求会等待慢慢处理，超过了burst缓冲队列长度和rate处理能力的请求被直接丢弃，表现为对收到的请求有延时</p>
+</li>
+<li><p><code>limit_req zone=req_zone burst=5 nodelay</code> 依照在limti_req_zone中配置的rate来处理请求，同时设置了一个大小为5的缓冲队列，当请求到来时，会爆发出一个峰值处理能力，对于峰值处理数量之外的请求，直接丢弃。</p>
+</li>
+</ul>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/hellow__world/article/details/78658041">Nginx下limit_req模块burst参数超详细解析</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/26/limit-req-limit-conn/" data-id="cl0oi8mfs002q417t312f574e" data-title="关于limit_req和limit_conn的区别" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-nginx-limit-rate" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/25/nginx-limit-rate/" class="article-date">
+  <time class="dt-published" datetime="2018-01-25T15:47:21.000Z" itemprop="datePublished">2018-01-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/25/nginx-limit-rate/">使用Nginx实现流量限流</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Nginx是高性能的http服务器，同时也可以作为一个反向代理的服务器，甚至还可以作为一个IMAP&#x2F;pop3&#x2F;SMTP服务器。Nginx除了负责请求的负载均衡和分发等工作外，自带的限流模块也可以帮助运维人员限制流量的速率。</p>
+<h4 id="更改配置"><a href="#更改配置" class="headerlink" title="更改配置"></a>更改配置</h4><p>开启Nginx的限流功能</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="comment">#定义每个IP的session空间大小</span></span><br><span class="line">    <span class="attribute">limit_conn_zone</span> <span class="variable">$binary_remote_addr</span> zone=one:<span class="number">20m</span>;</span><br><span class="line">    <span class="comment">#与limit_conn_zone类似，定义每个允许发起的请求速率</span></span><br><span class="line">    <span class="attribute">limit_req_zone</span> <span class="variable">$binary_remote_addr</span> zone=req_one:<span class="number">20m</span> rate=1r/s;</span><br><span class="line">    <span class="comment">#定义每个IP发起的并发连接数</span></span><br><span class="line">    <span class="attribute">limit_conn</span> one <span class="number">10</span>;</span><br><span class="line">    <span class="comment">#缓存还没来得及处理的请求</span></span><br><span class="line">    <span class="attribute">limit_req</span> zone=req_one burst=<span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#rewrite_log on;</span></span><br><span class="line">    <span class="comment">#error_log /var/log/nginxrewrite.log notice;</span></span><br><span class="line">        <span class="attribute">client_body_buffer_size</span> <span class="number">256M</span>;</span><br><span class="line">        <span class="attribute">include</span>       mime.types;</span><br><span class="line">        <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">log_format</span>  main  <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span></span><br><span class="line">                      <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot; &quot;<span class="variable">$request_filename</span>&quot;&#x27;</span>;</span><br><span class="line">        <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line">        <span class="attribute">include</span> servers/<span class="regexp">*.conf</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="进行验证"><a href="#进行验证" class="headerlink" title="进行验证"></a>进行验证</h4><p>我们使用Linux或者mac自带的<code>ab</code>命令进行验证，并且实时查看access.log。在Nginx配置文件中，我们设置的请求速率是每秒1个请求，那我们则需要设置每秒超多1个请求才行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ab -n 20 http://sdeno-api/info/php</span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/01/nginx_limit_request00.png"></p>
+<p>从截图的日志中，我们可以看出Nginx限流模块确实可以限制请求速率。</p>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><p>由于nginx的版本问题，旧版本会limit_conn_zone-&gt;limit_zone</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/25/nginx-limit-rate/" data-id="cl0oi8mgm0048417t8f6wfe0c" data-title="使用Nginx实现流量限流" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/" rel="tag">http</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-eth-2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/25/eth-2/" class="article-date">
+  <time class="dt-published" datetime="2018-01-25T09:32:35.000Z" itemprop="datePublished">2018-01-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/25/eth-2/">基于以太坊实现局域网多节点挖矿</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>上一篇文章简要介绍了本地实现私有链挖矿和转账，现在这篇文章主要实现局域网下实现多个节点实现挖矿</p>
+<h3 id="前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易"><a href="#前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易" class="headerlink" title="前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易"></a>前提，已经安装了go-ethereum，如果没有安装请移步<a target="_blank" rel="noopener" href="http://feilong.tech/?p=206">基于以太坊创建私有链进行挖矿、交易</a></h3><h3 id="机器：Ubuntu-两个节点-，Mac-一个节点"><a href="#机器：Ubuntu-两个节点-，Mac-一个节点" class="headerlink" title="机器：Ubuntu(两个节点)，Mac(一个节点)"></a>机器：Ubuntu(两个节点)，Mac(一个节点)</h3><h3 id="创建创世节点"><a href="#创建创世节点" class="headerlink" title="创建创世节点"></a>创建创世节点</h3><h4 id="创建节点json文件"><a href="#创建节点json文件" class="headerlink" title="创建节点json文件"></a>创建节点json文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> my_eth2</span><br><span class="line">$ <span class="built_in">cd</span> my_eth2</span><br><span class="line">$ vim genesis.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;config&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;chainId&quot;</span>: 10,</span><br><span class="line">        <span class="string">&quot;homesteadBlock&quot;</span>: 0,</span><br><span class="line">        <span class="string">&quot;eip155Block&quot;</span>: 0,</span><br><span class="line">        <span class="string">&quot;eip158Block&quot;</span>: 0</span><br><span class="line">    &#125;,</span><br><span class="line">  <span class="string">&quot;coinbase&quot;</span>   : <span class="string">&quot;0x0000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;difficulty&quot;</span> : <span class="string">&quot;0x20000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;extraData&quot;</span>  : <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;gasLimit&quot;</span>   : <span class="string">&quot;0x2fefd8&quot;</span>,</span><br><span class="line">  <span class="string">&quot;nonce&quot;</span>      : <span class="string">&quot;0x0000000000000042&quot;</span>,</span><br><span class="line">  <span class="string">&quot;mixhash&quot;</span>    : <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;parentHash&quot;</span> : <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;timestamp&quot;</span>  : <span class="string">&quot;0x00&quot;</span>,</span><br><span class="line">  <span class="string">&quot;alloc&quot;</span>      : &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="生成节点-以下使用节点1代指"><a href="#生成节点-以下使用节点1代指" class="headerlink" title="生成节点(以下使用节点1代指)"></a>生成节点(以下使用节点1代指)</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data00 init genesis.json</span><br><span class="line">WARN [01-2517:04:25] No etherbase <span class="built_in">set</span> and no accounts found as default</span><br><span class="line">INFO [01-2517:04:25] Allocated cache and file handles         database=/home/ubuntu/my_eth2/data00/geth/chaindata cache=16 handles=16</span><br><span class="line">INFO [01-2517:04:25] Writing custom genesis block</span><br><span class="line">INFO [01-2517:04:25] Successfully wrote genesis state         database=chaindata                                  <span class="built_in">hash</span>=5e1fc7…d790e0</span><br><span class="line">INFO [01-2517:04:25] Allocated cache and file handles         database=/home/ubuntu/my_eth2/data00/geth/lightchaindata cache=16 handles=16</span><br><span class="line">INFO [01-2517:04:25] Writing custom genesis block</span><br><span class="line">INFO [01-2517:04:25] Successfully wrote genesis state         database=lightchaindata                                  <span class="built_in">hash</span>=5e1fc7…d790e0</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动节点1"><a href="#启动节点1" class="headerlink" title="启动节点1"></a>启动节点1</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir ./data00 --networkid 5201314 console</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建账号"><a href="#创建账号" class="headerlink" title="创建账号"></a>创建账号</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; personal.newAccount(<span class="string">&quot;123&quot;</span>)</span><br><span class="line"><span class="string">&quot;0x0b514e769e4e1990f8fb0f0f9d876d7f2b9fa5ba&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="本地创建第二个节点-以下使用节点2代指"><a href="#本地创建第二个节点-以下使用节点2代指" class="headerlink" title="本地创建第二个节点(以下使用节点2代指)"></a>本地创建第二个节点(以下使用节点2代指)</h3><h4 id="新开窗口，创建节点2"><a href="#新开窗口，创建节点2" class="headerlink" title="新开窗口，创建节点2"></a>新开窗口，创建节点2</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data01 init genesis.json</span><br><span class="line">WARN [01-2517:07:33] No etherbase <span class="built_in">set</span> and no accounts found as default</span><br><span class="line">INFO [01-2517:07:33] Allocated cache and file handles         database=/home/ubuntu/my_eth2/data01/geth/chaindata cache=16 handles=16</span><br><span class="line">INFO [01-2517:07:33] Writing custom genesis block</span><br><span class="line">INFO [01-2517:07:33] Successfully wrote genesis state         database=chaindata                                  <span class="built_in">hash</span>=5e1fc7…d790e0</span><br><span class="line">INFO [01-2517:07:33] Allocated cache and file handles         database=/home/ubuntu/my_eth2/data01/geth/lightchaindata cache=16 handles=16</span><br><span class="line">INFO [01-2517:07:33] Writing custom genesis block</span><br><span class="line">INFO [01-2517:07:33] Successfully wrote genesis state         database=lightchaindata                                  <span class="built_in">hash</span>=5e1fc7…d790e0</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行节点2"><a href="#运行节点2" class="headerlink" title="运行节点2"></a>运行节点2</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data01 --networkid 5201314 --ipcdisable --port 61910 --rpcport 8200 console</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建节点2的账号"><a href="#创建节点2的账号" class="headerlink" title="创建节点2的账号"></a>创建节点2的账号</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> &gt; personal.newAccount(<span class="string">&quot;123&quot;</span>)</span><br><span class="line"><span class="string">&quot;0x3babf1eeb8d5d29acc4d1f6408529b36b4e6f880&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="在Mac上创建新节点，以下使用-节点3代指"><a href="#在Mac上创建新节点，以下使用-节点3代指" class="headerlink" title="在Mac上创建新节点，以下使用(节点3代指)"></a>在Mac上创建新节点，以下使用(节点3代指)</h3><p><code>创世节点的json文件要和Ubuntu一致</code></p>
+<h4 id="初始化节点3"><a href="#初始化节点3" class="headerlink" title="初始化节点3"></a>初始化节点3</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data00 init genesis.json</span><br><span class="line">WARN [01-2517:14:10] No etherbase <span class="built_in">set</span> and no accounts found as default</span><br><span class="line">INFO [01-2517:14:10] Allocated cache and file handles         database=/Users/feilong/my_chain2/data00/geth/chaindata cache=16 handles=16</span><br><span class="line">INFO [01-2517:14:10] Writing custom genesis block</span><br><span class="line">INFO [01-2517:14:10] Successfully wrote genesis state         database=chaindata                                      <span class="built_in">hash</span>=5e1fc7…d790e0</span><br><span class="line">INFO [01-2517:14:10] Allocated cache and file handles         database=/Users/feilong/my_chain2/data00/geth/lightchaindata cache=16 handles=16</span><br><span class="line">INFO [01-2517:14:10] Writing custom genesis block</span><br><span class="line">INFO [01-2517:14:10] Successfully wrote genesis state         database=lightchaindata                                      <span class="built_in">hash</span>=5e1fc7…d790e0</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行节点3"><a href="#运行节点3" class="headerlink" title="运行节点3"></a>运行节点3</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data00 --networkid 5201314 --ipcdisable --port 61911 --rpcport 8200 console <span class="comment">#使用61911端口，保证networkid一致</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="创建账号-1"><a href="#创建账号-1" class="headerlink" title="创建账号"></a>创建账号</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; personal.newAccount(<span class="string">&quot;123&quot;</span>)</span><br><span class="line"><span class="string">&quot;0xf81b1d6c0e0835790c7e4af8a02301a67e5a0dcb&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="节点1和节点2建立联系"><a href="#节点1和节点2建立联系" class="headerlink" title="节点1和节点2建立联系"></a>节点1和节点2建立联系</h3><h4 id="节点2运行-gt-admin-nodeInfo-enode-查看node信息"><a href="#节点2运行-gt-admin-nodeInfo-enode-查看node信息" class="headerlink" title="节点2运行 &gt; admin.nodeInfo.enode 查看node信息"></a>节点2运行 <code>&gt; admin.nodeInfo.enode</code> 查看node信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; admin.nodeInfo.enode</span><br><span class="line"><span class="string">&quot;enode://d5bb9fecc8e997905220b5e8c0db8396880bd5326143614b33f81ead534fc4d8282cbdda620fb81eaea66c359c3acd7d590f64981099b3cc063fddae9ac376d9@192.168.164.210:61910&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="节点1添加节点2"><a href="#节点1添加节点2" class="headerlink" title="节点1添加节点2"></a>节点1添加节点2</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; admin.addPeer(<span class="string">&quot;enode://d5bb9fecc8e997905220b5e8c0db8396880bd5326143614b33f81ead534fc4d8282cbdda620fb81eaea66c359c3acd7d590f64981099b3cc063fddae9ac376d9@192.168.164.210:61910&quot;</span>)</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="节点1和节点2运行-gt-net"><a href="#节点1和节点2运行-gt-net" class="headerlink" title="节点1和节点2运行&gt; net"></a>节点1和节点2运行<code>&gt; net</code></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; net</span><br><span class="line">&#123;</span><br><span class="line">  listening: <span class="literal">true</span>,</span><br><span class="line">  peerCount: 1, <span class="comment">#说明添加成功</span></span><br><span class="line">  version: <span class="string">&quot;5201314&quot;</span>,</span><br><span class="line">  getListening: <span class="keyword">function</span>(callback),</span><br><span class="line">  getPeerCount: <span class="keyword">function</span>(callback),</span><br><span class="line">  getVersion: <span class="keyword">function</span>(callback)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="节点1和节点3建立联系"><a href="#节点1和节点3建立联系" class="headerlink" title="节点1和节点3建立联系"></a>节点1和节点3建立联系</h3><h4 id="节点3运行-gt-admin-nodeInfo-enode-查看node信息"><a href="#节点3运行-gt-admin-nodeInfo-enode-查看node信息" class="headerlink" title="节点3运行 &gt; admin.nodeInfo.enode 查看node信息"></a>节点3运行 <code>&gt; admin.nodeInfo.enode</code> 查看node信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;  admin.nodeInfo.enode</span><br><span class="line"><span class="string">&quot;enode://34dcd9b7e64b24a25fe25b6e2aab6fc10525a439b2174ad79bd55bbf867f98060f7eef26c83223ae665372afa819ffd5c9c49a039c4e5e9c4e72be35a3b65aa8@192.168.164.210:61911&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="节点1添加节点3"><a href="#节点1添加节点3" class="headerlink" title="节点1添加节点3"></a>节点1添加节点3</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; admin.addPeer(<span class="string">&quot;enode://34dcd9b7e64b24a25fe25b6e2aab6fc10525a439b2174ad79bd55bbf867f98060f7eef26c83223ae665372afa819ffd5c9c49a039c4e5e9c4e72be35a3b65aa8@192.168.164.210:61911&quot;</span>)</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="分别查看节点1和节点3链接情况"><a href="#分别查看节点1和节点3链接情况" class="headerlink" title="分别查看节点1和节点3链接情况"></a>分别查看节点1和节点3链接情况</h4><p>节点1</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; net</span><br><span class="line">&#123;</span><br><span class="line">  listening: <span class="literal">true</span>,</span><br><span class="line">  peerCount: 2, <span class="comment">##节点1连接两个节点</span></span><br><span class="line">  version: <span class="string">&quot;5201314&quot;</span>,</span><br><span class="line">  getListening: <span class="keyword">function</span>(callback),</span><br><span class="line">  getPeerCount: <span class="keyword">function</span>(callback),</span><br><span class="line">  getVersion: <span class="keyword">function</span>(callback)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>节点3</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; net</span><br><span class="line">&#123;</span><br><span class="line">  listening: <span class="literal">true</span>,</span><br><span class="line">  peerCount: 1,</span><br><span class="line">  version: <span class="string">&quot;5201314&quot;</span>,</span><br><span class="line">  getListening: <span class="keyword">function</span>(callback),</span><br><span class="line">  getPeerCount: <span class="keyword">function</span>(callback),</span><br><span class="line">  getVersion: <span class="keyword">function</span>(callback)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="节点挖矿测试"><a href="#节点挖矿测试" class="headerlink" title="节点挖矿测试"></a>节点挖矿测试</h3><h4 id="使用任一节点挖矿，然后观察其他两个控制台，发现都会有同步的数据，说明节点2和节点3也是连接的状态（由于电脑性能原因，挖矿的时候需要等percentage到达100之后才会开始）"><a href="#使用任一节点挖矿，然后观察其他两个控制台，发现都会有同步的数据，说明节点2和节点3也是连接的状态（由于电脑性能原因，挖矿的时候需要等percentage到达100之后才会开始）" class="headerlink" title="使用任一节点挖矿，然后观察其他两个控制台，发现都会有同步的数据，说明节点2和节点3也是连接的状态（由于电脑性能原因，挖矿的时候需要等percentage到达100之后才会开始）"></a>使用任一节点挖矿，然后观察其他两个控制台，发现都会有同步的数据，说明节点2和节点3也是连接的状态（由于电脑性能原因，挖矿的时候需要等percentage到达100之后才会开始）</h4><h3 id="遇到的坑"><a href="#遇到的坑" class="headerlink" title="遇到的坑"></a>遇到的坑</h3><ul>
+<li>要保证创世节点的json文件一致</li>
+<li>保证在统一局域网内，使用Telnet命令测试</li>
+<li>节点2和节点3的端口注意不要重复</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/25/eth-2/" data-id="cl0oi8mf8001m417terkhc0az" data-title="基于以太坊实现局域网多节点挖矿" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" rel="tag">私有链</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-eth" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/23/eth/" class="article-date">
+  <time class="dt-published" datetime="2018-01-23T06:18:36.000Z" itemprop="datePublished">2018-01-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/23/eth/">基于以太坊创建私有链进行挖矿、交易</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>要说2018年什么最火，无疑就是区块链。比特币的疯狂上涨，每个比特币超过了1万美金。随之而来的就是区块链的技术。 以太坊（Ethereum）并不是一个机构，而是一款能够在区块链上实现智能合约、开源的底层系统。本文主要是通过以太坊，创建私有链，实现挖矿和交易。</p>
+<h4 id="安装golang"><a href="#安装golang" class="headerlink" title="安装golang"></a>安装golang</h4><h5 id="克隆项目"><a href="#克隆项目" class="headerlink" title="克隆项目"></a>克隆项目</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/golang/go.git</span><br></pre></td></tr></table></figure>
+
+<h5 id="安装go-1-4"><a href="#安装go-1-4" class="headerlink" title="安装go 1.4"></a>安装go 1.4</h5><p>golang 是自编译，所以如果安装版本 &gt;&#x3D;1.5 需要先编译1.4版本，然后再安装其他版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cp</span> -r go/ <span class="variable">$HOME</span>/go1.4 <span class="comment">#复制一份文件夹，用于编译1.4版本</span></span><br><span class="line">$ <span class="built_in">cd</span> <span class="variable">$HOME</span>/go1.4</span><br><span class="line">$ git checkout release-branch.go1.4</span><br><span class="line">$ <span class="built_in">cd</span> src</span><br><span class="line">$ ./make.bash <span class="comment"># 进行编译</span></span><br></pre></td></tr></table></figure>
+
+<p>编译之后，开始安装go 1.9版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> <span class="variable">$HOME</span>/install/go</span><br><span class="line">$ git checkout release-branch.go1.9</span><br><span class="line">$ <span class="built_in">cd</span> src/</span><br><span class="line">$ ./all.bash <span class="comment">#安装1.9版本</span></span><br><span class="line"><span class="comment">##### Building Go bootstrap tool.</span></span><br><span class="line">cmd/dist</span><br><span class="line"></span><br><span class="line"><span class="comment">##### Building Go toolchain using /home/test/go1.4.</span></span><br><span class="line">bootstrap/cmd/internal/dwarf</span><br><span class="line">bootstrap/cmd/internal/objabi</span><br><span class="line">bootstrap/cmd/internal/src</span><br><span class="line">bootstrap/cmd/internal/sys</span><br><span class="line">bootstrap/cmd/internal/obj</span><br><span class="line">bootstrap/cmd/internal/obj/arm</span><br><span class="line">bootstrap/cmd/internal/obj/arm64</span><br><span class="line">bootstrap/cmd/internal/obj/mips</span><br><span class="line">bootstrap/cmd/internal/obj/ppc64</span><br><span class="line">bootstrap/cmd/internal/obj/s390x</span><br><span class="line">... <span class="comment">##各种编译安装信息</span></span><br><span class="line"><span class="comment">##### API check</span></span><br><span class="line">Go version is <span class="string">&quot;go1.9.2&quot;</span>, ignoring -next /home/test/install/go/api/next.txt</span><br><span class="line"></span><br><span class="line">ALL TESTS PASSED</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">Installed Go <span class="keyword">for</span> linux/amd64 <span class="keyword">in</span> /home/test/install/go</span><br><span class="line">Installed commands <span class="keyword">in</span> /home/test/install/go/bin</span><br><span class="line">*** You need to add /home/test/install/go/bin to your PATH.</span><br></pre></td></tr></table></figure>
+
+<p>配置环境变量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/home/test/install/go/bin</span><br></pre></td></tr></table></figure>
+
+<p>查看安装版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ go version</span><br><span class="line">go version go1.9.2 linux/amd64</span><br></pre></td></tr></table></figure>
+
+<h5 id="克隆go-ethereum"><a href="#克隆go-ethereum" class="headerlink" title="克隆go-ethereum"></a>克隆go-ethereum</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/ethereum/go-ethereum.git</span><br></pre></td></tr></table></figure>
+
+<h5 id="安装以太坊"><a href="#安装以太坊" class="headerlink" title="安装以太坊"></a>安装以太坊</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ make geth</span><br><span class="line"></span><br><span class="line">build/env.sh go run build/ci.go install ./cmd/geth</span><br><span class="line">&gt;&gt;&gt; /home/test/install/go/bin/go install -ldflags -X main.gitCommit=5d4267911a7791bfa60f275a97347372fbf0ce99 -v ./cmd/geth</span><br><span class="line">github.com/ethereum/go-ethereum/common/hexutil</span><br><span class="line">github.com/ethereum/go-ethereum/crypto/sha3</span><br><span class="line">github.com/ethereum/go-ethereum/common</span><br><span class="line">...</span><br><span class="line">github.com/ethereum/go-ethereum/vendor/github.com/gizak/termui</span><br><span class="line">github.com/ethereum/go-ethereum/vendor/github.com/naoina/go-stringutil</span><br><span class="line">github.com/ethereum/go-ethereum/vendor/github.com/naoina/toml/ast</span><br><span class="line">github.com/ethereum/go-ethereum/vendor/github.com/naoina/toml</span><br><span class="line">github.com/ethereum/go-ethereum/cmd/geth</span><br><span class="line">Done building.</span><br><span class="line">Run <span class="string">&quot;/home/test/install/go-ethereum/build/bin/geth&quot;</span> to launch geth.</span><br></pre></td></tr></table></figure>
+
+<h5 id="创建连接"><a href="#创建连接" class="headerlink" title="创建连接"></a>创建连接</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ln</span> -s  /home/test/install/go-ethereum/build/bin/geth /usr/local/bin/geth</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建私有链"><a href="#创建私有链" class="headerlink" title="创建私有链"></a>创建私有链</h4><h5 id="创建创世区块"><a href="#创建创世区块" class="headerlink" title="创建创世区块"></a>创建创世区块</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;config&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;chainId&quot;</span><span class="punctuation">:</span> <span class="number">15</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;homesteadBlock&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;eip155Block&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;eip158Block&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;coinbase&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0x0000000000000000000000000000000000000000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;difficulty&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0x40000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;extraData&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;gasLimit&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0xffffffff&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;nonce&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0x0000000000000042&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;mixhash&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;parentHash&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;timestamp&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;0x00&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;alloc&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> my_chain</span><br><span class="line">$ <span class="built_in">cd</span> my_chain</span><br><span class="line">$ vim genesis.json <span class="comment"># json文件的内容是上面的json字符串</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="创建创世节点，并且初始化数据"><a href="#创建创世节点，并且初始化数据" class="headerlink" title="创建创世节点，并且初始化数据"></a>创建创世节点，并且初始化数据</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data00 init genesis.json</span><br></pre></td></tr></table></figure>
+
+<p><code>data00</code>就是用来保存创世节点的数据</p>
+<h5 id="启动节点，指定networkid"><a href="#启动节点，指定networkid" class="headerlink" title="启动节点，指定networkid"></a>启动节点，指定networkid</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir ./data00 --networkid 5201314 console <span class="comment">#使用console 支持命令行模式</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/uploads/2018/01/00.png"></p>
+<h5 id="创建节点的账号"><a href="#创建节点的账号" class="headerlink" title="创建节点的账号"></a>创建节点的账号</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在console命令模式下</span></span><br><span class="line">&gt; personal.newAccount(<span class="string">&quot;123&quot;</span>)</span><br><span class="line"><span class="string">&quot;0x9ff8676095e5999bf82eafeab98192e33ad74364&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="开始进行挖矿"><a href="#开始进行挖矿" class="headerlink" title="开始进行挖矿"></a>开始进行挖矿</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; miner.start()</span><br><span class="line">INFO [01-2300:14:37] Updated mining threads                   threads=0</span><br><span class="line">INFO [01-2300:14:37] Transaction pool price threshold updated price=18000000000</span><br><span class="line">INFO [01-2300:14:37] Etherbase automatically configured       address=0x9FF8676095e5999bf82EafEaB98192E33ad74364</span><br><span class="line">null</span><br><span class="line">&gt; INFO [01-2300:14:37] Starting mining operation</span><br><span class="line">INFO [01-2300:14:37] Commit new mining work                   number=1 txs=0 uncles=0 elapsed=146.511µs</span><br><span class="line">INFO [01-2300:14:43] Generating DAG <span class="keyword">in</span> progress               epoch=0 percentage=0 elapsed=4.529s</span><br><span class="line">INFO [01-2300:14:48] Generating DAG <span class="keyword">in</span> progress               epoch=0 percentage=1 elapsed=8.913s</span><br><span class="line">INFO [01-2300:14:52] Generating DAG <span class="keyword">in</span> progress               epoch=0 percentage=2 elapsed=13.169s</span><br><span class="line">INFO [01-2300:14:56] Generating DAG <span class="keyword">in</span> progress               epoch=0 percentage=3 elapsed=17.298s</span><br><span class="line">INFO [01-2300:15:01] Generating DAG <span class="keyword">in</span> progress               epoch=0 percentage=4 elapsed=21.964s</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>等到percentage加载到100的时候就开始进行挖矿</p>
+<p><img src="/uploads/2018/01/%E6%8C%96%E7%9F%BF.png"></p>
+<h5 id="结束挖矿"><a href="#结束挖矿" class="headerlink" title="结束挖矿"></a>结束挖矿</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; miner.stop()</span><br></pre></td></tr></table></figure>
+
+<h5 id="查看挖矿的金额"><a href="#查看挖矿的金额" class="headerlink" title="查看挖矿的金额"></a>查看挖矿的金额</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.getBalance(eth.accounts[0])</span><br><span class="line">5000000000000000000</span><br></pre></td></tr></table></figure>
+
+<h5 id="新开一个窗口，创建第二个节点"><a href="#新开一个窗口，创建第二个节点" class="headerlink" title="新开一个窗口，创建第二个节点"></a>新开一个窗口，创建第二个节点</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data01 init genesis.json</span><br></pre></td></tr></table></figure>
+
+<h5 id="运行第二个节点"><a href="#运行第二个节点" class="headerlink" title="运行第二个节点"></a>运行第二个节点</h5><p>networkid需要和第一个账号相同</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ geth --datadir data01 --networkid 5201314 --ipcdisable --port 61910 --rpcport 8200 console <span class="comment">#使用命令行模式</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="创建账号"><a href="#创建账号" class="headerlink" title="创建账号"></a>创建账号</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; personal.newAccount(<span class="string">&quot;456&quot;</span>)</span><br><span class="line"><span class="string">&quot;0xfc350d17b0fb92eeb0a3bab80116c27d9f7e40d1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="开始进行挖矿-1"><a href="#开始进行挖矿-1" class="headerlink" title="开始进行挖矿"></a>开始进行挖矿</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; miner.start()</span><br></pre></td></tr></table></figure>
+
+<h5 id="结束挖矿-1"><a href="#结束挖矿-1" class="headerlink" title="结束挖矿"></a>结束挖矿</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; miner.stop()</span><br></pre></td></tr></table></figure>
+
+<h4 id="用户交易"><a href="#用户交易" class="headerlink" title="用户交易"></a>用户交易</h4><h5 id="回到第一个节点"><a href="#回到第一个节点" class="headerlink" title="回到第一个节点"></a>回到第一个节点</h5><p>查看节点信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; admin.nodeInfo.enode</span><br><span class="line"><span class="string">&quot;enode://49e538b3f090a04e97f56a7fd1e6223c29599535d5e93010349147dee334b690744504f057ae11adb2804baada222375a56398ef42be536c595c6197a4a7cb2d@[::]:30303&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="切换到第二个节点窗口"><a href="#切换到第二个节点窗口" class="headerlink" title="切换到第二个节点窗口"></a>切换到第二个节点窗口</h5><p>建立联系, 添加第一个节点enode</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> admin.addPeer(<span class="string">&quot;enode://49e538b3f090a04e97f56a7fd1e6223c29599535d5e93010349147dee334b690744504f057ae11adb2804baada222375a56398ef42be536c595c6197a4a7cb2d@[::]:30303&quot;</span>)</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="切换到第一个控制台"><a href="#切换到第一个控制台" class="headerlink" title="切换到第一个控制台"></a>切换到第一个控制台</h5><p>查看建立的联系数量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; net.peerCount</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+
+<p>peerCount&#x3D;1，说明已经建立了联系</p>
+<h5 id="开始进行交易"><a href="#开始进行交易" class="headerlink" title="开始进行交易"></a>开始进行交易</h5><p>切换到一个控制台，交易之前，需要先解锁账号才行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; personal.unlockAccount(eth.accounts[0], <span class="string">&quot;123&quot;</span>)</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>返回true说明已经解锁成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.sendTransaction(&#123;from: <span class="string">&quot;0x9ff8676095e5999bf82eafeab98192e33ad74364&quot;</span>, to: <span class="string">&quot;0xfc350d17b0fb92eeb0a3bab80116c27d9f7e40d1&quot;</span>, value: web3.toWei(1, <span class="string">&quot;ether&quot;</span>)&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>to和form分别是接受和发送的账号，也就是personal.listAccounts里面的账号</p>
+<p>查看确认下交易信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.pendingTransactions</span><br><span class="line">[&#123;</span><br><span class="line">    blockHash: null,</span><br><span class="line">    blockNumber: null,</span><br><span class="line">    from: <span class="string">&quot;0x9ff8676095e5999bf82eafeab98192e33ad74364&quot;</span>,</span><br><span class="line">    gas: 90000,</span><br><span class="line">    gasPrice: 18000000000,</span><br><span class="line">    <span class="built_in">hash</span>: <span class="string">&quot;0x6146513432b27b6a27f54b64fcf0a30dc90290452dfd25e282a05aaf423f4afa&quot;</span>,</span><br><span class="line">    input: <span class="string">&quot;0x&quot;</span>,</span><br><span class="line">    nonce: 0,</span><br><span class="line">    r: <span class="string">&quot;0x77644ff132f800da9b2d8133c796916f956061a491b55e3cbbd0d710f5157199&quot;</span>,</span><br><span class="line">    s: <span class="string">&quot;0x9dbe268e152e5fc15421efa5b00e5d4a601ef4cb2655b577901fd96c5d3c959&quot;</span>,</span><br><span class="line">    to: <span class="string">&quot;0xfc350d17b0fb92eeb0a3bab80116c27d9f7e40d1&quot;</span>,</span><br><span class="line">    transactionIndex: 0,</span><br><span class="line">    v: <span class="string">&quot;0x42&quot;</span>,</span><br><span class="line">    value: 1000000000000000000</span><br><span class="line">&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>开始进行挖矿，使交易生效</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; miner.start()</span><br></pre></td></tr></table></figure>
+
+<h5 id="确认交易是否成功"><a href="#确认交易是否成功" class="headerlink" title="确认交易是否成功"></a>确认交易是否成功</h5><p>在一个和第二个控制台分别运行命令，确认是否交易成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.getBalance(eth.accounts[0])</span><br></pre></td></tr></table></figure>
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><h5 id="挖矿对电脑要求比较高，我使用阿里云的服务器，1核1G基本的配置，两个节点同时挖矿，经常出现CPU吃满的情况。"><a href="#挖矿对电脑要求比较高，我使用阿里云的服务器，1核1G基本的配置，两个节点同时挖矿，经常出现CPU吃满的情况。" class="headerlink" title="挖矿对电脑要求比较高，我使用阿里云的服务器，1核1G基本的配置，两个节点同时挖矿，经常出现CPU吃满的情况。"></a>挖矿对电脑要求比较高，我使用阿里云的服务器，1核1G基本的配置，两个节点同时挖矿，经常出现CPU吃满的情况。</h5><p><img src="/uploads/2018/01/CPU%E5%90%83%E6%BB%A1.png"></p>
+<p><img src="/uploads/2018/01/io%E8%AF%BB%E5%86%99.png"></p>
+<h5 id="还有一个比较奇怪的，当发起交易的时候，一定要进行挖矿操作，才能使交易生效。"><a href="#还有一个比较奇怪的，当发起交易的时候，一定要进行挖矿操作，才能使交易生效。" class="headerlink" title="还有一个比较奇怪的，当发起交易的时候，一定要进行挖矿操作，才能使交易生效。"></a>还有一个比较奇怪的，当发起交易的时候，一定要进行挖矿操作，才能使交易生效。</h5><h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/zl03jsj/category/997608.html">blockchain随笔</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/23/eth/" data-id="cl0oi8mfe001u417t1daugjgm" data-title="基于以太坊创建私有链进行挖矿、交易" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag">比特币</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-php7-copy-on-write" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/21/php7-copy-on-write/" class="article-date">
+  <time class="dt-published" datetime="2018-01-21T13:23:59.000Z" itemprop="datePublished">2018-01-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/21/php7-copy-on-write/">PHP7内存管理之写时复制</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>其实PHP的内存管理是包含<a target="_blank" rel="noopener" href="http://feilong.tech/?p=199">引用计数</a>和写时复制两部分，这篇文章主要是介绍写时复制。</p>
+<h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>其实写时复制在计算机中有很多应用，它只在必要的时候才会进行深拷贝，也就是把保存的值连同内存一块拷贝一份，可以很好的节省效率。比如，Linux在fork子进程的时候，不会立刻复制父进程的地址空间，而是和父进程共享一个地址空间，只有在必要写入的时候，才会复制地址空间，和父进程进行分离。简单来讲，资源的复制是只有需要写入的时候，再回进行，再次之前，都是以只读的方式进行共享。</p>
+<h4 id="PHP的写时复制"><a href="#PHP的写时复制" class="headerlink" title="PHP的写时复制"></a>PHP的写时复制</h4><p>PHP的写时复制原理是一样的。当变量要修改value的结构的时候，这个时候，就会对之前共享的内存资源进行复制一份进行修改，同事断开原来的指向，指向复制后的内存地址。 举个例子：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">array</span>(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$b</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP7 a: (refcount&#x3D;3, is_ref&#x3D;0)&#x3D;array (0 &#x3D;&gt; (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;1, 1 &#x3D;&gt; (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;2)</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">array</span>(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$b</span>;</span><br><span class="line"><span class="comment">//进行分离</span></span><br><span class="line"><span class="variable">$c</span>[] = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP7 a: (refcount&#x3D;2, is_ref&#x3D;0)&#x3D;array (0 &#x3D;&gt; (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;1, 1 &#x3D;&gt; (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;2)</p>
+<p>运行结果很明显，当变量c新插入了一个元素，对那么就没有在继续引用变量a，而是独立复制了一份。</p>
+<p><img src="/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-2.png"></p>
+<p>然而并不是所有的类型都是支持写时复制，比如对象、资源就无法进行复制，也就是无法进行分离，如果多个变量指向同一个对象，当其中一个变量修改对象的时候，其修改将会反应到所有对象上面。事实上只有string和array两种支持分离。 举个例子：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$c</span> = <span class="number">123</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">test</span>();</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$b</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="variable">$c</span>-&gt;c = <span class="number">456</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$a</span>-&gt;c;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP7 a: (refcount&#x3D;3, is_ref&#x3D;0)&#x3D;class test { public $c &#x3D; (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;123 } 456 a: (refcount&#x3D;3, is_ref&#x3D;0)&#x3D;class test { public $c &#x3D; (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;456 }</p>
+<p>同样，变量a实例化了一个新的对象，然后依次进行赋值给其他变量，使用xdebug_debug_zval的时候，打印出来了变量a的3次引用计数，然后对变量c进行赋值，咦？居然发现变量a的引用计数没有变化，所以object的类型是不支持写时复制的。</p>
+<p>支持复制的value类型：</p>
+<p>type</p>
+<p>copyable</p>
+<p>simple types</p>
+<p>N</p>
+<p>string</p>
+<p>Y</p>
+<p>interned string</p>
+<p>N</p>
+<p>array</p>
+<p>Y</p>
+<p>immutable array</p>
+<p>N</p>
+<p>object</p>
+<p>N</p>
+<p>resource</p>
+<p>N</p>
+<p>reference</p>
+<p>N</p>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>《PHP7内核剖析》</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/21/php7-copy-on-write/" data-id="cl0oi8mht006g417t39fy2gle" data-title="PHP7内存管理之写时复制" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98/" rel="tag">内存</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-php7-refcount" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/17/php7-refcount/" class="article-date">
+  <time class="dt-published" datetime="2018-01-17T15:38:53.000Z" itemprop="datePublished">2018-01-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/17/php7-refcount/">PHP7内存管理之引用计数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="C-x2F-C-的内存管理"><a href="#C-x2F-C-的内存管理" class="headerlink" title="C&#x2F;C++的内存管理"></a>C&#x2F;C++的内存管理</h4><p>C&#x2F;C++想要在堆上面分配内存，需要手动进行内存的分配和释放，变量管理非常的麻烦和繁琐，稍有不慎，就可能会造成内存上的错误使用。现在的一些高级语言，都普遍实行自动GC机制。</p>
+<h4 id="自己的意淫"><a href="#自己的意淫" class="headerlink" title="自己的意淫"></a>自己的意淫</h4><p>我们自己先思考下实行自动GC的方法，当我们定义一个变量的时候，给变量分配一块内存，用于保存zval和value的值，等到函数返回的时候，再讲内存回收。如果将变量赋值给其他变量的时候，再进行内存的复制，变量之间相互独立，互不影响。</p>
+<p><img src="/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-1.png"></p>
+<h4 id="PHP的内存管理"><a href="#PHP的内存管理" class="headerlink" title="PHP的内存管理"></a>PHP的内存管理</h4><p>PHP的内存管理肯定不会像是我们想象的那么简单，如果那么简单，那该要浪费多少内存。PHP的内存管理是采用：<strong>引用计数+写时复制</strong> 的方法。</p>
+<h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><p>引用计数是指会有多少个zval指向同一个zend_value。当把变量赋值给一个新的变量的时候，引用计数就会+1。PHP7是将引用计数保存到了zval的结构中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//php7</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> <span class="title class_">_zend_value</span> &#123;</span><br><span class="line">    zend_long         lval;             <span class="comment">/* long value */</span></span><br><span class="line">    <span class="type">double</span>            dval;             <span class="comment">/* double value */</span></span><br><span class="line">    zend_refcounted  *counted;  <span class="comment">// 引用计数</span></span><br><span class="line">    zend_string      *str;</span><br><span class="line">    zend_array       *arr;</span><br><span class="line">    zend_object      *obj;</span><br><span class="line">    zend_resource    *res;</span><br><span class="line">    zend_reference   *ref;</span><br><span class="line">    zend_ast_ref     *ast;</span><br><span class="line">    zval             *zv;</span><br><span class="line">    <span class="type">void</span>             *ptr;</span><br><span class="line">    zend_class_entry *ce;</span><br><span class="line">    zend_function    *func;</span><br><span class="line">    <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="type">uint32_t</span> w1;</span><br><span class="line">        <span class="type">uint32_t</span> w2;</span><br><span class="line">    &#125; ww;</span><br><span class="line">&#125; zend_value;</span><br></pre></td></tr></table></figure>
+
+<p>PHP5是把引用计数放到了zend_struct里面</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">_zval_struct</span> &#123;</span><br><span class="line">    <span class="comment">/* Variable information */</span></span><br><span class="line">    zvalue_value value;     <span class="comment">/* value */</span></span><br><span class="line">    zend_uint refcount__gc; <span class="comment">//引用计数</span></span><br><span class="line">    zend_uchar type;    <span class="comment">/* active type */</span></span><br><span class="line">    zend_uchar is_ref__gc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>PHP5不是这篇文章的重点，暂且不说。</p>
+<p>下面我们看下PHP7 <code>zend_refcounted</code>具体的结构</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_zend_refcounted_h</span> &#123;</span><br><span class="line">    <span class="type">uint32_t</span>         refcount;          <span class="comment">/* reference counter 32-bit */</span></span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="keyword">struct</span> &#123;</span><br><span class="line">            <span class="built_in">ZEND_ENDIAN_LOHI_3</span>(</span><br><span class="line">                zend_uchar    type,</span><br><span class="line">                zend_uchar    flags,    <span class="comment">/* used for strings &amp; objects */</span></span><br><span class="line">                <span class="type">uint16_t</span>      gc_info)  <span class="comment">/* keeps GC root number (or 0) and color */</span></span><br><span class="line">        &#125; v;</span><br><span class="line">        <span class="type">uint32_t</span> type_info;</span><br><span class="line">    &#125; u;</span><br><span class="line">&#125; zend_refcounted_h;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_zend_refcounted</span> &#123;</span><br><span class="line">    zend_refcounted_h gc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>很明显，<code>refcount</code>字段使用了进行计数操作的。 举个例子来看看：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">array</span>();</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$b</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="keyword">unset</span>(<span class="variable">$c</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下： a: (refcount&#x3D;1, is_ref&#x3D;0)&#x3D;array () a: (refcount&#x3D;2, is_ref&#x3D;0)&#x3D;array () a: (refcount&#x3D;3, is_ref&#x3D;0)&#x3D;array () a: (refcount&#x3D;2, is_ref&#x3D;0)&#x3D;array ()</p>
+<p>就像代码运行结果一样，首先定义了一个变量a，引用给数组分配了一块空间，引用计数为1，然后把a赋值给变量b，引用计数+1，然后赋值给变量c，继续+1，然后把变量c释放，引用计数-1。</p>
+<p>但是，并不是所有的变量都会使用引用计数。<strong>比如整形，浮点型，布尔型，NULL，他们的值是直接保存在zval中，所以他们的引用计数是0。这个也是PHP5和PHP7的一个不同点。</strong></p>
+<p>举例说明：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP5 a: (refcount&#x3D;1, is_ref&#x3D;0)&#x3D;123 a: (refcount&#x3D;2, is_ref&#x3D;0)&#x3D;123</p>
+<p>PHP7 a: (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;123 a: (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;123</p>
+<h4 id="特殊情况"><a href="#特殊情况" class="headerlink" title="特殊情况"></a>特殊情况</h4><p>在PHP7中还有两种特殊的情况</p>
+<p>举例说明：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="string">&quot;hi&quot;</span>;</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP7 a: (refcount&#x3D;0, is_ref&#x3D;0)&#x3D;’hi’</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="string">&quot;hi&quot;</span>.<span class="title function_ invoke__">time</span>();</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$a</span>;</span><br><span class="line"><span class="title function_ invoke__">xdebug_debug_zval</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>PHP7 a: (refcount&#x3D;3, is_ref&#x3D;0)&#x3D;’hi1516202718’</p>
+<p>wtf，为什么这两个是不一样的？这就是另外的特殊情况了。</p>
+<ul>
+<li>在PHP中，函数名、类名、变量名、静态字符串等这种类型，比如第一个例子<code>$a = &quot;hi&quot;</code>，后面的字符串是唯一不变的，这等同于C语言中的<code>char *a = &quot;hi&quot;</code>，这些字符串是整个请求周期，请求结束后，同意销毁，自然不用引用计数来进行管理。</li>
+<li>不可变数组，这是opcache的一种优化类型，这里不做详细说明。</li>
+</ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>引用计数算是PHP7和PHP5的一个重要的变更，这个也是内存的一个优化的地方。 在PHP5中，引用计数是在zval中，而不是在zend_value中，这样一来，导致变量复制的时候要复制两个结构(zval和zend_value)，PHP7将引用计数放到zend_value中，这样就可以进行公用，设计也更加合理。</p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul>
+<li>《PHP7内核剖析》</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/17/php7-refcount/" data-id="cl0oi8mhz006u417t4fzacrw0" data-title="PHP7内存管理之引用计数" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-php-factory" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/01/02/php-factory/" class="article-date">
+  <time class="dt-published" datetime="2018-01-02T14:01:52.000Z" itemprop="datePublished">2018-01-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/01/02/php-factory/">PHP设计模式--工厂模式</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>工厂模式就是创建“某种东西”。对于工厂模式，要创建的是一个“产品”，这个产品与创建它的类之间不存在绑定。实际上，为了保持这种松耦合，客户会通过一个工厂发出请求，再由工厂创建请求的产品。</p>
+<h2 id="何时使用工厂方法"><a href="#何时使用工厂方法" class="headerlink" title="何时使用工厂方法"></a>何时使用工厂方法</h2><p>如果一个类要创建的对象数目固定，而且已知，name构建这个类时，就可以采用一种可以预测的方式创建制定数目的对象。例如，如果你要开发一个世界的地图应用，由不同的对象表示七大洲，可以肯定的是，这些对象不会改变。另一方面，如果你要为不同种类的昆虫创建一个网站，肯定会不断发现新的昆虫，或者有些昆虫会有改变，还有可能某些品种会在短时间内灭绝。要处理这种变化，程序必须充分的灵活性。这种项目就可以考虑使用工厂模式。</p>
+<p><img src="/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6.png"></p>
+<h2 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h2><p>我感觉工厂模式的最大优势在于封装，把对象相互隔离，没有影响。</p>
+<h2 id="最简单的例子"><a href="#最简单的例子" class="headerlink" title="最简单的例子"></a>最简单的例子</h2><h3 id="工厂"><a href="#工厂" class="headerlink" title="工厂"></a>工厂</h3><p>第一步是建立工厂。我们使用一个抽象类Creator作为接口。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// Creator</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Creator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="function"><span class="keyword">function</span> <span class="title">factoryMethod</span>(<span class="params"></span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">startFactory</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$mfg</span>  = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">factoryMethod</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$mfg</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步是集成实现这个接口。我使用了两个子类来实现接口的方法。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//TextFactory.php</span></span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;Creator.php&#x27;</span>;</span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;TextProduct.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextFactory</span> <span class="keyword">extends</span> <span class="title">Creator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">factoryMethod</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$product</span> = <span class="keyword">new</span> <span class="title class_">TextProduct</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$product</span>-&gt;<span class="title function_ invoke__">getProperties</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// GraphicFactory</span></span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;Creator.php&#x27;</span>;</span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;GraphicProduct.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphicFactory</span> <span class="keyword">extends</span> <span class="title">Creator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">factoryMethod</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$product</span> = <span class="keyword">new</span> <span class="title class_">GraphicProduct</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$product</span>-&gt;<span class="title function_ invoke__">getProperties</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="产品"><a href="#产品" class="headerlink" title="产品"></a>产品</h3><p>工厂模式的第二个接口就是产品，其实“产品”这个含义是相对于“工厂”的概念，并不一定是实实在在的产品，比如，我们可以把人当初产品等等。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getProperties</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样的，我们再使用两个子类分别继承实现Product的属性。这里有两个“产品”，分别是 图像 和 文字，但是两个“产品”的属性是不一样的。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//GraphicProduct</span></span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;Product.php&#x27;</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphicProduct</span> <span class="keyword">implements</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$mfgProduct</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getProperties</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;mfgProduct = <span class="string">&quot;This is a graphic.&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;mfgProduct;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// TextProduct</span></span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;Product.php&#x27;</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextProduct</span> <span class="keyword">implements</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$mfgProduct</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getProperties</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;mfgProduct = <span class="string">&quot;This is a text .&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;mfgProduct;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户"><a href="#客户" class="headerlink" title="客户"></a>客户</h3><p>客户就是指代码运行结果的显示终端，也就是所说的客户端了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;GraphicFactory.php&#x27;</span>;</span><br><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;TextFactory.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$someGraphicObject</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$someTextObject</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;someGraphicObject = <span class="keyword">new</span> <span class="title class_">GraphicFactory</span>();</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable language_">$this</span>-&gt;someGraphicObject-&gt;<span class="title function_ invoke__">startFactory</span>() . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;someTextProduct = <span class="keyword">new</span> <span class="title class_">TextFactory</span>();</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable language_">$this</span>-&gt;someTextProduct-&gt;<span class="title function_ invoke__">startFactory</span>() . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$worker</span> = <span class="keyword">new</span> <span class="title class_">Client</span>();</span><br></pre></td></tr></table></figure>
+
+<h3 id="代码运行"><a href="#代码运行" class="headerlink" title="代码运行"></a>代码运行</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">feilongdeMBP:Factory feilong$ php Client.php</span><br><span class="line">This is a graphic.</span><br><span class="line">This is a text</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>Learning PHP设计模式</li>
+</ul>
+<h2 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h2><ul>
+<li><a href="/uploads/2018/01/Factory.zip">PHP工厂模式demo</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/01/02/php-factory/" data-id="cl0oi8mh8005d417tdqx5cx23" data-title="PHP设计模式--工厂模式" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-lnmp-2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2017/11/01/docker-lnmp-2/" class="article-date">
+  <time class="dt-published" datetime="2017-11-01T07:45:31.000Z" itemprop="datePublished">2017-11-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>►<a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/Nginx/">Nginx</a>►<a class="article-category-link" href="/categories/PHP/">PHP</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/11/01/docker-lnmp-2/">使用docker搭建lnmp (二)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>docker 名为容器。何为容器，也就是所谓的瓶子，罐子。用可以容纳东西的容器，不同容器之间互不影响。比如，一个瓶子装酒精，一个瓶子装水，非人为状态下，两个瓶子是没有关联的。</p>
+<p>同样，docker也就是这个作用，每个docker可以作为叫做一个“瓶子”，每个”瓶子”可以当做PHP的运行环境，可以当做Java的运行环境。环境完全独立。外部的环境(内存，操作系统，CPU等)相当于柜子，承载着这些”瓶子”。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/11/01/docker-lnmp-2/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/11/01/docker-lnmp-2/" data-id="cl0oi8meo0011417t4k2i3o52" data-title="使用docker搭建lnmp (二)" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-docker-lnmp" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2017/10/29/docker-lnmp/" class="article-date">
+  <time class="dt-published" datetime="2017-10-29T13:07:26.000Z" itemprop="datePublished">2017-10-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Docker/">Docker</a>►<a class="article-category-link" href="/categories/Linux/">Linux</a>►<a class="article-category-link" href="/categories/PHP/">PHP</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/10/29/docker-lnmp/">使用docker搭建lnmp环境</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>docker是一个开源的容器引擎，随着“微服务架构”正在变得越来越重要，docker也变得越来越火。但是网上的文章中，要么是很有借鉴意义的干货，要么就是使用高端术语来讲述什么叫做微服务架构。今天我就通过文章来记述一下传统lnmp迁移docker的过程。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/10/29/docker-lnmp/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/10/29/docker-lnmp/" data-id="cl0oi8meq0012417t3jic51cd" data-title="使用docker搭建lnmp环境" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-phpsource-cli" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2017/09/26/phpsource-cli/" class="article-date">
+  <time class="dt-published" datetime="2017-09-26T12:50:15.000Z" itemprop="datePublished">2017-09-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/09/26/phpsource-cli/">PHP源码分析之cli模式执行的过程</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>众所周知，PHP在web上应用很广泛。接近80%的web网站都是使用PHP+MySQL，虽然越来越多的新语种崛起，但是现在PHP依然是中小型web系统的首选。PHP除了在web上有很多应用，也经常被用作脚本工具，虽然没有原生shell效率高，但是起点比较低。今天就和大家分享下PHP cli模式的执行过程。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/09/26/phpsource-cli/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2017/09/26/phpsource-cli/" data-id="cl0oi8mhy006s417tdil6eop5" data-title="PHP源码分析之cli模式执行的过程" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nodejs/">Nodejs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E6%88%91%E5%8F%8D%E6%80%9D/">自我反思</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apollo/" rel="tag">Apollo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HyperLogLog/" rel="tag">HyperLogLog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">PHP7垃圾回收</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">PHP原型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E7%B2%BE%E5%BA%A6/" rel="tag">PHP精度</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">PHP设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ascii/" rel="tag">ascii</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/brew/" rel="tag">brew</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cli/" rel="tag">cli</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-network/" rel="tag">docker network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker%E5%AE%89%E5%85%A8/" rel="tag">docker安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/" rel="tag">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libnetwork/" rel="tag">libnetwork</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/" rel="tag">shell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/token/" rel="tag">token</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ulimit/" rel="tag">ulimit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unicode/" rel="tag">unicode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/utf-8/" rel="tag">utf-8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E5%BA%B7/" rel="tag">健康</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E8%BA%AB/" rel="tag">健身</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98/" rel="tag">内存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%8F%E8%82%A5/" rel="tag">减肥</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" rel="tag">出国游</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%A2%E5%BB%BA/" rel="tag">团建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" rel="tag">成长进阶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" rel="tag">普吉岛</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%B0%E5%9B%BD/" rel="tag">泰国</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" rel="tag">私有链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" rel="tag">程序员</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1/" rel="tag">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A0%81/" rel="tag">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" rel="tag">自我表达</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" rel="tag">贪心算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Apollo/" style="font-size: 10px;">Apollo</a> <a href="/tags/HyperLogLog/" style="font-size: 10px;">HyperLogLog</a> <a href="/tags/Linux/" style="font-size: 14.29px;">Linux</a> <a href="/tags/Mac/" style="font-size: 10px;">Mac</a> <a href="/tags/MySQL/" style="font-size: 11.43px;">MySQL</a> <a href="/tags/PHP/" style="font-size: 20px;">PHP</a> <a href="/tags/PHP7/" style="font-size: 17.14px;">PHP7</a> <a href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">PHP7垃圾回收</a> <a href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">PHP原型模式</a> <a href="/tags/PHP%E6%BA%90%E7%A0%81/" style="font-size: 18.57px;">PHP源码</a> <a href="/tags/PHP%E7%B2%BE%E5%BA%A6/" style="font-size: 10px;">PHP精度</a> <a href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 11.43px;">PHP设计模式</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/ascii/" style="font-size: 10px;">ascii</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/brew/" style="font-size: 10px;">brew</a> <a href="/tags/cli/" style="font-size: 10px;">cli</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 17.14px;">docker</a> <a href="/tags/docker-network/" style="font-size: 10px;">docker network</a> <a href="/tags/docker%E5%AE%89%E5%85%A8/" style="font-size: 10px;">docker安全</a> <a href="/tags/http/" style="font-size: 12.86px;">http</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/libnetwork/" style="font-size: 10px;">libnetwork</a> <a href="/tags/nginx/" style="font-size: 12.86px;">nginx</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/tcp/" style="font-size: 11.43px;">tcp</a> <a href="/tags/token/" style="font-size: 10px;">token</a> <a href="/tags/ulimit/" style="font-size: 10px;">ulimit</a> <a href="/tags/unicode/" style="font-size: 10px;">unicode</a> <a href="/tags/utf-8/" style="font-size: 10px;">utf-8</a> <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" style="font-size: 15.71px;">以太坊</a> <a href="/tags/%E5%81%A5%E5%BA%B7/" style="font-size: 10px;">健康</a> <a href="/tags/%E5%81%A5%E8%BA%AB/" style="font-size: 10px;">健身</a> <a href="/tags/%E5%86%85%E5%AD%98/" style="font-size: 10px;">内存</a> <a href="/tags/%E5%87%8F%E8%82%A5/" style="font-size: 10px;">减肥</a> <a href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" style="font-size: 12.86px;">出国游</a> <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 14.29px;">区块链</a> <a href="/tags/%E5%9B%A2%E5%BB%BA/" style="font-size: 12.86px;">团建</a> <a href="/tags/%E5%AE%B9%E5%99%A8/" style="font-size: 12.86px;">容器</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" style="font-size: 10px;">微服务</a> <a href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" style="font-size: 11.43px;">成长进阶</a> <a href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" style="font-size: 12.86px;">普吉岛</a> <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 11.43px;">智能合约</a> <a href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" style="font-size: 10px;">比特币</a> <a href="/tags/%E6%B3%B0%E5%9B%BD/" style="font-size: 12.86px;">泰国</a> <a href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" style="font-size: 10px;">私有链</a> <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" style="font-size: 11.43px;">程序员</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">统计</a> <a href="/tags/%E7%BC%96%E7%A0%81/" style="font-size: 10px;">编码</a> <a href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" style="font-size: 10px;">自我表达</a> <a href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" style="font-size: 10px;">贪心算法</a> <a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 11.43px;">面试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/13/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/16/contract-eth/">【以太坊】公链上的合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/07/approve-transfer/">【以太坊】实现智能合约授权与余额转账</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2022 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

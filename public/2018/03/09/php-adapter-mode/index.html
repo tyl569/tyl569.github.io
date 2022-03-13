@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>PHP设计模式-适配器模式 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="适配器模式组合优于继承学习设计模式，最经常听到的一句话就是：组合优于继承，因为使用组合，可以使参与者之间的绑定更宽松，在重用、结构和修改等方面会有很多的有点。这个和继承不同，继承类或者所继承的类中包含已经实现的方法，这其实也是一种绑定，使用组合，就没有这种紧密绑定的缺点。  使用继承的适配器类图  使用组合的适配器类图 组合适配器的例子有一家温湿度传感器公司，这个传感器可以测试空气的温度和湿度。分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP设计模式-适配器模式">
+<meta property="og:url" content="http://example.com/2018/03/09/php-adapter-mode/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="适配器模式组合优于继承学习设计模式，最经常听到的一句话就是：组合优于继承，因为使用组合，可以使参与者之间的绑定更宽松，在重用、结构和修改等方面会有很多的有点。这个和继承不同，继承类或者所继承的类中包含已经实现的方法，这其实也是一种绑定，使用组合，就没有这种紧密绑定的缺点。  使用继承的适配器类图  使用组合的适配器类图 组合适配器的例子有一家温湿度传感器公司，这个传感器可以测试空气的温度和湿度。分">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE-2.png">
+<meta property="og:image" content="http://example.com/uploads/2018/03/Adapter-300x235.png">
+<meta property="article:published_time" content="2018-03-08T16:12:25.000Z">
+<meta property="article:modified_time" content="2022-03-13T01:17:12.526Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="PHP">
+<meta property="article:tag" content="PHP设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-php-adapter-mode" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/03/09/php-adapter-mode/" class="article-date">
+  <time class="dt-published" datetime="2018-03-08T16:12:25.000Z" itemprop="datePublished">2018-03-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/PHP/">PHP</a>►<a class="article-category-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      PHP设计模式-适配器模式
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="适配器模式"><a href="#适配器模式" class="headerlink" title="适配器模式"></a>适配器模式</h4><h5 id="组合优于继承"><a href="#组合优于继承" class="headerlink" title="组合优于继承"></a>组合优于继承</h5><p>学习设计模式，最经常听到的一句话就是：<code>组合优于继承</code>，因为使用组合，可以使参与者之间的绑定更宽松，在重用、结构和修改等方面会有很多的有点。这个和继承不同，继承类或者所继承的类中包含已经实现的方法，这其实也是一种绑定，使用组合，就没有这种紧密绑定的缺点。</p>
+<p><img src="/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE.png" alt="使用继承的适配器类图"></p>
+<p>使用继承的适配器类图</p>
+<p><img src="/uploads/2018/02/%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF%E7%9A%84%E9%80%82%E9%85%8D%E5%99%A8%E7%B1%BB%E5%9B%BE-2.png" alt="使用组合的适配器类图"></p>
+<p>使用组合的适配器类图</p>
+<h4 id="组合适配器的例子"><a href="#组合适配器的例子" class="headerlink" title="组合适配器的例子"></a>组合适配器的例子</h4><p>有一家温湿度传感器公司，这个传感器可以测试空气的温度和湿度。分别调用getTemperature()方法和geThumidity()</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sensor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getThumidity</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperature</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个时候呢，由于公司扩大业务，有一家智能家居的公司前来谈合作，想要使用遥控，来读取温度和湿度，分别调用方法 getThumidityByRemote() 和getTemperatureByRemote() ,没办法，只能扩充Sensor的类了。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sensor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getThumidity</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperature</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getThumidityByRemote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperatureByRemote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>紧接着，又来了一家智能音箱的公司，也要接入温湿度传感器，但是这家公司是根据用户的话的内容来区分是否查询温湿度getByAnswer($code), $code &#x3D; 0的时候，查询温度，当$code &#x3D; 1的时候，查询湿度。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sensor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getThumidity</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperature</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getThumidityByRemote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperatureByRemote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getByAsnwer</span>(<span class="params"><span class="variable">$code</span></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$code</span> == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$code</span> == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可能你已经发现了问题，随着其他的公司不断的接入，Sensor的类会变得更加臃肿不看。或许我们应该好好区分一下整个过程中的角色问题。</p>
+<p><img src="/uploads/2018/03/Adapter-300x235.png"></p>
+<ol>
+<li>目标(Target)角色：智能家居公司和智能音箱公司的接口或者方法，使我们需要实现的目标(target)，因为外接需要调用这两个方法才行</li>
+<li>源(Adaptee)角色：Sensor的温湿度查询，是我们需要适配方法，也就是，我们可以通过这两个方法，进行温湿度查询。</li>
+<li>适配器(Adapter)角色：我们需要通过这个，来协调目标角色和源角色。</li>
+</ol>
+<p>定义Sensor类</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sensor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">geThumidity</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the thumidity is 1234... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperature</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;the temperature is 45678... \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义智能家居和智能音箱的接口</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Household</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">geThumidityByRemote</span>(<span class="params"></span>)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperatureByRemote</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Spearkers</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getByAnswer</span>(<span class="params"><span class="variable">$code</span></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义适配器</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HouseholdTarget</span> <span class="keyword">implements</span> <span class="title">Household</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$_sensor</span> = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params">Sensor <span class="variable">$sensor</span></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_sensor = <span class="variable">$sensor</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">geThumidityByRemote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_sensor-&gt;<span class="title function_ invoke__">geThumidity</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTemperatureByRemote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_sensor-&gt;<span class="title function_ invoke__">getTemperature</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpearkersTargat</span> <span class="keyword">implements</span> <span class="title">Spearkers</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$_sensor</span> = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params">Sensor <span class="variable">$sensor</span></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_sensor = <span class="variable">$sensor</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getByAnswer</span>(<span class="params"><span class="variable">$code</span></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$code</span> == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;_sensor-&gt;<span class="title function_ invoke__">getTemperature</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$code</span> == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;_sensor-&gt;<span class="title function_ invoke__">geThumidity</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端进行调用</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">__autoload</span>(<span class="params"><span class="variable">$class_name</span></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(<span class="keyword">__DIR__</span> . <span class="string">&quot;/<span class="subst">&#123;$class_name&#125;</span>.php&quot;</span>)) &#123;</span><br><span class="line">        <span class="keyword">require_once</span> <span class="keyword">__DIR__</span> . <span class="string">&quot;/<span class="subst">&#123;$class_name&#125;</span>.php&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$sensor</span> = <span class="keyword">new</span> <span class="title class_">Sensor</span>();</span><br><span class="line"><span class="variable">$HouseholdTarget</span> = <span class="keyword">new</span> <span class="title class_">HouseholdTarget</span>(<span class="variable">$sensor</span>);</span><br><span class="line"><span class="variable">$HouseholdTarget</span>-&gt;<span class="title function_ invoke__">geThumidityByRemote</span>();</span><br><span class="line"><span class="variable">$HouseholdTarget</span>-&gt;<span class="title function_ invoke__">getTemperatureByRemote</span>();</span><br><span class="line"></span><br><span class="line"><span class="variable">$SpearkersTargat</span> = <span class="keyword">new</span> <span class="title class_">SpearkersTargat</span>(<span class="variable">$sensor</span>);</span><br><span class="line"><span class="variable">$SpearkersTargat</span>-&gt;<span class="title function_ invoke__">getByAnswer</span>(<span class="number">0</span>);</span><br><span class="line"><span class="variable">$SpearkersTargat</span>-&gt;<span class="title function_ invoke__">getByAnswer</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>输出结果 the thumidity is 1234… the temperature is 45678… the temperature is 45678… the thumidity is 1234…</p>
+<h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4><p>使用适配器模式之后，能够更加方便对其进行拓展，如果有再多的公司进行接入，也不用担心影响Sensor类。</p>
+<h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><p>1．系统需要使用现有的类，而此类的接口不符合系统的需要。</p>
+<p>2．想要建立一个可以重复使用的类，用于与一些彼此之间没有太大关联的一些类，包括一些可能在将来引进的类一起工作。这些源类不一定有很复杂的接口。</p>
+<p>3.（对组合适配器而言）在设计里，需要改变多个已有子类的接口，如果使用类的适配器模式，就要针对每一个子类做一个适配器，而这不太实际。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2018/03/09/php-adapter-mode/" data-id="cl0oi8mgy004x417t8njj0k43" data-title="PHP设计模式-适配器模式" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">PHP设计模式</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/23/interview-phpers/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          记面试N个PHP程序员的经历
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/07/linux-php-const/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Linux自定义PHP的环境变量</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Docker/">Docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nodejs/">Nodejs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP/">PHP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E6%BA%90%E7%A0%81/">PHP源码</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">PHP设计模式</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/">以太坊</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E6%88%91%E5%8F%8D%E6%80%9D/">自我反思</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Apollo/" rel="tag">Apollo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HyperLogLog/" rel="tag">HyperLogLog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7/" rel="tag">PHP7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">PHP7垃圾回收</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">PHP原型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E6%BA%90%E7%A0%81/" rel="tag">PHP源码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E7%B2%BE%E5%BA%A6/" rel="tag">PHP精度</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">PHP设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ascii/" rel="tag">ascii</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/brew/" rel="tag">brew</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cli/" rel="tag">cli</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/" rel="tag">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-network/" rel="tag">docker network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker%E5%AE%89%E5%85%A8/" rel="tag">docker安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/" rel="tag">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/libnetwork/" rel="tag">libnetwork</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/" rel="tag">shell</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tcp/" rel="tag">tcp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/token/" rel="tag">token</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ulimit/" rel="tag">ulimit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unicode/" rel="tag">unicode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/utf-8/" rel="tag">utf-8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E5%BA%B7/" rel="tag">健康</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%81%A5%E8%BA%AB/" rel="tag">健身</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98/" rel="tag">内存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%8F%E8%82%A5/" rel="tag">减肥</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" rel="tag">出国游</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%A2%E5%BB%BA/" rel="tag">团建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" rel="tag">成长进阶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" rel="tag">普吉岛</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag">智能合约</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" rel="tag">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%B0%E5%9B%BD/" rel="tag">泰国</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" rel="tag">私有链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" rel="tag">程序员</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1/" rel="tag">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A0%81/" rel="tag">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" rel="tag">自我表达</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" rel="tag">贪心算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Apollo/" style="font-size: 10px;">Apollo</a> <a href="/tags/HyperLogLog/" style="font-size: 10px;">HyperLogLog</a> <a href="/tags/Linux/" style="font-size: 14.29px;">Linux</a> <a href="/tags/Mac/" style="font-size: 10px;">Mac</a> <a href="/tags/MySQL/" style="font-size: 11.43px;">MySQL</a> <a href="/tags/PHP/" style="font-size: 20px;">PHP</a> <a href="/tags/PHP7/" style="font-size: 17.14px;">PHP7</a> <a href="/tags/PHP7%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">PHP7垃圾回收</a> <a href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">PHP原型模式</a> <a href="/tags/PHP%E6%BA%90%E7%A0%81/" style="font-size: 18.57px;">PHP源码</a> <a href="/tags/PHP%E7%B2%BE%E5%BA%A6/" style="font-size: 10px;">PHP精度</a> <a href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 11.43px;">PHP设计模式</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/ascii/" style="font-size: 10px;">ascii</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/brew/" style="font-size: 10px;">brew</a> <a href="/tags/cli/" style="font-size: 10px;">cli</a> <a href="/tags/devops/" style="font-size: 10px;">devops</a> <a href="/tags/docker/" style="font-size: 17.14px;">docker</a> <a href="/tags/docker-network/" style="font-size: 10px;">docker network</a> <a href="/tags/docker%E5%AE%89%E5%85%A8/" style="font-size: 10px;">docker安全</a> <a href="/tags/http/" style="font-size: 12.86px;">http</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/libnetwork/" style="font-size: 10px;">libnetwork</a> <a href="/tags/nginx/" style="font-size: 12.86px;">nginx</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/tcp/" style="font-size: 11.43px;">tcp</a> <a href="/tags/token/" style="font-size: 10px;">token</a> <a href="/tags/ulimit/" style="font-size: 10px;">ulimit</a> <a href="/tags/unicode/" style="font-size: 10px;">unicode</a> <a href="/tags/utf-8/" style="font-size: 10px;">utf-8</a> <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" style="font-size: 15.71px;">以太坊</a> <a href="/tags/%E5%81%A5%E5%BA%B7/" style="font-size: 10px;">健康</a> <a href="/tags/%E5%81%A5%E8%BA%AB/" style="font-size: 10px;">健身</a> <a href="/tags/%E5%86%85%E5%AD%98/" style="font-size: 10px;">内存</a> <a href="/tags/%E5%87%8F%E8%82%A5/" style="font-size: 10px;">减肥</a> <a href="/tags/%E5%87%BA%E5%9B%BD%E6%B8%B8/" style="font-size: 12.86px;">出国游</a> <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 14.29px;">区块链</a> <a href="/tags/%E5%9B%A2%E5%BB%BA/" style="font-size: 12.86px;">团建</a> <a href="/tags/%E5%AE%B9%E5%99%A8/" style="font-size: 12.86px;">容器</a> <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" style="font-size: 10px;">微服务</a> <a href="/tags/%E6%88%90%E9%95%BF%E8%BF%9B%E9%98%B6/" style="font-size: 11.43px;">成长进阶</a> <a href="/tags/%E6%99%AE%E5%90%89%E5%B2%9B/" style="font-size: 12.86px;">普吉岛</a> <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 11.43px;">智能合约</a> <a href="/tags/%E6%AF%94%E7%89%B9%E5%B8%81/" style="font-size: 10px;">比特币</a> <a href="/tags/%E6%B3%B0%E5%9B%BD/" style="font-size: 12.86px;">泰国</a> <a href="/tags/%E7%A7%81%E6%9C%89%E9%93%BE/" style="font-size: 10px;">私有链</a> <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/" style="font-size: 11.43px;">程序员</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BB%9F%E8%AE%A1/" style="font-size: 10px;">统计</a> <a href="/tags/%E7%BC%96%E7%A0%81/" style="font-size: 10px;">编码</a> <a href="/tags/%E8%87%AA%E6%88%91%E8%A1%A8%E8%BE%BE/" style="font-size: 10px;">自我表达</a> <a href="/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" style="font-size: 10px;">贪心算法</a> <a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 11.43px;">面试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/13/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/docker%E7%89%88%E6%9C%ACmysql5-7%E5%8F%8A%E4%BB%A5%E4%B8%8A%E7%89%88%E6%9C%AC-only-full-group-by%E6%8A%A5%E9%94%99%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">Docker版本Mysql5.7及以上版本 ONLY_FULL_GROUP_BY报错的解决方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/16/contract-eth/">【以太坊】公链上的合约</a>
+          </li>
+        
+          <li>
+            <a href="/2021/06/07/approve-transfer/">【以太坊】实现智能合约授权与余额转账</a>
+          </li>
+        
+          <li>
+            <a href="/2021/05/30/solidity-keyword/">【以太坊】实现ERC20代币智能合约</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2022 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
