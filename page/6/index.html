@@ -18,18 +18,18 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"feilongggg.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
     <meta property="og:type" content="website">
 <meta property="og:title" content="Feilong Tech">
-<meta property="og:url" content="http://feilongggg.tech/page/6/index.html">
+<meta property="og:url" content="http://feilong.tech/page/6/index.html">
 <meta property="og:site_name" content="Feilong Tech">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="feilong">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://feilongggg.tech/page/6/">
+<link rel="canonical" href="http://feilong.tech/page/6/">
 
 
 
@@ -163,7 +163,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/26/limit-req-limit-conn/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/26/limit-req-limit-conn/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -276,7 +276,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/25/nginx-limit-rate/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/25/nginx-limit-rate/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -383,7 +383,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/25/eth-2/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/25/eth-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -461,7 +461,7 @@
     
     <div class="post-body" itemprop="articleBody">
           <p>上一篇文章简要介绍了本地实现私有链挖矿和转账，现在这篇文章主要实现局域网下实现多个节点实现挖矿</p>
-<h3 id="前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易"><a href="#前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易" class="headerlink" title="前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易"></a>前提，已经安装了go-ethereum，如果没有安装请移步<a target="_blank" rel="noopener" href="http://feilong.tech/?p=206">基于以太坊创建私有链进行挖矿、交易</a></h3><h3 id="机器：Ubuntu-两个节点-，Mac-一个节点"><a href="#机器：Ubuntu-两个节点-，Mac-一个节点" class="headerlink" title="机器：Ubuntu(两个节点)，Mac(一个节点)"></a>机器：Ubuntu(两个节点)，Mac(一个节点)</h3><h3 id="创建创世节点"><a href="#创建创世节点" class="headerlink" title="创建创世节点"></a>创建创世节点</h3><h4 id="创建节点json文件"><a href="#创建节点json文件" class="headerlink" title="创建节点json文件"></a>创建节点json文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> my_eth2</span><br><span class="line">$ <span class="built_in">cd</span> my_eth2</span><br><span class="line">$ vim genesis.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;config&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;chainId&quot;</span>: 10,</span><br><span class="line">        <span class="string">&quot;homesteadBlock&quot;</span>: 0,</span><br><span class="line">        <span class="string">&quot;eip155Block&quot;</span>: 0,</span><br><span class="line">        <span class="string">&quot;eip158Block&quot;</span>: 0</span><br><span class="line">    &#125;,</span><br><span class="line">  <span class="string">&quot;coinbase&quot;</span>   : <span class="string">&quot;0x0000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;difficulty&quot;</span> : <span class="string">&quot;0x20000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;extraData&quot;</span>  : <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;gasLimit&quot;</span>   : <span class="string">&quot;0x2fefd8&quot;</span>,</span><br><span class="line">  <span class="string">&quot;nonce&quot;</span>      : <span class="string">&quot;0x0000000000000042&quot;</span>,</span><br><span class="line">  <span class="string">&quot;mixhash&quot;</span>    : <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;parentHash&quot;</span> : <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;timestamp&quot;</span>  : <span class="string">&quot;0x00&quot;</span>,</span><br><span class="line">  <span class="string">&quot;alloc&quot;</span>      : &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易"><a href="#前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易" class="headerlink" title="前提，已经安装了go-ethereum，如果没有安装请移步基于以太坊创建私有链进行挖矿、交易"></a>前提，已经安装了go-ethereum，如果没有安装请移步<a href="http://feilong.tech/?p=206">基于以太坊创建私有链进行挖矿、交易</a></h3><h3 id="机器：Ubuntu-两个节点-，Mac-一个节点"><a href="#机器：Ubuntu-两个节点-，Mac-一个节点" class="headerlink" title="机器：Ubuntu(两个节点)，Mac(一个节点)"></a>机器：Ubuntu(两个节点)，Mac(一个节点)</h3><h3 id="创建创世节点"><a href="#创建创世节点" class="headerlink" title="创建创世节点"></a>创建创世节点</h3><h4 id="创建节点json文件"><a href="#创建节点json文件" class="headerlink" title="创建节点json文件"></a>创建节点json文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> my_eth2</span><br><span class="line">$ <span class="built_in">cd</span> my_eth2</span><br><span class="line">$ vim genesis.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;config&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;chainId&quot;</span>: 10,</span><br><span class="line">        <span class="string">&quot;homesteadBlock&quot;</span>: 0,</span><br><span class="line">        <span class="string">&quot;eip155Block&quot;</span>: 0,</span><br><span class="line">        <span class="string">&quot;eip158Block&quot;</span>: 0</span><br><span class="line">    &#125;,</span><br><span class="line">  <span class="string">&quot;coinbase&quot;</span>   : <span class="string">&quot;0x0000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;difficulty&quot;</span> : <span class="string">&quot;0x20000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;extraData&quot;</span>  : <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;gasLimit&quot;</span>   : <span class="string">&quot;0x2fefd8&quot;</span>,</span><br><span class="line">  <span class="string">&quot;nonce&quot;</span>      : <span class="string">&quot;0x0000000000000042&quot;</span>,</span><br><span class="line">  <span class="string">&quot;mixhash&quot;</span>    : <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;parentHash&quot;</span> : <span class="string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">  <span class="string">&quot;timestamp&quot;</span>  : <span class="string">&quot;0x00&quot;</span>,</span><br><span class="line">  <span class="string">&quot;alloc&quot;</span>      : &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018/01/25/eth-2/#more" rel="contents">
@@ -495,7 +495,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/23/eth/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/23/eth/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -606,7 +606,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/21/php7-copy-on-write/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/21/php7-copy-on-write/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -687,7 +687,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>其实PHP的内存管理是包含<a target="_blank" rel="noopener" href="http://feilong.tech/?p=199">引用计数</a>和写时复制两部分，这篇文章主要是介绍写时复制。</p>
+          <p>其实PHP的内存管理是包含<a href="http://feilong.tech/?p=199">引用计数</a>和写时复制两部分，这篇文章主要是介绍写时复制。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018/01/21/php7-copy-on-write/#more" rel="contents">
@@ -721,7 +721,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/17/php7-refcount/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/17/php7-refcount/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -832,7 +832,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/02/php-factory/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/02/php-factory/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -943,7 +943,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2017/11/01/docker-lnmp-2/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2017/11/01/docker-lnmp-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1063,7 +1063,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2017/10/29/docker-lnmp/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2017/10/29/docker-lnmp/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1178,7 +1178,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2017/09/26/phpsource-cli/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2017/09/26/phpsource-cli/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
