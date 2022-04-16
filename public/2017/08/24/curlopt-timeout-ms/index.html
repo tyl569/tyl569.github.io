@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilongggg.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。curl可以通过设置变量 CURLOPT_TIMEOUT_MS或者 CURLOPT_TI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CURL 设置CURLOPT_TIMEOUT_MS 超时时间">
+<meta property="og:url" content="http://feilongggg.tech/2017/08/24/curlopt-timeout-ms/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。curl可以通过设置变量 CURLOPT_TIMEOUT_MS或者 CURLOPT_TI">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-08-24T11:41:23.000Z">
+<meta property="article:modified_time" content="2022-03-13T11:45:47.311Z">
+<meta property="article:author" content="feilong">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://feilongggg.tech/2017/08/24/curlopt-timeout-ms/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilongggg.tech/2017/08/24/curlopt-timeout-ms/","path":"2017/08/24/curlopt-timeout-ms/","title":"CURL 设置CURLOPT_TIMEOUT_MS 超时时间"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CURL 设置CURLOPT_TIMEOUT_MS 超时时间 | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%9C%E4%B8%BAPHPer%EF%BC%8C%E5%9F%BA%E6%9C%AC%E4%B8%8A%E7%BB%8F%E5%B8%B8%E4%BC%9A%E4%BD%BF%E7%94%A8curl%E5%87%BD%E6%95%B0%EF%BC%8C%E8%B0%83%E7%94%A8%E6%8E%A5%E5%8F%A3%EF%BC%8C%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%8C%E6%9C%89%E6%97%B6%E5%80%99%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E6%97%B6%E9%97%B4%E5%A4%AA%E9%95%BF%E7%9A%84%E8%AF%9D%EF%BC%8C%E4%BC%9A%E5%BD%B1%E5%93%8D%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E3%80%82"><span class="nav-number">1.</span> <span class="nav-text">作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%94%E5%A6%82%EF%BC%9A%E6%88%91%E8%B0%83%E7%94%A8%E5%A4%A9%E6%B0%94%E6%8E%A5%E5%8F%A3%EF%BC%8C%E5%A6%82%E6%9E%9C%E5%A4%A9%E6%B0%94%E6%8E%A5%E5%8F%A3%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%BE%88%E9%95%BF%EF%BC%8C%E6%AF%94%E5%A6%825s%EF%BC%8C%E8%BF%99%E5%B0%B1%E4%B8%A5%E9%87%8D%E5%BD%B1%E5%93%8D%E5%88%B0%E4%B8%9A%E5%8A%A1%E4%BA%86%E3%80%82%E6%89%80%E4%BB%A5%E9%92%88%E5%AF%B9%E8%BF%99%E7%A7%8D%E6%83%85%E5%86%B5%EF%BC%8C%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E7%9B%B4%E6%8E%A5%E5%BF%BD%E7%95%A5%E3%80%82"><span class="nav-number">2.</span> <span class="nav-text">比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%80%E8%BF%91%E5%9C%A8%E8%B0%83%E7%94%A8%E5%9B%BE%E7%81%B5%E6%8E%A5%E5%8F%A3%EF%BC%8C%E6%9C%80%E9%95%BF%E8%BF%94%E5%9B%9E%E6%97%B6%E9%97%B4%E9%AB%98%E8%BE%BE4s%EF%BC%8C%E6%88%91%E4%BB%AC%E7%9A%84%E6%9C%9F%E6%9C%9B%E6%98%AF%E6%97%B6%E9%97%B4%E8%B6%85%E8%BF%87500%E6%AF%AB%E7%A7%92%EF%BC%8C%E5%B0%B1%E7%9B%B4%E6%8E%A5%E5%BF%BD%E7%95%A5%E3%80%82"><span class="nav-number">2.1.</span> <span class="nav-text">最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%81%87%E8%AE%BE%E6%88%91%E4%BB%AC%E6%83%B3%E8%A6%81%E8%AE%BE%E7%BD%AE%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E6%98%AF500%E6%AF%AB%E7%A7%92%EF%BC%8C%E9%82%A3%E4%B9%88%E7%9B%B4%E6%8E%A5%E8%AE%BE%E7%BD%AE-curl-setopt-ch-CURLOPT-TIMEOUT-MS-500"><span class="nav-number">2.2.</span> <span class="nav-text">假设我们想要设置超时时间是500毫秒，那么直接设置 curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E8%BF%9E%E6%8E%A5%EF%BC%9Ahttp-feilong-tech-2017-08-24-curlopt-timeout-ms"><span class="nav-number">3.</span> <span class="nav-text">本文连接：http:&#x2F;&#x2F;feilong.tech&#x2F;2017&#x2F;08&#x2F;24&#x2F;curlopt_timeout_ms</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2017/08/24/curlopt-timeout-ms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CURL 设置CURLOPT_TIMEOUT_MS 超时时间 | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CURL 设置CURLOPT_TIMEOUT_MS 超时时间
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2017-08-24 19:41:23" itemprop="dateCreated datePublished" datetime="2017-08-24T19:41:23+08:00">2017-08-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-13 19:45:47" itemprop="dateModified" datetime="2022-03-13T19:45:47+08:00">2022-03-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。"><a href="#作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。" class="headerlink" title="作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。"></a>作为PHPer，基本上经常会使用curl函数，调用接口，爬取数据，有时候接口返回时间太长的话，会影响业务逻辑。</h4><h4 id="比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。"><a href="#比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。" class="headerlink" title="比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。"></a>比如：我调用天气接口，如果天气接口处理时间很长，比如5s，这就严重影响到业务了。所以针对这种情况，我们需要直接忽略。</h4><h5 id="最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。"><a href="#最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。" class="headerlink" title="最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。"></a>最近在调用图灵接口，最长返回时间高达4s，我们的期望是时间超过500毫秒，就直接忽略。</h5><p><em>curl可以通过设置变量 <code>CURLOPT_TIMEOUT_MS</code>或者 <code>CURLOPT_TIMEOUT</code>设置超时时间。</em></p>
+<blockquote>
+<p>CURLOPT_TIMEOUT_MS 以毫秒计算超时时间 CURLOPT_TIMEOUT 以秒计算超时时间</p>
+</blockquote>
+<p>查了手册关于<code>timeout</code>的设置</p>
+<p>变量</p>
+<p>说明</p>
+<p>CURLOPT_TIMEOUT</p>
+<p>允许 cURL 函数执行的最长秒数。</p>
+<p>CURLOPT_TIMEOUT_MS</p>
+<p>设置cURL允许执行的最长毫秒数。 如果 libcurl 编译时使用系统标准的名称解析器（ standard system name resolver），那部分的连接仍旧使用以秒计的超时解决方案，最小超时时间还是一秒钟。</p>
+<span id="more"></span>
+
+<h5 id="假设我们想要设置超时时间是500毫秒，那么直接设置-curl-setopt-ch-CURLOPT-TIMEOUT-MS-500"><a href="#假设我们想要设置超时时间是500毫秒，那么直接设置-curl-setopt-ch-CURLOPT-TIMEOUT-MS-500" class="headerlink" title="假设我们想要设置超时时间是500毫秒，那么直接设置 curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);"></a>假设我们想要设置超时时间是500毫秒，那么直接设置 curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);</h5><p>但是，测试的时候，发现，设置了500ms，curl直接返回了false，并且打印了下错误信息：<code>cURL Error (28): Timeout was reached</code> 可能和libcurl 的编译有关系，我继续查了下php手册，发现了如下的内容</p>
+<blockquote>
+<p>If you want cURL to timeout in less than one second, you can use CURLOPT_TIMEOUT_MS, although there is a bug&#x2F;“feature” on “Unix-like systems” that causes libcurl to timeout immediately if the value is &lt; 1000 ms with the error “cURL Error (28): Timeout was reached”. The explanation for this behavior is: “If libcurl is built to use the standard system name resolver, that portion of the transfer will still use full-second resolution for timeouts with a minimum timeout allowed of one second.”</p>
+<p>What this means to PHP developers is “You can use this function without testing it first, because you can’t tell if libcurl is using the standard system name resolver (but you can be pretty sure it is)”</p>
+<p>The problem is that on (LiU)nix, when libcurl uses the standard name resolver, a SIGALRM is raised during name resolution which libcurl thinks is the timeout alarm.</p>
+<p>The solution is to disable signals using CURLOPT_NOSIGNAL. Here’s an example script that requests itself causing a 10-second delay so you can test timeouts:</p>
+</blockquote>
+<p>内容的大概意思是：libcurl使用的是标准名称的解析器，内部传输信息号部分，依然是使用秒来计算是否超时，并且最少时间是1秒，如果想要设置超时时间小于1秒，那么直接通过<code>CURLOPT_NOSIGNAL</code>禁用信号即可。即：<code>curl_setopt($ch, CURLOPT_NOSIGNAL, 1);</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#demo code</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;foo&#x27;</span>])) &#123;</span><br><span class="line">        <span class="comment">// Client</span></span><br><span class="line">      <span class="variable">$ch</span> = <span class="title function_ invoke__">curl_init</span>(<span class="string">&#x27;http://localhost/test/test_timeout.php?foo=bar&#x27;</span>);</span><br><span class="line">      <span class="title function_ invoke__">curl_setopt</span>(<span class="variable">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="literal">true</span>);</span><br><span class="line">      <span class="title function_ invoke__">curl_setopt</span>(<span class="variable">$ch</span>, CURLOPT_NOSIGNAL, <span class="number">1</span>);</span><br><span class="line">      <span class="title function_ invoke__">curl_setopt</span>(<span class="variable">$ch</span>, CURLOPT_TIMEOUT_MS, <span class="number">200</span>);</span><br><span class="line">      <span class="variable">$data</span> = <span class="title function_ invoke__">curl_exec</span>(<span class="variable">$ch</span>);</span><br><span class="line">      <span class="variable">$curl_errno</span> = <span class="title function_ invoke__">curl_errno</span>(<span class="variable">$ch</span>);</span><br><span class="line">      <span class="variable">$curl_error</span> = <span class="title function_ invoke__">curl_error</span>(<span class="variable">$ch</span>);</span><br><span class="line">      <span class="title function_ invoke__">curl_close</span>(<span class="variable">$ch</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$curl_errno</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;cURL Error (<span class="subst">$curl_errno</span>): <span class="subst">$curl_error</span>\n&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="keyword">echo</span> <span class="string">&quot;Data received: <span class="subst">$data</span>\n&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Server</span></span><br><span class="line">        <span class="title function_ invoke__">sleep</span>(<span class="number">10</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Done.&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="本文连接：http-feilong-tech-2017-08-24-curlopt-timeout-ms"><a href="#本文连接：http-feilong-tech-2017-08-24-curlopt-timeout-ms" class="headerlink" title="本文连接：http://feilong.tech/2017/08/24/curlopt_timeout_ms"></a>本文连接：<a target="_blank" rel="noopener" href="http://feilong.tech/2017/08/24/curlopt_timeout_ms">http://feilong.tech/2017/08/24/curlopt_timeout_ms</a></h4>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/08/24/bash-lean-1/" rel="prev" title="bash基础学习一">
+                  <i class="fa fa-chevron-left"></i> bash基础学习一
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017/08/24/git-branch/" rel="next" title="Git 分支（branch）的使用整理">
+                  Git 分支（branch）的使用整理 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

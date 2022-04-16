@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilongggg.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="公司有个nodejs的云服务，但是没在开机自启的进程中，如果服务器因为某种原因 reboot 的话，服务就挂掉了。这肯定是不允许的。so 想要写个脚本，来实现开机自启。奈何 shell 太渣渣，搞不定。所以在社区找到了pm2，可以把nodejs加到自启服务中。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nodejs 使用pm2实现开机自启">
+<meta property="og:url" content="http://feilongggg.tech/2017/08/24/nodejs-pm2/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="公司有个nodejs的云服务，但是没在开机自启的进程中，如果服务器因为某种原因 reboot 的话，服务就挂掉了。这肯定是不允许的。so 想要写个脚本，来实现开机自启。奈何 shell 太渣渣，搞不定。所以在社区找到了pm2，可以把nodejs加到自启服务中。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-08-24T12:03:56.000Z">
+<meta property="article:modified_time" content="2022-03-13T11:50:41.104Z">
+<meta property="article:author" content="feilong">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://feilongggg.tech/2017/08/24/nodejs-pm2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilongggg.tech/2017/08/24/nodejs-pm2/","path":"2017/08/24/nodejs-pm2/","title":"Nodejs 使用pm2实现开机自启"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Nodejs 使用pm2实现开机自启 | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#pm2%E6%9C%89%E4%B8%80%E4%BA%9B%E4%BC%98%E5%8A%BF"><span class="nav-number">1.</span> <span class="nav-text">pm2有一些优势:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pm2%E4%B9%9F%E6%9C%89%E5%8A%A3%E5%8A%BF"><span class="nav-number">2.</span> <span class="nav-text">pm2也有劣势:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%93%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">拓展:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%85%A8%E5%B1%80%E5%AE%89%E8%A3%85pm2"><span class="nav-number">4.</span> <span class="nav-text">1、全局安装pm2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%89%BE%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E7%9B%AE%E5%BD%95%EF%BC%8C%E5%B9%B6%E4%BD%BF%E7%94%A8pm2%E5%90%AF%E5%8A%A8node%E6%9C%8D%E5%8A%A1"><span class="nav-number">5.</span> <span class="nav-text">2、找到项目的目录，并使用pm2启动node服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%8A%8Anode%E6%9C%8D%E5%8A%A1%E5%8A%A0%E5%88%B0%E8%BF%9B%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">3、把node服务加到进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%91%BD%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">其他命令</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2017/08/24/nodejs-pm2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Nodejs 使用pm2实现开机自启 | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Nodejs 使用pm2实现开机自启
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2017-08-24 20:03:56" itemprop="dateCreated datePublished" datetime="2017-08-24T20:03:56+08:00">2017-08-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-13 19:50:41" itemprop="dateModified" datetime="2022-03-13T19:50:41+08:00">2022-03-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Nodejs/" itemprop="url" rel="index"><span itemprop="name">Nodejs</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>公司有个nodejs的云服务，但是没在开机自启的进程中，如果服务器因为某种原因 <code>reboot</code> 的话，服务就挂掉了。这肯定是不允许的。so 想要写个脚本，来实现开机自启。奈何 <code>shell</code> 太渣渣，搞不定。所以在社区找到了<code>pm2</code>，可以把<code>nodejs</code>加到自启服务中。</p>
+<span id="more"></span>
+
+<h4 id="pm2有一些优势"><a href="#pm2有一些优势" class="headerlink" title="pm2有一些优势:"></a>pm2有一些优势:</h4><blockquote>
+<ul>
+<li>自带负载均衡功能的node应用进程管理器</li>
+<li>可以监控应用CPU和内存情况</li>
+<li>操作简单</li>
+<li>非常适合IaaS结构</li>
+</ul>
+</blockquote>
+<h4 id="pm2也有劣势"><a href="#pm2也有劣势" class="headerlink" title="pm2也有劣势:"></a>pm2也有劣势:</h4><blockquote>
+<ul>
+<li>不适合PaaS结构</li>
+</ul>
+</blockquote>
+<h4 id="拓展"><a href="#拓展" class="headerlink" title="拓展:"></a>拓展:</h4><blockquote>
+<ul>
+<li>SaaS: Software-as-a-Service 软件即服务，例如Google的Gmail，把软件做成服务</li>
+<li>IaaS: Infrastructure-as-a-Service 基础设施即服务，这是我们最常见的云端接口，网站等</li>
+<li>PaaS: Platform-as-a-Service 平台即服务，专门做平台服务，例如新浪云等 详细了解参见<a target="_blank" rel="noopener" href="http://cloud.51cto.com/art/201107/278903.htm">云服务模式：SaaS、PaaS和IaaS，哪一种适合你？</a></li>
+</ul>
+</blockquote>
+<h4 id="1、全局安装pm2"><a href="#1、全局安装pm2" class="headerlink" title="1、全局安装pm2"></a>1、全局安装pm2</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install pm2 -g</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、找到项目的目录，并使用pm2启动node服务"><a href="#2、找到项目的目录，并使用pm2启动node服务" class="headerlink" title="2、找到项目的目录，并使用pm2启动node服务"></a>2、找到项目的目录，并使用pm2启动node服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /usr/share/nginx/wechat-iot</span><br><span class="line">$ pm2 start app.js</span><br><span class="line">[PM2] Starting app.js <span class="keyword">in</span> fork_mode (1 instance)</span><br><span class="line">[PM2] Done.</span><br><span class="line">┌──────────┬────┬──────┬───────┬────────┬─────────┬────────┬─────────────┬──────────┐</span><br><span class="line">│ App name │ <span class="built_in">id</span> │ mode │ pid   │ status │ restart │ <span class="built_in">uptime</span> │ memory      │ watching │</span><br><span class="line">├──────────┼────┼──────┼───────┼────────┼─────────┼────────┼─────────────┼──────────┤</span><br><span class="line">│ app      │ 0  │ fork │ 12120 │ online │ 0       │ 0s     │ 15.863 MB   │ disabled │</span><br><span class="line">└──────────┴────┴──────┴───────┴────────┴─────────┴────────┴─────────────┴──────────┘</span><br><span class="line"> Use `pm2 show &lt;idname&gt;` to get more details about an app</span><br></pre></td></tr></table></figure>
+
+<h4 id="3、把node服务加到进程"><a href="#3、把node服务加到进程" class="headerlink" title="3、把node服务加到进程"></a>3、把node服务加到进程</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pm2 startup centos <span class="comment">#pm2 startup ubuntu</span></span><br><span class="line">$ pm2 save </span><br></pre></td></tr></table></figure>
+
+<h4 id="其他命令"><a href="#其他命令" class="headerlink" title="其他命令"></a>其他命令</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ pm2 stop app.js <span class="comment">#停止node服务</span></span><br><span class="line">$ pm2 restart app.js <span class="comment">#重启node服务</span></span><br><span class="line">$ pm2 delete app.js <span class="comment">#在进程中删除</span></span><br><span class="line">$ pm2 status <span class="comment">#查看状态</span></span><br><span class="line">$ pm2 monit <span class="comment">#查看占用的CPU和内存</span></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/08/24/nodejs-lang/" rel="prev" title="NodeJs 多语言包">
+                  <i class="fa fa-chevron-left"></i> NodeJs 多语言包
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017/08/24/nodejs-error-cant-set-headers-after-they-are-sent/" rel="next" title="NodeJs Error: Can''t set headers after they are sent.怎么解决？">
+                  NodeJs Error: Can''t set headers after they are sent.怎么解决？ <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

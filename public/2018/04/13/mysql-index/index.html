@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilongggg.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="索引到底对性能有多少影响？这个问题估计是很多MySQL小白好奇的问题。当然我也是一样。因为之前的时候，并没有对索引有太多的注意，而且之前的工作经历，因为数据量很小，索引所起到的作用并不是很大，所以也没有太大注意。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="索引对性能到底有多少的影响？？">
+<meta property="og:url" content="http://feilongggg.tech/2018/04/13/mysql-index/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="索引到底对性能有多少影响？这个问题估计是很多MySQL小白好奇的问题。当然我也是一样。因为之前的时候，并没有对索引有太多的注意，而且之前的工作经历，因为数据量很小，索引所起到的作用并不是很大，所以也没有太大注意。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/04/29826BAFF73C1D32CDD9C5A89502CB29.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/04/1523616180755.jpg">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/04/WX20180413-194555.png">
+<meta property="og:image" content="http://feilongggg.tech/uploads/2018/04/WX20180413-200112.png">
+<meta property="article:published_time" content="2018-04-13T12:06:33.000Z">
+<meta property="article:modified_time" content="2022-03-13T11:49:52.920Z">
+<meta property="article:author" content="feilong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://feilongggg.tech/uploads/2018/04/29826BAFF73C1D32CDD9C5A89502CB29.png">
+
+
+<link rel="canonical" href="http://feilongggg.tech/2018/04/13/mysql-index/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":"","permalink":"http://feilongggg.tech/2018/04/13/mysql-index/","path":"2018/04/13/mysql-index/","title":"索引对性能到底有多少的影响？？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>索引对性能到底有多少的影响？？ | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%88%B0%E5%BA%95%E5%AF%B9%E6%80%A7%E8%83%BD%E6%9C%89%E5%A4%9A%E5%B0%91%E5%BD%B1%E5%93%8D%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">索引到底对性能有多少影响？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E6%83%85%E7%9A%84%E8%B5%B7%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">事情的起点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%B7%9F%E8%BF%9B"><span class="nav-number">3.</span> <span class="nav-text">问题跟进</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">定位问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PHP%E6%85%A2%E6%97%A5%E5%BF%97"><span class="nav-number">5.</span> <span class="nav-text">PHP慢日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%AF%B9%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D%EF%BC%81"><span class="nav-number">6.</span> <span class="nav-text">索引对性能的影响！</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/04/13/mysql-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="索引对性能到底有多少的影响？？ | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          索引对性能到底有多少的影响？？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-04-13 20:06:33" itemprop="dateCreated datePublished" datetime="2018-04-13T20:06:33+08:00">2018-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-13 19:49:52" itemprop="dateModified" datetime="2022-03-13T19:49:52+08:00">2022-03-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="索引到底对性能有多少影响？"><a href="#索引到底对性能有多少影响？" class="headerlink" title="索引到底对性能有多少影响？"></a>索引到底对性能有多少影响？</h4><p>这个问题估计是很多MySQL小白好奇的问题。当然我也是一样。因为之前的时候，并没有对索引有太多的注意，而且之前的工作经历，因为数据量很小，索引所起到的作用并不是很大，所以也没有太大注意。</p>
+<span id="more"></span>
+
+<h4 id="事情的起点"><a href="#事情的起点" class="headerlink" title="事情的起点"></a>事情的起点</h4><p>我在公司是做后端开发（PHPer），除了日常的开发工作，也要兼职公司的运维。每周安排一个人跟进报警邮件，出现问题及时通报。</p>
+<p>像很多创业公司的一样，我们选用的是阿里云的ECS+RDS。因为如果自己购买服务器，不管是运维成本还是物理成本都是比较高的。</p>
+<p>一天将近半夜12点的时候，报警日志突然出现了<code>MySQL server has gone away</code></p>
+<p>遇到问题肯定是先Baidu，我找到了MySQL官方的解释，原因是查询的时候，出现的mysql断开的情况。我登录阿里云rds后台，发现wait_timeout时间长得很。不应该会出现超时的情况。</p>
+<p><img src="/uploads/2018/04/29826BAFF73C1D32CDD9C5A89502CB29.png"></p>
+<p>一个同事：“会不会和rds经常CPU报警有关？”</p>
+<p>我勒个去，我查了一下rds监控，果然CPU持续升高。</p>
+<p><img src="/uploads/2018/04/1523616180755.jpg"></p>
+<h4 id="问题跟进"><a href="#问题跟进" class="headerlink" title="问题跟进"></a>问题跟进</h4><p>rds自带了日志系统，可以方便。查看了一下慢日志系统，果然有很多的慢SQL日志。</p>
+<p><img src="/uploads/2018/04/WX20180413-194555.png"></p>
+<p>我曹，每次扫描了8W多行。看来是没有使用到索引。加上次数频繁，解析的总次数高达 1762833762 行。</p>
+<h4 id="定位问题"><a href="#定位问题" class="headerlink" title="定位问题"></a>定位问题</h4><p>查看MySQL的执行计划</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> explain extended <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `test` <span class="keyword">WHERE</span> `is_deleted` <span class="operator">=</span><span class="number">0</span> <span class="keyword">AND</span> `a` <span class="operator">=</span> <span class="number">81644</span>;</span><br><span class="line"><span class="operator">+</span><span class="comment">----+-------------+-----------+------+---------------+------+---------+------+-------+-------------+</span></span><br><span class="line"> id  select_type  <span class="keyword">table</span>      type  possible_keys  key   key_len  <span class="keyword">ref</span>   <span class="keyword">rows</span>   Extra       </span><br><span class="line"><span class="operator">+</span><span class="comment">----+-------------+-----------+------+---------------+------+---------+------+-------+-------------+</span></span><br><span class="line">  <span class="number">1</span>  SIMPLE       test  <span class="keyword">ALL</span>   a_index       <span class="keyword">NULL</span>  <span class="keyword">NULL</span>     <span class="keyword">NULL</span>  <span class="number">86172</span>  <span class="keyword">Using</span> <span class="keyword">where</span> </span><br><span class="line"><span class="operator">+</span><span class="comment">----+-------------+-----------+------+---------------+------+---------+------+-------+-------------+</span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span>, <span class="number">3</span> warnings (<span class="number">0.01</span> sec)</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> warnings;</span><br><span class="line"> Level    Code  Message                                                                                             </span><br><span class="line"> Warning  <span class="number">1739</span>  Cannot use <span class="keyword">ref</span> access <span class="keyword">on</span> index <span class="string">&#x27;a_index&#x27;</span> due <span class="keyword">to</span> type <span class="keyword">or</span> <span class="keyword">collation</span> conversion <span class="keyword">on</span> field <span class="string">&#x27;a&#x27;</span>                                                                                                 </span><br><span class="line"> Warning  <span class="number">1739</span>  Cannot use <span class="keyword">range</span> access <span class="keyword">on</span> index <span class="string">&#x27;a_index&#x27;</span> due <span class="keyword">to</span> type <span class="keyword">or</span> <span class="keyword">collation</span> conversion <span class="keyword">on</span> field <span class="string">&#x27;a&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>果然是没有用到索引，全表扫描。</p>
+<p>原来，由于a数据类型是varchar类型的。但是查询的时候，使用的int类型，在执行SQL语句的时候，由于类型原因，造成了隐式转换。没有用到索引。所以实际上，应该把原来的SQL语句更改成 <code>SELECT * FROM test WHERE is_deleted =0 AND a = &#39;81644&#39;</code>。</p>
+<p>虽然原因找到了，但是查询的SQL那么多，定位那具体的php文件以及对于的代码行数，也是一个难题。</p>
+<h4 id="PHP慢日志"><a href="#PHP慢日志" class="headerlink" title="PHP慢日志"></a>PHP慢日志</h4><p>为了能够定位代码的效率，PHP自带一个功能，那就是慢日志。如果PHP脚本，执行时间比较长的时候，那么PHP会认为这段代码是有问题的，PHP会把代码的基本信息打印到慢日志里面，能够方便开发者定位问题。</p>
+<p>这么说来，如果找到慢日志里面关于执行这个SQL的代码，也就能够准确定位到对应的PHP文件。</p>
+<h4 id="索引对性能的影响！"><a href="#索引对性能的影响！" class="headerlink" title="索引对性能的影响！"></a>索引对性能的影响！</h4><p>接下来用对比图来比较下使用索引和没有使用索引的对比吧</p>
+<p><img src="/uploads/2018/04/WX20180413-200112.png"></p>
+<p>优化之后的SQL执行效率，相比之前要高出很多，CPU占用率稳定保持在个位数，甚至 5%一下，相比之前80%左右，呈现指数的翻倍。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>其实隐式转换是MySQL索引经常遇到的问题。我最开始听说是前段时间，阿里云组织了一个<a target="_blank" rel="noopener" href="https://yq.aliyun.com/roundtable/56333?utm_content=m_25986">慢SQL的优化大赛</a>。虽然没有得到名次，但是确实通过大赛，学到了很多关于索引的知识。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/08/awk/" rel="prev" title="awk命令的简单介绍">
+                  <i class="fa fa-chevron-left"></i> awk命令的简单介绍
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/07/05/php-json-encode/" rel="next" title="让Json更懂中文(JSON_UNESCAPED_UNICODE)">
+                  让Json更懂中文(JSON_UNESCAPED_UNICODE) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
