@@ -15,36 +15,36 @@
 
 
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"feilongggg.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="智能合约说到以太坊开发，就肯定绕不开智能合约。 智能合约，其实是一种协议，就相当于是一种规则，他规定了交易、转账等。智能合约也可以理解成是“一段代码”，开发在通过执行“这段代码”，获得一个结果，这个结果可能是转账结果，或者其他等等。 在开发以太坊的时候，开发者需要先编写智能合约，然后将智能合约部署到对应的以太坊节点，以太坊被部署到不同的服务器上，节点共同维护以太坊公链，调用者通过调用以太坊接口，访">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【以太坊】编译智能合约">
-<meta property="og:url" content="http://feilongggg.tech/2021/05/24/eth-contract-demo/index.html">
+<meta property="og:url" content="http://feilong.tech/2021/05/24/eth-contract-demo/index.html">
 <meta property="og:site_name" content="Feilong Tech">
 <meta property="og:description" content="智能合约说到以太坊开发，就肯定绕不开智能合约。 智能合约，其实是一种协议，就相当于是一种规则，他规定了交易、转账等。智能合约也可以理解成是“一段代码”，开发在通过执行“这段代码”，获得一个结果，这个结果可能是转账结果，或者其他等等。 在开发以太坊的时候，开发者需要先编写智能合约，然后将智能合约部署到对应的以太坊节点，以太坊被部署到不同的服务器上，节点共同维护以太坊公链，调用者通过调用以太坊接口，访">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://feilongggg.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-220210.png">
-<meta property="og:image" content="http://feilongggg.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png">
-<meta property="og:image" content="http://feilongggg.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-222130.png">
-<meta property="og:image" content="http://feilongggg.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png">
+<meta property="og:image" content="http://feilong.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-220210.png">
+<meta property="og:image" content="http://feilong.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png">
+<meta property="og:image" content="http://feilong.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-222130.png">
+<meta property="og:image" content="http://feilong.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png">
 <meta property="article:published_time" content="2021-05-24T14:22:19.000Z">
-<meta property="article:modified_time" content="2022-03-13T11:47:49.785Z">
+<meta property="article:modified_time" content="2022-04-16T06:24:38.437Z">
 <meta property="article:author" content="feilong">
 <meta property="article:tag" content="以太坊">
 <meta property="article:tag" content="区块链">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://feilongggg.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-220210.png">
+<meta name="twitter:image" content="http://feilong.tech/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-220210.png">
 
 
-<link rel="canonical" href="http://feilongggg.tech/2021/05/24/eth-contract-demo/">
+<link rel="canonical" href="http://feilong.tech/2021/05/24/eth-contract-demo/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilongggg.tech/2021/05/24/eth-contract-demo/","path":"2021/05/24/eth-contract-demo/","title":"【以太坊】编译智能合约"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilong.tech/2021/05/24/eth-contract-demo/","path":"2021/05/24/eth-contract-demo/","title":"【以太坊】编译智能合约"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>【以太坊】编译智能合约 | Feilong Tech</title>
@@ -128,7 +128,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-count">92</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -137,7 +137,7 @@
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-count">58</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -176,7 +176,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2021/05/24/eth-contract-demo/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2021/05/24/eth-contract-demo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -187,7 +187,7 @@
       <meta itemprop="name" content="Feilong Tech">
       <meta itemprop="description" content="">
     </span>
-    
+
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
       <meta itemprop="name" content="【以太坊】编译智能合约 | Feilong Tech">
       <meta itemprop="description" content="">
@@ -212,7 +212,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-13 19:47:49" itemprop="dateModified" datetime="2022-03-13T19:47:49+08:00">2022-03-13</time>
+      <time title="Modified: 2022-04-16 14:24:38" itemprop="dateModified" datetime="2022-04-16T14:24:38+08:00">2022-04-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -258,7 +258,7 @@
 
 <p><img src="/uploads/2021/05/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A120210524-221218.png"></p>
 <p>一个简单的智能合约就实现了。</p>
-<p>本文地址： <a target="_blank" rel="noopener" href="https://feilong.tech/2021/05/24/eth-contract-demo/">https://feilong.tech/2021/05/24/eth-contract-demo/</a></p>
+<p>本文地址： <a href="https://feilong.tech/2021/05/24/eth-contract-demo/">https://feilong.tech/2021/05/24/eth-contract-demo/</a></p>
 
     </div>
 

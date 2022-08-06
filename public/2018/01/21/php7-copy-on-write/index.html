@@ -15,34 +15,34 @@
 
 
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"feilongggg.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="其实PHP的内存管理是包含引用计数和写时复制两部分，这篇文章主要是介绍写时复制。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PHP7内存管理之写时复制">
-<meta property="og:url" content="http://feilongggg.tech/2018/01/21/php7-copy-on-write/index.html">
+<meta property="og:url" content="http://feilong.tech/2018/01/21/php7-copy-on-write/index.html">
 <meta property="og:site_name" content="Feilong Tech">
 <meta property="og:description" content="其实PHP的内存管理是包含引用计数和写时复制两部分，这篇文章主要是介绍写时复制。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://feilongggg.tech/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-2.png">
+<meta property="og:image" content="http://feilong.tech/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-2.png">
 <meta property="article:published_time" content="2018-01-21T13:23:59.000Z">
-<meta property="article:modified_time" content="2022-03-13T11:52:16.260Z">
+<meta property="article:modified_time" content="2022-04-16T06:24:38.455Z">
 <meta property="article:author" content="feilong">
 <meta property="article:tag" content="PHP7">
 <meta property="article:tag" content="PHP源码">
 <meta property="article:tag" content="内存">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://feilongggg.tech/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-2.png">
+<meta name="twitter:image" content="http://feilong.tech/uploads/2018/01/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6-2.png">
 
 
-<link rel="canonical" href="http://feilongggg.tech/2018/01/21/php7-copy-on-write/">
+<link rel="canonical" href="http://feilong.tech/2018/01/21/php7-copy-on-write/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":"","permalink":"http://feilongggg.tech/2018/01/21/php7-copy-on-write/","path":"2018/01/21/php7-copy-on-write/","title":"PHP7内存管理之写时复制"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":"","permalink":"http://feilong.tech/2018/01/21/php7-copy-on-write/","path":"2018/01/21/php7-copy-on-write/","title":"PHP7内存管理之写时复制"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>PHP7内存管理之写时复制 | Feilong Tech</title>
@@ -126,7 +126,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-count">92</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -135,7 +135,7 @@
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-count">58</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -174,7 +174,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://feilongggg.tech/2018/01/21/php7-copy-on-write/">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/01/21/php7-copy-on-write/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -185,7 +185,7 @@
       <meta itemprop="name" content="Feilong Tech">
       <meta itemprop="description" content="">
     </span>
-    
+
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
       <meta itemprop="name" content="PHP7内存管理之写时复制 | Feilong Tech">
       <meta itemprop="description" content="">
@@ -210,7 +210,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-13 19:52:16" itemprop="dateModified" datetime="2022-03-13T19:52:16+08:00">2022-03-13</time>
+      <time title="Modified: 2022-04-16 14:24:38" itemprop="dateModified" datetime="2022-04-16T14:24:38+08:00">2022-04-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -240,7 +240,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>其实PHP的内存管理是包含<a target="_blank" rel="noopener" href="http://feilong.tech/?p=199">引用计数</a>和写时复制两部分，这篇文章主要是介绍写时复制。</p>
+        <p>其实PHP的内存管理是包含<a href="http://feilong.tech/?p=199">引用计数</a>和写时复制两部分，这篇文章主要是介绍写时复制。</p>
 <span id="more"></span>
 
 <h4 id="简要介绍"><a href="#简要介绍" class="headerlink" title="简要介绍"></a>简要介绍</h4><p>其实写时复制在计算机中有很多应用，它只在必要的时候才会进行深拷贝，也就是把保存的值连同内存一块拷贝一份，可以很好的节省效率。比如，Linux在fork子进程的时候，不会立刻复制父进程的地址空间，而是和父进程共享一个地址空间，只有在必要写入的时候，才会复制地址空间，和父进程进行分离。简单来讲，资源的复制是只有需要写入的时候，再回进行，再次之前，都是以只读的方式进行共享。</p>
