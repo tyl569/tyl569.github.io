@@ -8,7 +8,7 @@ subtitle: ''
 description: ''
 keywords:
 author: feilong
-language: en
+language: zh-CN
 timezone: 'Asia/Shanghai'
 
 # URL
@@ -105,3 +105,5 @@ deploy:
   type: 'git'
   repo: https://github.com/tyl569/tyl569.github.io/
   branch: main
+
+
