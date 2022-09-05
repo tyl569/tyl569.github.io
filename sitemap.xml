@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://feilong.tech/2018/07/05/php-json-encode/</loc>
+    
+    <lastmod>2022-09-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://feilong.tech/2017/08/24/php-lifetime/</loc>
+    
+    <lastmod>2022-09-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://feilong.tech/2019/12/20/php-parse-post/</loc>
     
     <lastmod>2022-09-05</lastmod>
@@ -786,24 +804,6 @@
   
   <url>
     <loc>http://feilong.tech/2019/09/06/php-float-double-precision/</loc>
-    
-    <lastmod>2022-09-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://feilong.tech/2018/07/05/php-json-encode/</loc>
-    
-    <lastmod>2022-09-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://feilong.tech/2017/08/24/php-lifetime/</loc>
     
     <lastmod>2022-09-05</lastmod>
     
