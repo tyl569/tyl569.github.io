@@ -52,7 +52,12 @@
   resolved "https://registry.npmmirror.com/@types/responselike/-/responselike-1.0.0.tgz"
   dependencies:
     "@types/node" "*"
-
+JSONStream@^1.0.7:
+  version "1.3.5"
+  resolved "https://registry.npmmirror.com/JSONStream/-/JSONStream-1.3.5.tgz"
+  dependencies:
+    jsonparse "^1.2.0"
+    through ">=2.2.7 <3"
 a-sync-waterfall@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/a-sync-waterfall/-/a-sync-waterfall-1.0.1.tgz"
@@ -96,11 +101,6 @@ agent-base@6:
   resolved "https://registry.npmmirror.com/agent-base/-/agent-base-6.0.2.tgz"
   dependencies:
     debug "4"
-
-amdefine@>=0.0.4:
-  version "1.0.1"
-  resolved "https://registry.npmmirror.com/amdefine/-/amdefine-1.0.1.tgz"
-
 ansi-regex@^5.0.1:
   version "5.0.1"
   resolved "https://registry.npmmirror.com/ansi-regex/-/ansi-regex-5.0.1.tgz"
@@ -327,25 +327,13 @@ cross-spawn@^7.0.0:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
-
-css-parse@1.7.x:
-  version "1.7.0"
-  resolved "https://registry.npmmirror.com/css-parse/-/css-parse-1.7.0.tgz"
-
-css-parse@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmmirror.com/css-parse/-/css-parse-2.0.0.tgz"
+css@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/css/-/css-3.0.0.tgz#4447a4d58fdd03367c516ca9f64ae365cee4aa5d"
   dependencies:
-    css "^2.0.0"
-
-css@^2.0.0:
-  version "2.2.4"
-  resolved "https://registry.npmmirror.com/css/-/css-2.2.4.tgz"
-  dependencies:
-    inherits "^2.0.3"
+    inherits "^2.0.4"
     source-map "^0.6.1"
-    source-map-resolve "^0.5.2"
-    urix "^0.1.0"
+    source-map-resolve "^0.6.0"
 
 cssom@^0.4.4:
   version "0.4.4"
@@ -384,24 +372,22 @@ data-urls@^3.0.1:
     abab "^2.0.3"
     whatwg-mimetype "^3.0.0"
     whatwg-url "^10.0.0"
-
-debug@*, debug@4:
-  version "4.3.3"
-  resolved "https://registry.npmmirror.com/debug/-/debug-4.3.3.tgz"
-  dependencies:
-    ms "2.1.2"
-
 debug@2.6.9:
   version "2.6.9"
   resolved "https://registry.npmmirror.com/debug/-/debug-2.6.9.tgz"
   dependencies:
     ms "2.0.0"
-
-debug@~3.1.0:
-  version "3.1.0"
-  resolved "https://registry.npmmirror.com/debug/-/debug-3.1.0.tgz"
+debug@4:
+  version "4.3.3"
+  resolved "https://registry.npmmirror.com/debug/-/debug-4.3.3.tgz"
   dependencies:
-    ms "2.0.0"
+    ms "2.1.2"
+
+debug@^4.3.2:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
+  dependencies:
+    ms "2.1.2"
 
 decimal.js@^10.2.1, decimal.js@^10.3.1:
   version "10.3.1"
@@ -640,16 +626,6 @@ glob-parent@~5.1.2:
   dependencies:
     is-glob "^4.0.1"
 
-glob@7.0.x:
-  version "7.0.6"
-  resolved "https://registry.npmmirror.com/glob/-/glob-7.0.6.tgz"
-  dependencies:
-    fs.realpath "^1.0.0"
-    inflight "^1.0.4"
-    inherits "2"
-    minimatch "^3.0.2"
-    once "^1.3.0"
-    path-is-absolute "^1.0.0"
 
 glob@^7.1.6:
   version "7.2.0"
@@ -818,12 +794,14 @@ hexo-renderer-marked@^5.0.0:
     jsdom "^19.0.0"
     marked "^4.0.1"
 
-hexo-renderer-stylus@^2.0.0:
-  version "2.0.1"
-  resolved "https://registry.npmmirror.com/hexo-renderer-stylus/-/hexo-renderer-stylus-2.0.1.tgz"
+
+hexo-renderer-stylus@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/hexo-renderer-stylus/-/hexo-renderer-stylus-2.1.0.tgz#4cbae08d36c7390b791c2cc3df7c53c3ff615106"
   dependencies:
-    nib "^1.1.2"
-    stylus "^0.54.8"
+    nib "^1.2.0"
+    stylus "^0.57.0"
+
 
 hexo-server@^3.0.0:
   version "3.0.0"
@@ -860,9 +838,10 @@ hexo-util@2.4.0:
     strip-indent "^3.0.0"
     striptags "^3.1.1"
 
-hexo-util@^2.0.0, hexo-util@^2.1.0, hexo-util@^2.5.0, hexo-util@^2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/hexo-util/-/hexo-util-2.6.1.tgz#19b79a1ec751a735ffe34766b65d8e2039c00519"
+hexo-util@^2.0.0, hexo-util@^2.1.0, hexo-util@^2.5.0, hexo-util@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.npmmirror.com/hexo-util/-/hexo-util-2.6.0.tgz"
+
   dependencies:
     bluebird "^3.5.2"
     camel-case "^4.0.0"
@@ -879,9 +858,11 @@ hexo-word-counter@^0.0.3:
   dependencies:
     hexo-util "2.4.0"
 
-hexo@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/hexo/-/hexo-6.2.0.tgz#5a62a4c731bf89431d2004326b07af0ec0490242"
+
+hexo@^6.0.0:
+  version "6.1.0"
+  resolved "https://registry.npmmirror.com/hexo/-/hexo-6.1.0.tgz"
+
   dependencies:
     abbrev "^1.1.1"
     archy "^1.0.0"
@@ -891,7 +872,9 @@ hexo@^6.2.0:
     hexo-fs "^3.1.0"
     hexo-i18n "^1.0.0"
     hexo-log "^3.0.0"
-    hexo-util "^2.6.1"
+
+    hexo-util "^2.6.0"
+
     js-yaml "^4.1.0"
     js-yaml-js-types "^1.0.0"
     micromatch "^4.0.4"
@@ -906,7 +889,9 @@ hexo@^6.2.0:
     text-table "^0.2.0"
     tildify "^2.0.0"
     titlecase "^1.1.3"
-    warehouse "^4.0.1"
+
+    warehouse "^4.0.0"
+
 
 highlight.js@^10.0.0:
   version "10.7.3"
@@ -1009,7 +994,9 @@ inflight@^1.0.4:
     once "^1.3.0"
     wrappy "1"
 
-inherits@2, inherits@2.0.4, inherits@^2.0.3:
+
+inherits@2, inherits@2.0.4, inherits@^2.0.4:
+
   version "2.0.4"
   resolved "https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz"
 
@@ -1043,9 +1030,10 @@ is-number@^7.0.0:
   version "7.0.0"
   resolved "https://registry.npmmirror.com/is-number/-/is-number-7.0.0.tgz"
 
-is-plain-object@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/is-plain-object/-/is-plain-object-5.0.0.tgz#4427f50ab3429e9025ea7d52e9043a9ef4159344"
+
+is-plain-object@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.npmmirror.com/is-plain-object/-/is-plain-object-3.0.1.tgz"
 
 is-potential-custom-element-name@^1.0.1:
   version "1.0.1"
@@ -1150,9 +1138,11 @@ json-buffer@3.0.1:
   version "3.0.1"
   resolved "https://registry.npmmirror.com/json-buffer/-/json-buffer-3.0.1.tgz"
 
-jsonparse@^1.3.1:
+
+jsonparse@^1.2.0:
   version "1.3.1"
-  resolved "https://registry.yarnpkg.com/jsonparse/-/jsonparse-1.3.1.tgz#3f4dae4a91fac315f71062f8521cc239f1366280"
+  resolved "https://registry.npmmirror.com/jsonparse/-/jsonparse-1.3.1.tgz"
+
 
 keyv@^4.0.0:
   version "4.1.1"
@@ -1226,7 +1216,9 @@ min-indent@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/min-indent/-/min-indent-1.0.1.tgz"
 
-minimatch@^3.0.2, minimatch@^3.0.4:
+
+minimatch@^3.0.4:
+
   version "3.1.2"
   resolved "https://registry.npmmirror.com/minimatch/-/minimatch-3.1.2.tgz"
   dependencies:
@@ -1235,16 +1227,6 @@ minimatch@^3.0.2, minimatch@^3.0.4:
 minimist@^1.2.5:
   version "1.2.5"
   resolved "https://registry.npmmirror.com/minimist/-/minimist-1.2.5.tgz"
-
-mkdirp@0.5.x:
-  version "0.5.5"
-  resolved "https://registry.npmmirror.com/mkdirp/-/mkdirp-0.5.5.tgz"
-  dependencies:
-    minimist "^1.2.5"
-
-mkdirp@~1.0.4:
-  version "1.0.4"
-  resolved "https://registry.npmmirror.com/mkdirp/-/mkdirp-1.0.4.tgz"
 
 moize@^6.1.0:
   version "6.1.0"
@@ -1293,11 +1275,9 @@ negotiator@0.6.3:
   version "0.6.3"
   resolved "https://registry.npmmirror.com/negotiator/-/negotiator-0.6.3.tgz"
 
-nib@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.npmmirror.com/nib/-/nib-1.1.2.tgz"
-  dependencies:
-    stylus "0.54.5"
+nib@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/nib/-/nib-1.2.0.tgz#cf650a975307edaa8683470430f82ba132bf9f7b"
 
 nice-napi@^1.0.2:
   version "1.0.2"
@@ -1337,6 +1317,7 @@ nunjucks@^3.1.6, nunjucks@^3.2.3:
     asap "^2.0.3"
     commander "^5.1.0"
 
+
 nwsapi@^2.2.0:
   version "2.2.0"
   resolved "https://registry.npmmirror.com/nwsapi/-/nwsapi-2.2.0.tgz"
@@ -1350,6 +1331,7 @@ on-finished@~2.3.0:
 on-headers@~1.0.2:
   version "1.0.2"
   resolved "https://registry.npmmirror.com/on-headers/-/on-headers-1.0.2.tgz"
+
 
 once@^1.3.0, once@^1.3.1, once@^1.4.0:
   version "1.4.0"
@@ -1464,14 +1446,6 @@ range-parser@~1.2.1:
   version "1.2.1"
   resolved "https://registry.npmmirror.com/range-parser/-/range-parser-1.2.1.tgz"
 
-readable-stream@3:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.0.tgz#337bbda3adc0706bd3e024426a286d4b4b2c9198"
-  dependencies:
-    inherits "^2.0.3"
-    string_decoder "^1.1.1"
-    util-deprecate "^1.0.1"
-
 readdirp@~3.6.0:
   version "3.6.0"
   resolved "https://registry.npmmirror.com/readdirp/-/readdirp-3.6.0.tgz"
@@ -1482,9 +1456,6 @@ resolve-alpn@^1.0.0:
   version "1.2.1"
   resolved "https://registry.npmmirror.com/resolve-alpn/-/resolve-alpn-1.2.1.tgz"
 
-resolve-url@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.npmmirror.com/resolve-url/-/resolve-url-0.2.1.tgz"
 
 resolve@^1.11.0, resolve@^1.22.0:
   version "1.22.0"
@@ -1508,17 +1479,11 @@ safe-buffer@5.1.2:
   version "5.1.2"
   resolved "https://registry.npmmirror.com/safe-buffer/-/safe-buffer-5.1.2.tgz"
 
-safe-buffer@~5.2.0:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"
 
 "safer-buffer@>= 2.1.2 < 3", "safer-buffer@>= 2.1.2 < 3.0.0", safer-buffer@^2.1.2:
   version "2.1.2"
   resolved "https://registry.npmmirror.com/safer-buffer/-/safer-buffer-2.1.2.tgz"
 
-sax@0.5.x:
-  version "0.5.8"
-  resolved "https://registry.npmmirror.com/sax/-/sax-0.5.8.tgz"
 
 sax@~1.2.4:
   version "1.2.4"
@@ -1530,9 +1495,6 @@ saxes@^5.0.1:
   dependencies:
     xmlchars "^2.2.0"
 
-semver@^6.3.0:
-  version "6.3.0"
-  resolved "https://registry.npmmirror.com/semver/-/semver-6.3.0.tgz"
 
 send@0.17.2:
   version "0.17.2"
@@ -1575,25 +1537,13 @@ shebang-regex@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmmirror.com/shebang-regex/-/shebang-regex-3.0.0.tgz"
 
-source-map-resolve@^0.5.2:
-  version "0.5.3"
-  resolved "https://registry.npmmirror.com/source-map-resolve/-/source-map-resolve-0.5.3.tgz"
+source-map-resolve@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/source-map-resolve/-/source-map-resolve-0.6.0.tgz#3d9df87e236b53f16d01e58150fc7711138e5ed2"
   dependencies:
     atob "^2.1.2"
     decode-uri-component "^0.2.0"
-    resolve-url "^0.2.1"
-    source-map-url "^0.4.0"
-    urix "^0.1.0"
 
-source-map-url@^0.4.0:
-  version "0.4.1"
-  resolved "https://registry.npmmirror.com/source-map-url/-/source-map-url-0.4.1.tgz"
-
-source-map@0.1.x:
-  version "0.1.43"
-  resolved "https://registry.npmmirror.com/source-map/-/source-map-0.1.43.tgz"
-  dependencies:
-    amdefine ">=0.0.4"
 
 source-map@^0.6.1, source-map@~0.6.1:
   version "0.6.1"
@@ -1610,13 +1560,6 @@ sprintf-js@^1.0.3:
 "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"
   resolved "https://registry.npmmirror.com/statuses/-/statuses-1.5.0.tgz"
-
-string_decoder@^1.1.1:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.3.0.tgz#42f114594a46cf1a8e30b0a84f56c78c3edac21e"
-  dependencies:
-    safe-buffer "~5.2.0"
-
 strip-ansi@^6.0.0:
   version "6.0.1"
   resolved "https://registry.npmmirror.com/strip-ansi/-/strip-ansi-6.0.1.tgz"
@@ -1633,28 +1576,16 @@ striptags@^3.1.1:
   version "3.2.0"
   resolved "https://registry.npmmirror.com/striptags/-/striptags-3.2.0.tgz"
 
-stylus@0.54.5:
-  version "0.54.5"
-  resolved "https://registry.npmmirror.com/stylus/-/stylus-0.54.5.tgz"
+stylus@^0.57.0:
+  version "0.57.0"
+  resolved "https://registry.yarnpkg.com/stylus/-/stylus-0.57.0.tgz#a46f04f426c19ceef54abb1a9d189fd4e886df41"
   dependencies:
-    css-parse "1.7.x"
-    debug "*"
-    glob "7.0.x"
-    mkdirp "0.5.x"
-    sax "0.5.x"
-    source-map "0.1.x"
-
-stylus@^0.54.8:
-  version "0.54.8"
-  resolved "https://registry.npmmirror.com/stylus/-/stylus-0.54.8.tgz"
-  dependencies:
-    css-parse "~2.0.0"
-    debug "~3.1.0"
+    css "^3.0.0"
+    debug "^4.3.2"
     glob "^7.1.6"
-    mkdirp "~1.0.4"
     safer-buffer "^2.1.2"
     sax "~1.2.4"
-    semver "^6.3.0"
+
     source-map "^0.7.3"
 
 supports-color@^5.3.0:
@@ -1681,11 +1612,11 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmmirror.com/text-table/-/text-table-0.2.0.tgz"
 
-through2@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/through2/-/through2-4.0.2.tgz#a7ce3ac2a7a8b0b966c80e7c49f0484c3b239764"
-  dependencies:
-    readable-stream "3"
+
+"through@>=2.2.7 <3":
+  version "2.3.8"
+  resolved "https://registry.npmmirror.com/through/-/through-2.3.8.tgz"
+
 
 tildify@^2.0.0:
   version "2.0.0"
@@ -1753,14 +1684,6 @@ unpipe@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npmmirror.com/unpipe/-/unpipe-1.0.0.tgz"
 
-urix@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmmirror.com/urix/-/urix-0.1.0.tgz"
-
-util-deprecate@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
-
 utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/utils-merge/-/utils-merge-1.0.1.tgz"
@@ -1787,18 +1710,17 @@ w3c-xmlserializer@^3.0.0:
   dependencies:
     xml-name-validator "^4.0.0"
 
-warehouse@^4.0.1:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/warehouse/-/warehouse-4.0.2.tgz#5ea59381c59e2187bcd77d25d8a628b1e1ffc53d"
+warehouse@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.npmmirror.com/warehouse/-/warehouse-4.0.0.tgz"
   dependencies:
+    JSONStream "^1.0.7"
     bluebird "^3.2.2"
     cuid "^2.1.4"
     graceful-fs "^4.1.3"
-    hexo-log "^3.0.0"
-    is-plain-object "^5.0.0"
-    jsonparse "^1.3.1"
+    is-plain-object "^3.0.0"
     rfdc "^1.1.4"
-    through2 "^4.0.2"
+
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
