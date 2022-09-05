@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="以太坊发布的大多数代币的智能合约，都是参照了“ERC20”的标准协议，本节也主要是根据“ERC20”开发一份代币的智能合约，根据上一节的步骤，提前创建一个FeilongToken.sol的文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【以太坊】实现ERC20代币智能合约">
+<meta property="og:url" content="http://feilong.tech/2021/05/30/solidity-keyword/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="以太坊发布的大多数代币的智能合约，都是参照了“ERC20”的标准协议，本节也主要是根据“ERC20”开发一份代币的智能合约，根据上一节的步骤，提前创建一个FeilongToken.sol的文件">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-05-30T14:01:11.000Z">
+<meta property="article:modified_time" content="2022-04-16T06:24:38.461Z">
+<meta property="article:author" content="feilong">
+<meta property="article:tag" content="以太坊">
+<meta property="article:tag" content="区块链">
+<meta property="article:tag" content="智能合约">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://feilong.tech/2021/05/30/solidity-keyword/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilong.tech/2021/05/30/solidity-keyword/","path":"2021/05/30/solidity-keyword/","title":"【以太坊】实现ERC20代币智能合约"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【以太坊】实现ERC20代币智能合约 | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6"><span class="nav-number">1.</span> <span class="nav-text">创建智能合约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#solidity-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">3.</span> <span class="nav-text">solidity 关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#public-%E5%8F%AF%E4%BB%A5%E4%BF%AE%E9%A5%B0%E5%8F%98%E9%87%8F%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%8C%E8%A1%A8%E7%A4%BA%E5%90%88%E7%BA%A6%E5%86%85%E9%83%A8%E5%92%8C%E5%90%88%E7%BA%A6%E5%A4%96%E9%83%A8%E9%83%BD%E8%83%BD%E5%A4%9F%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE%E3%80%82%E5%92%8C%E5%85%B6%E4%BB%96%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%9B%B8%E5%90%8C%EF%BC%8C%E5%A6%82%E6%9E%9C%E4%B8%8D%E8%AE%BE%E7%BD%AE%E5%85%B3%E9%94%AE%E5%AD%97%EF%BC%8C%E9%BB%98%E8%AE%A4%E6%98%AFpublic%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.0.1.</span> <span class="nav-text">public 可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#private-%E5%8F%AF%E4%BB%A5%E4%BF%AE%E9%A5%B0%E5%8F%98%E9%87%8F%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%8C%E8%A1%A8%E7%A4%BA%E5%8F%AA%E8%83%BD%E5%BD%93%E5%89%8D%E5%90%88%E7%BA%A6%E5%86%85%E9%83%A8%E8%83%BD%E5%A4%9F%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE%EF%BC%8C%E4%B8%8D%E8%83%BD%E8%A2%AB%E5%90%88%E7%BA%A6%E5%A4%96%E9%83%A8%E5%92%8C%E5%AD%90%E7%B1%BB%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE%E3%80%82"><span class="nav-number">3.0.2.</span> <span class="nav-text">private 可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#external-%E5%8F%AA%E8%83%BD%E7%94%A8%E6%9D%A5%E4%BF%AE%E9%A5%B0%E5%87%BD%E6%95%B0%EF%BC%8C%E5%8F%AA%E8%83%BD%E8%A2%AB%E5%90%88%E7%BA%A6%E5%A4%96%E9%83%A8%E7%9A%84%E4%BB%A3%E7%A0%81%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE%EF%BC%8C%E4%B8%8D%E8%83%BD%E8%A2%AB%E5%BD%93%E5%89%8D%E5%90%88%E7%BA%A6%E5%86%85%E9%83%A8%E7%9A%84%E4%BB%A3%E7%A0%81%E5%92%8C%E5%AD%90%E7%B1%BB%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE%E3%80%82"><span class="nav-number">3.0.3.</span> <span class="nav-text">external 只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#internal-%E5%8F%AF%E4%BB%A5%E4%BF%AE%E9%A5%B0%E5%8F%98%E9%87%8F%E5%92%8C%E5%87%BD%E6%95%B0%EF%BC%8C%E4%BD%86%E6%98%AF%E5%8F%AA%E8%83%BD%E8%A2%AB%E5%BD%93%E5%89%8D%E7%9A%84%E5%90%88%E7%BA%A6%E6%88%96%E8%80%85%E5%AD%90%E7%B1%BB%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE%EF%BC%8C%E4%B8%8D%E8%83%BD%E8%A2%AB%E5%A4%96%E9%83%A8%E8%BF%9B%E8%A1%8C%E8%B0%83%E7%94%A8%E5%92%8C%E8%AE%BF%E9%97%AE"><span class="nav-number">3.0.4.</span> <span class="nav-text">internal 可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#view-%E5%8F%AA%E8%83%BD%E7%94%A8%E6%9D%A5%E4%BF%AE%E9%A5%B0%E5%87%BD%E6%95%B0%EF%BC%8C%E5%87%BD%E6%95%B0%E5%86%85%E9%83%A8%E5%8F%AF%E4%BB%A5%E5%AF%B9%E5%A4%96%E9%83%A8%E5%8F%98%E9%87%8F%E8%BF%9B%E8%A1%8C%E8%AF%BB%E5%8F%96%E6%93%8D%E4%BD%9C%EF%BC%8C%E4%BD%86%E6%98%AF%E4%B8%8D%E8%83%BD%E4%BF%AE%E6%94%B9"><span class="nav-number">3.0.5.</span> <span class="nav-text">view 只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#pure-%E5%8F%AA%E8%83%BD%E7%94%A8%E6%9D%A5%E4%BF%AE%E9%A5%B0%E5%87%BD%E6%95%B0%EF%BC%8C%E5%87%BD%E6%95%B0%E5%86%85%E9%83%A8%E4%B8%8D%E8%83%BD%E5%AF%B9%E5%A4%96%E9%83%A8%E5%8F%98%E9%87%8F%E8%BF%9B%E8%A1%8C%E8%AF%BB%E5%8F%96%E5%92%8C%E4%BF%AE%E6%94%B9%E6%83%AD%E6%80%8D%EF%BC%8C%E5%8F%AA%E8%83%BD%E5%AF%B9%E4%BC%A0%E5%8F%82%E8%BF%9B%E8%A1%8C%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C"><span class="nav-number">3.0.6.</span> <span class="nav-text">pure 只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">58</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2021/05/30/solidity-keyword/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【以太坊】实现ERC20代币智能合约 | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【以太坊】实现ERC20代币智能合约
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-05-30 22:01:11" itemprop="dateCreated datePublished" datetime="2021-05-30T22:01:11+08:00">2021-05-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-16 14:24:38" itemprop="dateModified" datetime="2022-04-16T14:24:38+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" itemprop="url" rel="index"><span itemprop="name">以太坊</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Symbols count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Symbols count in article: </span>
+      <span></span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>NaN:aN</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>以太坊发布的大多数代币的智能合约，都是参照了“ERC20”的标准协议，本节也主要是根据“ERC20”开发一份代币的智能合约，根据上一节的步骤，提前创建一个FeilongToken.sol的文件</p>
+<span id="more"></span>
+
+<h4 id="创建智能合约"><a href="#创建智能合约" class="headerlink" title="创建智能合约"></a>创建智能合约</h4><p>solidity 其实和普通的编程语言有异曲同工之妙，一下的我定义的一些成员变量，我们定义了一些基本的信息，比如代币的名称、代币单位精确的小数点、代币的符号以及发行量。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic = 100;//代币发行量</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h4><p>solidity也支持构造函数的使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic;//代币发行量</span><br><span class="line"></span><br><span class="line">    constructor() public &#123;</span><br><span class="line">        totalPublic = 100;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="solidity-关键字"><a href="#solidity-关键字" class="headerlink" title="solidity 关键字"></a>solidity 关键字</h4><p>下面给大家介绍一些常用的关键字</p>
+<blockquote>
+<h6 id="public-可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型"><a href="#public-可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型" class="headerlink" title="public 可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型"></a>public 可以修饰变量和函数，表示合约内部和合约外部都能够进行调用和访问。和其他编程语言功能相同，如果不设置关键字，默认是public类型</h6><h6 id="private-可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。"><a href="#private-可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。" class="headerlink" title="private 可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。"></a>private 可以修饰变量和函数，表示只能当前合约内部能够进行调用和访问，不能被合约外部和子类进行调用和访问。</h6><h6 id="external-只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。"><a href="#external-只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。" class="headerlink" title="external 只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。"></a>external 只能用来修饰函数，只能被合约外部的代码进行调用和访问，不能被当前合约内部的代码和子类进行调用和访问。</h6><h6 id="internal-可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问"><a href="#internal-可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问" class="headerlink" title="internal 可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问"></a>internal 可以修饰变量和函数，但是只能被当前的合约或者子类进行调用和访问，不能被外部进行调用和访问</h6><h6 id="view-只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改"><a href="#view-只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改" class="headerlink" title="view 只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改"></a>view 只能用来修饰函数，函数内部可以对外部变量进行读取操作，但是不能修改</h6><h6 id="pure-只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作"><a href="#pure-只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作" class="headerlink" title="pure 只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作"></a>pure 只能用来修饰函数，函数内部不能对外部变量进行读取和修改惭怍，只能对传参进行读写操作</h6></blockquote>
+<p>这几个关键字，不光是约束了外部对自己的调用，view和pure也约束了自己对外部变量的操作限制。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic;//代币发行量</span><br><span class="line"></span><br><span class="line">    constructor() public&#123;</span><br><span class="line">        totalPublic = 100;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> getHalfPublic() external view returns (uint half) &#123;</span><br><span class="line">        <span class="built_in">return</span> totalPublic/2;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">function</span> internalFunc() internal view returns (uint half) &#123;</span><br><span class="line">        <span class="built_in">return</span> totalPublic/2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Parent &#123;</span><br><span class="line">    uint64 age = 30;</span><br><span class="line">    address public addr = 0x753B5C00b357b1536aE206C3319582A5A00b9c02;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> func() public view &#123;</span><br><span class="line">        FeilongToken m = FeilongToken(addr);</span><br><span class="line">        m.getHalfPublic(); // 可以访问</span><br><span class="line">        m.internalFunc(); // 报错，因为internal类型，外部不能进行访问</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">function</span> publicFunc() public &#123;</span><br><span class="line">        age += 16;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> privateFunc() private returns (uint64 ret) &#123;</span><br><span class="line">        uint64 t = internalFunc();</span><br><span class="line">        age = t / 2;</span><br><span class="line">        <span class="built_in">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> internalFunc() internal returns (uint64 ret) &#123;</span><br><span class="line">        age *= 2;</span><br><span class="line">        <span class="built_in">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> viewFunc(uint64 arg1) public view returns (uint64 ret) &#123;</span><br><span class="line">        arg1 = arg1 + age + 9; // 这里不会报错，因为view是允许访问函数外部变量的</span><br><span class="line">        age += 7; // 这里会报错，因为是view类型，不能修改外部的变量</span><br><span class="line">        uint64 d = age + arg1;  // 这里不会报错，因为view是允许访问函数外部变量的</span><br><span class="line">        uint64 c = d/2;</span><br><span class="line">        <span class="built_in">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> pureFunc(uint64 arg1) public pure returns (uint64 ret) &#123;</span><br><span class="line">        arg1 += 9;</span><br><span class="line">        uint64 d = age + arg1; // 这里会报错，因为pure不允许读取函数外部的变量</span><br><span class="line">        <span class="built_in">return</span> arg1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract child is Parent &#123;</span><br><span class="line">    <span class="keyword">function</span> usePrivateFunc() public returns (uint64 ret) &#123;</span><br><span class="line">        uint64 v = privateFunc(); // 这里进行报错，因为private的函数不能被继承</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> useInternalFunc() public returns (uint64 ret) &#123;</span><br><span class="line">        uint64 v = internalFunc();// 这里不会报错，因为internal的函数可以被继承</span><br><span class="line">        <span class="built_in">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>solidity的语法其实和其他编程语言类似，但是有所不同。我们一般的语言，大多数都是限制了外部对自己的调用权限控制，solidity也限定了函数本身对外部的操作。比如view和pure，限制了自己对外部变量的读取和修改的权限控制。这个是其中一个不同点。</p>
+<p>本文链接： <a href="https://feilong.tech/solidity-keyword">https://feilong.tech/solidity-keyword</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag"># 以太坊</a>
+              <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag"># 区块链</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag"># 智能合约</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/24/eth-contract-demo/" rel="prev" title="【以太坊】编译智能合约">
+                  <i class="fa fa-chevron-left"></i> 【以太坊】编译智能合约
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/06/07/approve-transfer/" rel="next" title="【以太坊】实现智能合约授权与余额转账">
+                  【以太坊】实现智能合约授权与余额转账 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">NaNm</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">NaN:aN</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上一节实现了智能合约的基本编写以及solidity的基本的函数修饰关键字。这一节开始进行合约的授权和余额的转账。 代币授权首先，代币的授权与余额是一个map，对应key是以太坊钱包的地址，value是对应的授权额度，查询的时间复杂度是O(1)，查询效率会比较高。现在需要实现的是代币余额查询（balanceOf），代币的额度申请（approve）和授权额度查询（allowance）这三个函数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【以太坊】实现智能合约授权与余额转账">
+<meta property="og:url" content="http://feilong.tech/2021/06/07/approve-transfer/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="上一节实现了智能合约的基本编写以及solidity的基本的函数修饰关键字。这一节开始进行合约的授权和余额的转账。 代币授权首先，代币的授权与余额是一个map，对应key是以太坊钱包的地址，value是对应的授权额度，查询的时间复杂度是O(1)，查询效率会比较高。现在需要实现的是代币余额查询（balanceOf），代币的额度申请（approve）和授权额度查询（allowance）这三个函数。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-06-07T14:06:30.000Z">
+<meta property="article:modified_time" content="2022-04-16T06:24:38.427Z">
+<meta property="article:author" content="feilong">
+<meta property="article:tag" content="以太坊">
+<meta property="article:tag" content="区块链">
+<meta property="article:tag" content="token">
+<meta property="article:tag" content="智能合约">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://feilong.tech/2021/06/07/approve-transfer/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilong.tech/2021/06/07/approve-transfer/","path":"2021/06/07/approve-transfer/","title":"【以太坊】实现智能合约授权与余额转账"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【以太坊】实现智能合约授权与余额转账 | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E5%B8%81%E6%8E%88%E6%9D%83"><span class="nav-number">1.</span> <span class="nav-text">代币授权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E8%B4%A6%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">转账函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%88%E7%BA%A6%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%89%E5%85%A8"><span class="nav-number">3.</span> <span class="nav-text">合约的代码安全</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">58</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2021/06/07/approve-transfer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【以太坊】实现智能合约授权与余额转账 | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【以太坊】实现智能合约授权与余额转账
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-06-07 22:06:30" itemprop="dateCreated datePublished" datetime="2021-06-07T22:06:30+08:00">2021-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-16 14:24:38" itemprop="dateModified" datetime="2022-04-16T14:24:38+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PHP/" itemprop="url" rel="index"><span itemprop="name">PHP</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Symbols count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Symbols count in article: </span>
+      <span></span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>NaN:aN</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>上一节实现了智能合约的基本编写以及solidity的基本的函数修饰关键字。这一节开始进行合约的授权和余额的转账。</p>
+<h3 id="代币授权"><a href="#代币授权" class="headerlink" title="代币授权"></a>代币授权</h3><p>首先，代币的授权与余额是一个map，对应key是以太坊钱包的地址，value是对应的授权额度，查询的时间复杂度是O(1)，查询效率会比较高。现在需要实现的是代币余额查询（balanceOf），代币的额度申请（approve）和授权额度查询（allowance）这三个函数。</p>
+<span id="more"></span>
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">event Transfer(address indexed _from, address indexed _to, uint256 _value);</span><br><span class="line">event Approval(address indexed _owner, address indexed _spender, uint256 _value);</span><br><span class="line"></span><br><span class="line">// 根据地址获取获取代币金额 </span><br><span class="line"><span class="keyword">function</span> balanceOf(address _owner) public view returns (uint256 balance) &#123;</span><br><span class="line">    <span class="built_in">return</span> balances[_owner];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 授权额度申请 </span><br><span class="line"><span class="keyword">function</span> approve(address _spender, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">    allowed[msg.sender][_spender] = _value;</span><br><span class="line">    emit Approval(msg.sender, _spender, _value);</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 根据 _owner和 _spender查询 _owner给 _spender授权了多少额度 </span><br><span class="line"><span class="keyword">function</span> allowance(address _owner, address _spender) public view returns (uint256 remaining) &#123;</span><br><span class="line">    <span class="built_in">return</span> allowed[_owner][_spender];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在approve函数中，emit的关键字含义是触发一个事件授权事件<code>Approval</code>。</p>
+<p>我们在发布智能合约的第一件事，就是设置代币总金额：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">constructor() public&#123;</span><br><span class="line">    totalPublic = 1000000000;</span><br><span class="line">    balances[msg.sender] = totalPublic;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>msg.sender</code>代表智能合约发布者的以太坊地址，我们把发行量<code>totalPublic</code>给予了这个地址。当然这个是可以控制的，只给予一小部分也是允许的。</p>
+<h3 id="转账函数"><a href="#转账函数" class="headerlink" title="转账函数"></a>转账函数</h3><p>一下是智能合约的转账函数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 转账 </span><br><span class="line"> <span class="keyword">function</span> transfer(address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">     require(balances[msg.sender] &gt;= _value);</span><br><span class="line">     require(balances[_to] + _value &gt;= balances[_to]);</span><br><span class="line">     balances[msg.sender] -= _value;</span><br><span class="line">     balances[_to] += _value;</span><br><span class="line">     emit Transfer(msg.sender, _to, _value);</span><br><span class="line">     <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>转账函数的一些参数校验，一般使用solidity语法中的require函数，首先，验真剩余的额度不能小于转账额度；转账的额度不能是赋值；依次在对收款方和付款方进行额度的增加和减少；然后触发转账事件<code>Transfer</code>,把对应的数据写到区块里面。 以上的这个函数，只是合约发布方转账给其他地址。还会有地址之间的代币转账：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> transferFrom(address _from, address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">    uint256 allowanceValue = allowed[_from][msg.sender];</span><br><span class="line">    require(balances[_from] &gt;= _value &amp;&amp; allowanceValue &gt;= _value);</span><br><span class="line">    require(balances[_to] + _value &gt; balances[_to]);</span><br><span class="line">    allowed[_from][msg.sender] -= _value;</span><br><span class="line">    balances[_to] += _value;</span><br><span class="line">    balances[_from] -= _value;</span><br><span class="line">    emit Transfer(_from, _to, _value);</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，一份标准的ERC20代币的智能合约就编写完成了，完整代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">contract FeilongToken &#123;</span><br><span class="line">    string public name=<span class="string">&quot;Feilong token coin&quot;</span>; // 代币的名称</span><br><span class="line">    uint8 public decimals = 18;// 精确小数点位数</span><br><span class="line">    string public symbol = <span class="string">&quot;FLTC&quot;</span>;//代币符号</span><br><span class="line">    uint public totalPublic;//代币发行量</span><br><span class="line"></span><br><span class="line">    mapping (address =&gt; uint256) public balances;// 余额map </span><br><span class="line">    mapping (address =&gt; mapping(address =&gt;uint256)) public allowed;// 授权map</span><br><span class="line"></span><br><span class="line">    event Transfer(address indexed _from, address indexed _to, uint256 _value);</span><br><span class="line">    event Approval(address indexed _owner, address indexed _spender, uint256 _value);</span><br><span class="line"></span><br><span class="line">    constructor() public&#123;</span><br><span class="line">        totalPublic = 1000000000;</span><br><span class="line">        balances[msg.sender] = totalPublic;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 根据地址获取获取代币金额 </span><br><span class="line">    <span class="keyword">function</span> balanceOf(address _owner) public view returns (uint256 balance) &#123;</span><br><span class="line">        <span class="built_in">return</span> balances[_owner];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 授权额度申请 </span><br><span class="line">    <span class="keyword">function</span> approve(address _spender, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">        allowed[msg.sender][_spender] = _value;</span><br><span class="line">        emit Approval(msg.sender, _spender, _value);</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 根据 _owner和 _spender查询 _owner给 _spender授权了多少额度 </span><br><span class="line">    <span class="keyword">function</span> allowance(address _owner, address _spender) public view returns (uint256 remaining) &#123;</span><br><span class="line">        <span class="built_in">return</span> allowed[_owner][_spender];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 转账 </span><br><span class="line">    <span class="keyword">function</span> transfer(address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">        require(balances[msg.sender] &gt;= _value);</span><br><span class="line">        require(balances[_to] + _value &gt;= balances[_to]);</span><br><span class="line">        balances[msg.sender] -= _value;</span><br><span class="line">        balances[_to] += _value;</span><br><span class="line">        emit Transfer(msg.sender, _to, _value);</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> transferFrom(address _from, address _to, uint256 _value) public returns (bool success) &#123;</span><br><span class="line">        uint256 allowanceValue = allowed[_from][msg.sender];</span><br><span class="line">        require(balances[_from] &gt;= _value &amp;&amp; allowanceValue &gt;= _value);</span><br><span class="line">        require(balances[_to] + _value &gt; balances[_to]);</span><br><span class="line">        allowed[_from][msg.sender] -= _value;</span><br><span class="line">        balances[_to] += _value;</span><br><span class="line">        balances[_from] -= _value;</span><br><span class="line">        emit Transfer(_from, _to, _value);</span><br><span class="line">        <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="合约的代码安全"><a href="#合约的代码安全" class="headerlink" title="合约的代码安全"></a>合约的代码安全</h3><p>由于智能合约是代码编写的，所以就可能存在代码的漏洞。最著名的合约的漏洞是2018年的“美链BEC合约漏洞事件”。该事件的后果就是“BEC”代币价值归零，以下是漏洞代码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> batchTransfer(address[] _receivers, uint256 _value) public whenNotPaused returns (bool) &#123;</span><br><span class="line">    uint cnt = _receivers.length;</span><br><span class="line">    uint256 amount = uint256(cnt) * _value;</span><br><span class="line">    require(cnt &gt; 0 &amp;&amp; cnt &lt;= 20);</span><br><span class="line">    require(_value &gt; 0 &amp;&amp; balances[msg.sender] &gt;= amount);</span><br><span class="line"></span><br><span class="line">    balances[msg.sender] = balances[msg.sender].sub(amount);</span><br><span class="line">    <span class="keyword">for</span> (uint i = 0; i &lt; cnt; i++) &#123;</span><br><span class="line">        balances[_receivers[i]] = balances[_receivers[i]].add(_value);</span><br><span class="line">        Transfer(msg,sender, _receivers[i], _value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>batchTransfer是一个批量函数，可以实现批量转账，但是代码<code>uint256 amount = uint256(cnt) * _value</code>存在风险，加入<code>_value</code>是一个在uint256范围内，但是乘以cnt得到的<code>amount</code>超过了uint256而造成溢出，就会变成一个比较小的数字，当执行代码<code>require(_value &gt; 0 &amp;&amp; balances[msg.sender] &gt;= amount);</code>也校验通过了，在循环执行转账操作的时候就会出现扣除很少的<code>amount</code>，而收款方获得了很大的<code>_value</code>，造成了资产的被盗。</p>
+<p>解决这种溢出，可以通过除法进行验证，比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> batchTransfer(address[] _receivers, uint256 _value) public whenNotPaused returns (bool) &#123;</span><br><span class="line">    uint cnt = _receivers.length;</span><br><span class="line">    uint256 amount = uint256(cnt) * _value;</span><br><span class="line">    require(_value &gt; 0 &amp;&amp; amount / _value == cnt);</span><br><span class="line">    require(cnt &gt; 0 &amp;&amp; cnt &lt;= 20);</span><br><span class="line">    require(_value &gt; 0 &amp;&amp; balances[msg.sender] &gt;= amount);</span><br><span class="line"></span><br><span class="line">    balances[msg.sender] = balances[msg.sender].sub(amount);</span><br><span class="line">    <span class="keyword">for</span> (uint i = 0; i &lt; cnt; i++) &#123;</span><br><span class="line">        balances[_receivers[i]] = balances[_receivers[i]].add(_value);</span><br><span class="line">        Transfer(msg,sender, _receivers[i], _value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上只是合约安全的一个简单的例子。在实际开发中，涉及到复杂的运算，一定要谨慎编写代码，以免出现代码漏洞。</p>
+<p>本文链接：<a href="https://feilong.tech/approve_transfer/">https://feilong.tech/approve_transfer&#x2F;</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A5%E5%A4%AA%E5%9D%8A/" rel="tag"># 以太坊</a>
+              <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag"># 区块链</a>
+              <a href="/tags/token/" rel="tag"># token</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" rel="tag"># 智能合约</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/30/solidity-keyword/" rel="prev" title="【以太坊】实现ERC20代币智能合约">
+                  <i class="fa fa-chevron-left"></i> 【以太坊】实现ERC20代币智能合约
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/06/16/contract-eth/" rel="next" title="【以太坊】公链上的合约">
+                  【以太坊】公链上的合约 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">NaNm</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">NaN:aN</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

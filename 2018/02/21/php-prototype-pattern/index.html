@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="原型模式原型设计模式是通过使用一种克隆技术复制实例化的对象。新对象是通过复制原型而进行创建的。原型设计模式的目的是通过克隆以减少实例化对象的开销。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP设计模式-原型模式">
+<meta property="og:url" content="http://feilong.tech/2018/02/21/php-prototype-pattern/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="原型模式原型设计模式是通过使用一种克隆技术复制实例化的对象。新对象是通过复制原型而进行创建的。原型设计模式的目的是通过克隆以减少实例化对象的开销。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://feilong.tech/uploads/2018/02/%E5%8E%9F%E5%9E%8B%E7%B1%BB%E5%9B%BE.png">
+<meta property="article:published_time" content="2018-02-21T12:28:08.000Z">
+<meta property="article:modified_time" content="2022-04-16T06:24:38.453Z">
+<meta property="article:author" content="feilong">
+<meta property="article:tag" content="PHP设计模式">
+<meta property="article:tag" content="PHP原型模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://feilong.tech/uploads/2018/02/%E5%8E%9F%E5%9E%8B%E7%B1%BB%E5%9B%BE.png">
+
+
+<link rel="canonical" href="http://feilong.tech/2018/02/21/php-prototype-pattern/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":"","permalink":"http://feilong.tech/2018/02/21/php-prototype-pattern/","path":"2018/02/21/php-prototype-pattern/","title":"PHP设计模式-原型模式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PHP设计模式-原型模式 | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">原型模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">何时使用原型模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%8B%E9%9A%86%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">克隆函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%8B%E9%9A%86%E4%B8%8D%E4%BC%9A%E5%90%AF%E5%8A%A8%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">克隆不会启动构造函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E6%9E%9C%E8%9D%87"><span class="nav-number">5.</span> <span class="nav-text">研究果蝇</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%92%8C%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.1.</span> <span class="nav-text">抽象类和具体实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">5.2.</span> <span class="nav-text">客户端</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">7.</span> <span class="nav-text">参考文献</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%84%E4%BB%B6"><span class="nav-number">8.</span> <span class="nav-text">附件</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">58</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2018/02/21/php-prototype-pattern/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PHP设计模式-原型模式 | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PHP设计模式-原型模式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-02-21 20:28:08" itemprop="dateCreated datePublished" datetime="2018-02-21T20:28:08+08:00">2018-02-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-16 14:24:38" itemprop="dateModified" datetime="2022-04-16T14:24:38+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">PHP设计模式</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Symbols count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Symbols count in article: </span>
+      <span></span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>NaN:aN</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="原型模式"><a href="#原型模式" class="headerlink" title="原型模式"></a>原型模式</h4><p>原型设计模式是通过使用一种克隆技术复制实例化的对象。新对象是通过复制原型而进行创建的。原型设计模式的目的是通过克隆以减少实例化对象的开销。</p>
+<p><img src="/uploads/2018/02/%E5%8E%9F%E5%9E%8B%E7%B1%BB%E5%9B%BE.png"></p>
+<span id="more"></span>
+
+<h4 id="何时使用原型模式"><a href="#何时使用原型模式" class="headerlink" title="何时使用原型模式"></a>何时使用原型模式</h4><p>原型模式要求你创建某个原型对象的多个实例，这个时候就可以使用原型模式。比如，在关于进化的研究，通常使用果蝇作为研究对象。果蝇很快繁殖，基本上一个小时就能进行产卵，和其他的生物相比，找到和记录变异的几率更大。如果换做大象的话（比如大象的孕育期长达22个月），那么整个研究过程将会消耗很长的时间。因此，只需要完成两个实例化（一个雄性和一个雌性），然后就可以跟进克隆多个变异，而不需要由具体类另外创建实例。</p>
+<h4 id="克隆函数"><a href="#克隆函数" class="headerlink" title="克隆函数"></a>克隆函数</h4><p>使用原型模式，首先就要了解如何使用PHP的__clone()。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">CloneMe</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">abstract</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">extends</span> <span class="title">CloneMe</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;name = <span class="string">&quot;Original&quot;</span>;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;hello&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">display</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;\n<span class="subst">$this</span>-&gt;name\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$worker</span> = <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br><span class="line"><span class="variable">$worker</span>-&gt;<span class="title function_ invoke__">display</span>();</span><br><span class="line"></span><br><span class="line"><span class="variable">$slacker</span> = <span class="keyword">clone</span> <span class="variable">$worker</span>;</span><br><span class="line"><span class="variable">$slacker</span>-&gt;<span class="title function_ invoke__">display</span>();</span><br></pre></td></tr></table></figure>
+
+<p>定义了一个抽象类<code>CloneMe</code>，然后定义一个<code>Person</code>类进行实现。定义一个变量<code>$worker</code> 进行实例化，然后使用关键字<code>clone</code>进行对象的克隆。</p>
+<p>输出结果: hello Original</p>
+<p>Original</p>
+<p>不过需要注意的是，__clone()不能直接调用，会出现报错<code>Fatal error: Cannot call __clone() method on objects - use &#39;clone $obj&#39; instead</code></p>
+<h4 id="克隆不会启动构造函数"><a href="#克隆不会启动构造函数" class="headerlink" title="克隆不会启动构造函数"></a>克隆不会启动构造函数</h4><p>上面的输出结果可能已经见到了，clone是不会启动构造函数的。其实这个也是比较理解的。举个例子，现在有一个人A，那么这个人肯定会有手脚，那么<code>手脚</code>就算是默认构造函数进行的初始化，如果要根据A克隆一个人B，那么B不用再造<code>手脚</code>，而是克隆之后，就自带了A的<code>手脚</code>，当然，你也可以把B的<code>手脚</code>砍掉(比如$slacker-&gt;name&#x3D;”Tyler Teng”)。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">CloneMe</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">abstract</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">extends</span> <span class="title">CloneMe</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;name = <span class="string">&quot;Original&quot;</span>;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;hello&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">display</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;\n<span class="subst">$this</span>-&gt;name\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$worker</span> = <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br><span class="line"><span class="variable">$worker</span>-&gt;<span class="title function_ invoke__">display</span>();</span><br><span class="line"></span><br><span class="line"><span class="variable">$slacker</span> = <span class="keyword">clone</span> <span class="variable">$worker</span>;</span><br><span class="line"><span class="variable">$slacker</span>-&gt;name = <span class="string">&quot;Tyler Teng&quot;</span>;</span><br><span class="line"><span class="variable">$slacker</span>-&gt;<span class="title function_ invoke__">display</span>();</span><br></pre></td></tr></table></figure>
+
+<p>输出结果 hello Original</p>
+<p>Tyler Teng</p>
+<h4 id="研究果蝇"><a href="#研究果蝇" class="headerlink" title="研究果蝇"></a>研究果蝇</h4><h5 id="抽象类和具体实现"><a href="#抽象类和具体实现" class="headerlink" title="抽象类和具体实现"></a>抽象类和具体实现</h5><p>简单定义三个属性：眼睛的颜色，翅膀震动次数，眼睛个数</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$eyeColor</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$wingBeat</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$uniyEyes</span>;</span><br><span class="line">    <span class="keyword">abstract</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了一些基本的属性，还需要区别雄性和雌性</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include_once</span> <span class="string">&#x27;IPrototype.php&#x27;</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FemaleProto</span> <span class="keyword">extends</span> <span class="title">IProtoType</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">gender</span> = <span class="string">&quot;FEMALE&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$fecundity</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;eyeColor = <span class="string">&quot;red&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;wingBeat = <span class="string">&quot;220&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;unitEyes = <span class="string">&quot;760&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include_once</span> <span class="string">&quot;IPrototype.php&quot;</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MaleProto</span> <span class="keyword">extends</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">gender</span> = <span class="string">&quot;MALE&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$mated</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;eyeColor = <span class="string">&quot;red&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;wingBeat = <span class="string">&quot;220&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;unitEyes = <span class="string">&quot;760&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h5><p>我们定义一个<code>Client</code>类，首先从具体类中实例化$fly1和$fly2，$c1Fly、$c2Fly和$updateCloneFly则分别是这两个类实例的克隆</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">__autoload</span>(<span class="params"><span class="variable">$class_name</span></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">include_once</span> <span class="title function_ invoke__">realpath</span>(<span class="keyword">__DIR__</span>) . <span class="string">&#x27;/&#x27;</span> .  <span class="variable">$class_name</span> . <span class="string">&#x27;.php&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$fly1</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$fly2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$c1Fly</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$c2Fly</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$upDatadCloneFly</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;fly1 = <span class="keyword">new</span> <span class="title class_">MaleProto</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;fly2 = <span class="keyword">new</span> <span class="title class_">FemaleProto</span>();</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">$this</span>-&gt;c1Fly = <span class="keyword">clone</span> <span class="variable language_">$this</span>-&gt;fly1;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;c2Fly = <span class="keyword">clone</span> <span class="variable language_">$this</span>-&gt;fly2;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">$this</span>-&gt;upDatadCloneFly = <span class="keyword">clone</span> <span class="variable language_">$this</span>-&gt;fly2;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;c1Fly-&gt;mated = <span class="string">&quot;true&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;c2Fly-&gt;fecundity = <span class="string">&quot;186&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;upDatadCloneFly-&gt;eyeColor = <span class="string">&quot;purple&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;upDatadCloneFly-&gt;wingBeat = <span class="string">&quot;220&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;upDatadCloneFly-&gt;unitEyes = <span class="string">&quot;750&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;upDatadCloneFly-&gt;fecundity = <span class="string">&quot;92&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">showFly</span>(<span class="variable">$this</span>-&gt;c1Fly);</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">showFly</span>(<span class="variable">$this</span>-&gt;c2Fly);</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">showFly</span>(<span class="variable">$this</span>-&gt;upDatadCloneFly);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">showFly</span>(<span class="params">IProtoType <span class="variable">$fly</span></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Eye color : &quot;</span> . <span class="variable">$fly</span>-&gt;eyeColor . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Wing Beats/second : &quot;</span> . <span class="variable">$fly</span>-&gt;wingBeat . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Eye units : &quot;</span> . <span class="variable">$fly</span>-&gt;unitEyes . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        <span class="variable">$genderNow</span> = <span class="variable">$fly</span>::<span class="variable constant_">gender</span>;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Gender : &quot;</span> . <span class="variable">$genderNow</span> . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$genderNow</span> == <span class="string">&quot;FEMALE&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;Numbers of eges : &quot;</span> . <span class="variable">$fly</span>-&gt;fecundity .  <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;Mate : &quot;</span> . <span class="variable">$fly</span>-&gt;mated . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$woker</span> = <span class="keyword">new</span> <span class="title class_">Client</span>();</span><br></pre></td></tr></table></figure>
+
+<p>输出 Eye color : red Wing Beats&#x2F;second : 220 Eye units : 760 Gender : MALE Mate : true Eye color : red Wing Beats&#x2F;second : 220 Eye units : 760 Gender : FEMALE Numbers of eges : 186 Eye color : purple Wing Beats&#x2F;second : 220 Eye units : 750 Gender : FEMALE Numbers of eges : 92</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>作为被克隆的类，默认构造函数不应该做太多的初始化，否则结果往往不灵活，而且是过度的耦合设计。构造函数不应完成具体的工作，一种做法是忽略模式类中的构造函数，除非你有充分的理由包含这些构造函数；另外一种做法是，允许在需要的时间调用，让客户端负责实例化和克隆的有关事务。</p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul>
+<li>Learning PHP设计模式</li>
+</ul>
+<h4 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h4><ul>
+<li><a href="/uploads/2018/02/test2.zip">PHP原型模式demo</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PHP%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># PHP设计模式</a>
+              <a href="/tags/PHP%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag"># PHP原型模式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/02/21/php7-gc/" rel="prev" title="PHP7内存管理之垃圾回收">
+                  <i class="fa fa-chevron-left"></i> PHP7内存管理之垃圾回收
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/02/25/download-weibo-video/" rel="next" title="用 iPhone 轻松下载微博小视频">
+                  用 iPhone 轻松下载微博小视频 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">NaNm</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">NaN:aN</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

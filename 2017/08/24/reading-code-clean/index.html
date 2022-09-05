@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"feilong.tech","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="读《代码整洁之道》">
+<meta property="og:url" content="http://feilong.tech/2017/08/24/reading-code-clean/index.html">
+<meta property="og:site_name" content="Feilong Tech">
+<meta property="og:description" content="每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-08-24T11:39:49.000Z">
+<meta property="article:modified_time" content="2022-04-16T06:24:38.459Z">
+<meta property="article:author" content="feilong">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://feilong.tech/2017/08/24/reading-code-clean/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://feilong.tech/2017/08/24/reading-code-clean/","path":"2017/08/24/reading-code-clean/","title":"读《代码整洁之道》"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>读《代码整洁之道》 | Feilong Tech</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Feilong Tech</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%8F%E6%AC%A1%E5%86%99%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%80%BB%E6%98%AF%E6%84%9F%E8%A7%89%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BB%A3%E7%A0%81%E5%BE%88%E6%B8%A3%EF%BC%8C%E4%BA%8E%E6%98%AF%E4%B9%B0%E4%BA%86%E4%B8%80%E6%9C%AC%E3%80%8A%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E3%80%8B%EF%BC%8C%E5%B8%8C%E6%9C%9B%E8%83%BD%E5%A4%9F%E5%AD%A6%E4%B9%A0%E4%B8%80%E4%B8%8B%E4%BC%98%E7%A7%80%E4%BB%A3%E7%A0%81%E7%9A%84%E4%B9%A6%E5%86%99%E5%8E%9F%E5%88%99%E3%80%82"><span class="nav-number">1.</span> <span class="nav-text">每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%B1%E4%BA%8E%E5%B9%B3%E6%97%B6%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%AF%94%E8%BE%83%E5%A4%9A%EF%BC%8C%E6%88%91%E5%B9%B6%E6%B2%A1%E6%9C%89%E4%B8%93%E9%97%A8%E6%89%BE%E6%97%B6%E9%97%B4%E9%98%85%E8%AF%BB%E8%BF%99%E6%9C%AC%E4%B9%A6%EF%BC%8C%E5%8F%AA%E6%98%AF%E7%94%A8%E4%B8%80%E4%BA%9B%E8%BE%B9%E8%A7%92%E6%97%B6%E9%97%B4%E6%9D%A5%E9%98%85%E8%AF%BB%EF%BC%8C%E8%BF%99%E4%B9%88%E9%95%BF%E6%97%B6%E9%97%B4%E8%BF%87%E5%8E%BB%E4%BA%86%EF%BC%8C%E7%8E%B0%E5%9C%A8%E6%89%8D%E8%AF%BB%E5%88%B0100%E5%A4%9A%E9%A1%B5%E3%80%82%E8%BF%99%E7%AF%87blog%E4%B9%9F%E7%AE%97%E6%98%AF%E5%AF%B9%E5%89%8D%E6%AE%B5%E6%97%B6%E9%97%B4%E9%98%85%E8%AF%BB%E7%9A%84%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BB%93%E5%90%A7%E3%80%82"><span class="nav-number">2.</span> <span class="nav-text">由于平时的工作比较多，我并没有专门找时间阅读这本书，只是用一些边角时间来阅读，这么长时间过去了，现在才读到100多页。这篇blog也算是对前段时间阅读的一个小结吧。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%B1%E5%83%8F%E8%AF%B4%E7%9A%84%E9%A2%98%E7%9B%AE%E4%B8%80%E6%A0%B7%EF%BC%8C%E4%B8%BB%E6%97%A8%E5%B0%B1%E6%98%AF%E4%B8%80%E4%B8%AA%E8%AF%8D%EF%BC%9A%E6%95%B4%E6%B4%81"><span class="nav-number">3.</span> <span class="nav-text">就像说的题目一样，主旨就是一个词：整洁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%9F%E7%B3%95%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">糟糕的代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%91%E4%BB%AC%E5%BA%94%E8%AF%A5%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%E7%B3%9F%E7%B3%95%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">我们应该如何理解糟糕的代码？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E9%9D%9E%E5%B0%B1%E6%98%AF%E6%98%8E%E6%98%8E%E4%B8%8D%E5%87%86%E7%A1%AE%E7%9A%84%E4%BB%A3%E7%A0%81%E3%80%82%E5%85%B6%E5%AE%9E%E7%B3%9F%E7%B3%95%E7%9A%84%E4%BB%A3%E7%A0%81%E8%BF%9C%E4%B8%8D%E6%AD%A2%E6%AD%A4%EF%BC%8C%E5%BE%88%E5%A4%9A%E6%97%B6%E5%80%99%EF%BC%8C%E6%88%91%E4%BB%AC%E4%BC%9A%E4%B8%BA%E4%BA%86%E6%97%B6%E9%97%B4%E5%92%8C%E8%BF%9B%E5%BA%A6%EF%BC%8C%E8%B5%B6%E7%9D%80%E5%87%BA%E4%BA%A7%E5%93%81%EF%BC%8C%E5%A4%96%E5%8C%85%E5%85%AC%E5%8F%B8%E6%9B%B4%E7%94%9A%E3%80%82%E6%88%91%E6%9C%80%E5%BC%80%E5%A7%8B%E5%9C%A8%E8%85%BE%E9%AA%8F%EF%BC%8C%E5%85%AC%E5%8F%B8%E4%B8%BB%E8%A6%81%E4%B8%9A%E5%8A%A1%E5%B0%B1%E6%98%AF%E5%A4%96%E5%8C%85%EF%BC%8C%E7%94%B1%E4%BA%8E%E5%BD%93%E6%97%B6%E6%B2%A1%E6%9C%89%E6%8A%8A%E5%86%99%E4%BB%A3%E7%A0%81%E5%BD%93%E6%88%90%E4%B8%80%E5%9B%9E%E4%BA%8B%EF%BC%8C%E5%AF%BC%E8%87%B4%E5%90%8E%E9%9D%A2%E4%BB%A3%E7%A0%81%E7%BB%B4%E6%8A%A4%E6%AF%94%E8%BE%83%E5%9B%B0%E9%9A%BE%EF%BC%8C%E4%B9%9F%E4%BD%BF%E8%87%AA%E5%B7%B1%E5%85%BB%E6%88%90%E4%BA%86%E5%9D%8F%E4%B9%A0%E6%83%AF%EF%BC%8C%E5%85%B6%E5%AE%9E%E5%BA%94%E8%AF%A5%E5%9C%A8%E9%A1%B9%E7%9B%AE%E7%9A%84%E5%88%9D%E6%9C%9F%EF%BC%8C%E5%B0%B1%E5%BA%94%E8%AF%A5%E5%AE%9A%E5%A5%BD%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83%EF%BC%8C%E5%88%B0%E5%90%8E%E9%9D%A2%E7%9A%84%E7%BB%B4%E6%8A%A4%E4%BC%9A%E8%A6%81%E7%AE%80%E5%8D%95%E7%9A%84%E5%A4%9A%E3%80%82"><span class="nav-number">6.</span> <span class="nav-text">无非就是明明不准确的代码。其实糟糕的代码远不止此，很多时候，我们会为了时间和进度，赶着出产品，外包公司更甚。我最开始在腾骏，公司主要业务就是外包，由于当时没有把写代码当成一回事，导致后面代码维护比较困难，也使自己养成了坏习惯，其实应该在项目的初期，就应该定好编码规范，到后面的维护会要简单的多。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%87%E5%A6%82%E6%88%91%E4%BB%AC%E5%9C%A8%E5%86%99%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E4%B8%8D%E6%B3%A8%E6%84%8F%E8%A7%84%E8%8C%83%EF%BC%8C%E5%88%B0%E4%BA%86%E5%90%8E%E9%9D%A2%E5%A6%82%E6%9E%9C%E6%9C%89%E6%96%B0%E5%90%8C%E5%BF%97%E5%8A%A0%E5%85%A5%E9%A1%B9%E7%9B%AE%EF%BC%8C%E7%94%B1%E4%BA%8E%E5%AF%B9%E4%B8%9A%E5%8A%A1%E7%9A%84%E4%B8%8D%E7%86%9F%E6%82%89%EF%BC%8C%E4%BB%A5%E5%8F%8A%E4%BB%A3%E7%A0%81%E7%9A%84%E8%A7%84%E8%8C%83%EF%BC%8C%E5%BE%88%E5%AE%B9%E6%98%93%E6%98%AF%E6%96%B0%E5%90%8C%E5%AD%A6%E9%80%A0%E6%88%90%E8%AF%AF%E8%A7%A3%EF%BC%8C%E8%BF%9B%E8%80%8C%E7%BC%96%E5%86%99%E5%87%BA%E6%9B%B4%E7%B3%9F%E7%B3%95%E7%9A%84%E4%BB%A3%E7%A0%81%E3%80%82%E9%95%BF%E6%AD%A4%E4%BB%A5%E5%BE%80%EF%BC%8C%E6%95%B4%E4%B8%AA%E9%A1%B9%E7%9B%AE%E5%B0%86%E4%BC%9A%E8%A2%AB%E7%B3%9F%E7%B3%95%E7%9A%84%E4%BB%A3%E7%A0%81%E6%89%80%E5%90%9E%E5%99%AC%E3%80%82%E5%90%8E%E6%9E%9C%E4%B8%8D%E5%A0%AA%E8%AE%BE%E6%83%B3%E3%80%82%C2%B7"><span class="nav-number">7.</span> <span class="nav-text">假如我们在写代码的时候，不注意规范，到了后面如果有新同志加入项目，由于对业务的不熟悉，以及代码的规范，很容易是新同学造成误解，进而编写出更糟糕的代码。长此以往，整个项目将会被糟糕的代码所吞噬。后果不堪设想。·</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E6%B4%81%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="nav-number">8.</span> <span class="nav-text">整洁的代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BD%93%E4%BD%A0%E9%98%85%E8%AF%BB%E6%95%B4%E6%B4%81%E7%9A%84%E4%BB%A3%E7%A0%81%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%88%91%E4%BC%9A%E8%A7%89%E5%BE%97%E4%BD%A0%E5%9C%A8%E9%98%85%E8%AF%BB%E4%B8%80%E9%A6%96%E8%AF%97%EF%BC%81%E4%BA%8B%E5%AE%9E%E7%A1%AE%E5%AE%9E%E6%98%AF%E8%BF%99%E6%A0%B7%EF%BC%8C%E5%BD%93%E6%88%91%E9%A6%96%E6%AC%A1%E6%9D%A5%E5%88%B0%E8%BD%BB%E5%AE%A2%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E7%9C%8B%E5%88%B0%E9%A1%B9%E7%9B%AE%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%8C%E4%BC%BC%E4%B9%8E%E4%B8%8D%E8%83%BD%E4%BB%85%E4%BB%85%E4%BD%BF%E7%94%A8%E6%95%B4%E6%B4%81%E6%9D%A5%E5%BD%A2%E5%AE%B9%EF%BC%8C%E6%95%B4%E4%B8%AA%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E9%83%BD%E7%9B%B8%E5%BD%93%E4%B8%A5%E8%B0%A8%EF%BC%8C%E6%9C%89%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E7%94%9F%E6%80%95%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%80%E4%B8%AA%E5%91%BD%E5%90%8D%E6%8A%8A%E6%95%B4%E4%B8%AA%E9%A1%B9%E7%9B%AE%E7%8E%B7%E6%B1%A1%E3%80%82"><span class="nav-number">9.</span> <span class="nav-text">当你阅读整洁的代码的时候，我会觉得你在阅读一首诗！事实确实是这样，当我首次来到轻客的时候，看到项目的代码，似乎不能仅仅使用整洁来形容，整个项目结构都相当严谨，有的时候，生怕自己的一个命名把整个项目玷污。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E6%B4%81%E7%9A%84%E5%8E%9F%E5%88%99"><span class="nav-number">10.</span> <span class="nav-text">整洁的原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">11.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9C%9F%E5%BA%94%E8%AF%A5%E6%98%AF%E6%88%91%E4%BB%AC%E6%9C%80%E7%BB%8F%E5%B8%B8%E5%90%AC%E5%88%B0%E7%9A%84%E8%A7%84%E8%8C%83%E4%BA%86%E3%80%82%E5%90%8D%E5%89%AF%E5%85%B6%E5%AE%9E%E5%BE%88%E5%AE%B9%E6%98%93%E7%90%86%E8%A7%A3%EF%BC%8C%E6%AF%94%E5%A6%82%E5%91%BD%E5%90%8D%E8%BF%87%E7%A8%8B%E4%B8%AD%E5%87%BA%E7%8E%B0-name1%EF%BC%8C%E5%91%B5%E5%91%B5%EF%BC%8C%E4%BB%A5%E5%89%8D%E7%9C%9F%E7%9A%84%E6%B2%A1%E5%B0%91%E4%BD%BF%E7%94%A8%E8%BF%99%E7%A7%8D%E5%91%BD%E5%90%8D%EF%BC%8C%E7%8E%B0%E5%9C%A8%E6%88%91%E9%83%BD%E6%83%B3%E6%89%93%E6%AD%BB%E8%87%AA%E5%B7%B1%E4%BA%86%EF%BC%8C%E5%8F%98%E9%87%8F%E5%90%8D-%E8%A7%92%E6%A0%87%E6%98%AF%E9%9C%80%E8%A6%81%E4%B8%A5%E6%A0%BC%E7%A6%81%E6%AD%A2%E7%9A%84%E3%80%82%E4%B8%8D%E8%BF%87%E6%9C%89%E4%BA%9B%E6%97%B6%E5%80%99%E6%88%91%E4%BB%AC%E4%B9%9F%E4%BC%9A%E4%BD%BF%E7%94%A8%E8%BF%99%E6%A0%B7%E7%9A%84%E5%91%BD%E5%90%8D%EF%BC%9A"><span class="nav-number">12.</span> <span class="nav-text">真应该是我们最经常听到的规范了。名副其实很容易理解，比如命名过程中出现$name1，呵呵，以前真的没少使用这种命名，现在我都想打死自己了，变量名+角标是需要严格禁止的。不过有些时候我们也会使用这样的命名：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E8%AF%A5%E5%BE%88%E9%9A%BE%E6%9C%89%E4%BA%BA%E5%8C%BA%E5%88%86%E8%BF%99%E4%B8%89%E4%B8%AA%E5%87%BD%E6%95%B0%E6%9C%89%E4%BB%80%E4%B9%88%E4%B8%8D%E5%90%8C%E4%BA%86%EF%BC%8CmoneyAmount-%E5%92%8C-money%E4%B8%A4%E4%B8%AA%E5%8F%98%E9%87%8F%E5%85%B6%E5%AE%9E%E6%B2%A1%E6%9C%89%E4%BB%BB%E4%BD%95%E5%8C%BA%E5%88%AB%E3%80%82"><span class="nav-number">13.</span> <span class="nav-text">应该很难有人区分这三个函数有什么不同了，moneyAmount 和 money两个变量其实没有任何区别。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">14.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%BF%85%E4%B8%8D%E5%8F%AF%E5%B0%91%E7%9A%84%E5%B0%B1%E6%98%AF%E7%B1%BB%E5%92%8C%E5%87%BD%E6%95%B0%E4%BA%86%EF%BC%8C%E5%9C%A8%E5%91%BD%E5%90%8D%E7%B1%BB%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E5%90%8D%E8%AF%8D%EF%BC%8C%E8%80%8C%E5%87%BD%E6%95%B0%E5%BA%94%E8%AF%A5%E6%98%AF%E5%8A%A8%E8%AF%8D%E3%80%82"><span class="nav-number">15.</span> <span class="nav-text">对于面向对象，必不可少的就是类和函数了，在命名类的时候，应该使用名词，而函数应该是动词。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E5%86%99%E5%87%BD%E6%95%B0%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%88%91%E4%BB%AC%E4%B9%9F%E5%BA%94%E8%AF%A5%E6%8C%89%E7%85%A7%E4%B8%93%E4%B8%80%E5%8E%9F%E5%88%99%EF%BC%8C%E6%8A%8A%E5%A4%A7%E5%87%BD%E6%95%B0%E6%8B%86%E5%88%86%E6%88%90%E5%B0%8F%E5%87%BD%E6%95%B0%EF%BC%8C%E6%8C%89%E7%85%A7%E8%B0%83%E7%94%A8%E5%8E%9F%E5%88%99%E5%9C%A8%E7%B1%BB%E4%B8%AD%E8%BF%9B%E8%A1%8C%E6%8E%92%E5%BA%8F%E3%80%82"><span class="nav-number">16.</span> <span class="nav-text">在写函数的时候，我们也应该按照专一原则，把大函数拆分成小函数，按照调用原则在类中进行排序。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%9C%E8%80%85%E8%BF%98%E5%BC%BA%E8%B0%83%E6%9C%80%E5%A5%BD%E5%88%AB%E5%86%99%E6%B3%A8%E9%87%8A%E3%80%82%E5%A6%82%E6%9E%9C%E6%98%AF%E6%B2%A1%E8%AF%BB%E8%BF%99%E6%9C%AC%E4%B9%A6%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%88%91%E7%BB%9D%E5%AF%B9%E6%98%AF%E6%B2%A1%E5%8A%9E%E6%B3%95%E7%90%86%E8%A7%A3%E7%9A%84%E3%80%82%E5%9B%A0%E4%B8%BA%E9%A1%B9%E7%9B%AE%E5%9C%A8%E7%BB%B4%E6%8A%A4%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E5%BE%88%E5%B0%91%E6%9C%89%E4%BA%BA%E4%BC%9A%E5%8E%BB%E7%BB%B4%E6%8A%A4%E6%B3%A8%E9%87%8A%E9%83%A8%E5%88%86%EF%BC%8C%E9%9A%8F%E7%9D%80%E6%97%B6%E9%97%B4%E7%9A%84%E6%8E%A8%E7%A7%BB%EF%BC%8C%E6%B3%A8%E9%87%8A%E5%92%8C%E5%87%BD%E6%95%B0%E8%B6%8A%E6%9D%A5%E8%B6%8A%E4%B8%8D%E7%9B%B8%E7%AC%A6%E5%90%88%E3%80%82%E8%80%8C%E4%B8%94%E7%9B%B4%E6%8E%A5%E6%8A%8A%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A%E6%98%AF%E4%B8%AA%E8%AE%A8%E5%8E%8C%E7%9A%84%E5%81%9A%E6%B3%95%EF%BC%8C%E5%9B%A0%E4%B8%BA%E5%90%8E%E9%9D%A2%E7%9A%84%E4%BA%BA%EF%BC%8C%E7%9C%8B%E7%9D%80%E6%B3%A8%E9%87%8A%E4%BB%A3%E7%A0%81%E4%BC%9A%E8%A7%89%E5%BE%97%E8%BF%99%E6%AE%B5%E4%BB%A3%E7%A0%81%E5%BE%88%E6%9C%89%E7%94%A8%EF%BC%8C%E6%85%A2%E6%85%A2%E7%9A%84%EF%BC%8C%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%B0%B1%E5%83%8F%E7%A0%B4%E9%85%92%E7%93%B6%E4%B8%80%E6%A0%B7%E3%80%82"><span class="nav-number">17.</span> <span class="nav-text">作者还强调最好别写注释。如果是没读这本书的时候，我绝对是没办法理解的。因为项目在维护的时候，很少有人会去维护注释部分，随着时间的推移，注释和函数越来越不相符合。而且直接把代码注释是个讨厌的做法，因为后面的人，看着注释代码会觉得这段代码很有用，慢慢的，注释的代码就像破酒瓶一样。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%BC%E5%BC%8F"><span class="nav-number">18.</span> <span class="nav-text">格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%91%E4%BB%AC%E5%BA%94%E8%AF%A5%E5%B0%BD%E9%87%8F%E4%B8%8D%E8%A6%81%E5%86%99%E5%B7%A8%E5%A4%A7%E7%AF%87%E5%B9%85%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%8C%E5%9B%A0%E4%B8%BA%E8%A1%8C%E6%95%B0%E5%BE%88%E5%A4%9A%E7%9A%84%E8%AF%9D%EF%BC%8C%E4%BC%9A%E8%AE%A9%E9%98%85%E8%AF%BB%E8%80%85%E5%BE%88%E9%9A%BE%E9%98%85%E8%AF%BB%EF%BC%8C%E4%BD%A0%E8%83%BD%E5%AE%B9%E5%BF%8D%E5%8E%BB%E9%98%85%E8%AF%BB%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0%E8%A1%8C%E6%95%B0%E8%B6%85%E8%BF%87%E6%95%B4%E4%B8%AA%E5%B1%8F%E5%B9%95%E5%90%97%EF%BC%9F"><span class="nav-number">19.</span> <span class="nav-text">我们应该尽量不要写巨大篇幅的代码，因为行数很多的话，会让阅读者很难阅读，你能容忍去阅读一个函数行数超过整个屏幕吗？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E5%AE%9E%E4%B9%A6%E7%9A%84%E5%86%85%E5%AE%B9%E8%BF%9C%E4%B8%8D%E6%AD%A2%E6%AD%A4%EF%BC%8C%E5%86%B5%E4%B8%94%E6%88%91%E7%8E%B0%E5%9C%A8%E6%89%8D%E8%AF%BB1-x2F-3%EF%BC%8C%E8%99%BD%E7%84%B6%E4%B9%A6%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%A0%81%E6%98%AFJava%E4%BD%86%E6%98%AF%E6%80%9D%E6%83%B3%E6%98%AF%E4%B8%80%E8%87%B4%E7%9A%84%E3%80%82"><span class="nav-number">20.</span> <span class="nav-text">其实书的内容远不止此，况且我现在才读1&#x2F;3，虽然书中的代码是Java但是思想是一致的。</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">feilong</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">58</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://feilong.tech/2017/08/24/reading-code-clean/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="feilong">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="读《代码整洁之道》 | Feilong Tech">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          读《代码整洁之道》
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2017-08-24 19:39:49" itemprop="dateCreated datePublished" datetime="2017-08-24T19:39:49+08:00">2017-08-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-16 14:24:38" itemprop="dateModified" datetime="2022-04-16T14:24:38+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Symbols count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Symbols count in article: </span>
+      <span></span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>NaN:aN</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h4 id="每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。"><a href="#每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。" class="headerlink" title="每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。"></a>每次写代码的时候，总是感觉自己的代码很渣，于是买了一本《代码整洁之道》，希望能够学习一下优秀代码的书写原则。</h4><span id="more"></span>
+
+<h4 id="由于平时的工作比较多，我并没有专门找时间阅读这本书，只是用一些边角时间来阅读，这么长时间过去了，现在才读到100多页。这篇blog也算是对前段时间阅读的一个小结吧。"><a href="#由于平时的工作比较多，我并没有专门找时间阅读这本书，只是用一些边角时间来阅读，这么长时间过去了，现在才读到100多页。这篇blog也算是对前段时间阅读的一个小结吧。" class="headerlink" title="由于平时的工作比较多，我并没有专门找时间阅读这本书，只是用一些边角时间来阅读，这么长时间过去了，现在才读到100多页。这篇blog也算是对前段时间阅读的一个小结吧。"></a>由于平时的工作比较多，我并没有专门找时间阅读这本书，只是用一些边角时间来阅读，这么长时间过去了，现在才读到100多页。这篇blog也算是对前段时间阅读的一个小结吧。</h4><h4 id="就像说的题目一样，主旨就是一个词：整洁"><a href="#就像说的题目一样，主旨就是一个词：整洁" class="headerlink" title="就像说的题目一样，主旨就是一个词：整洁"></a>就像说的题目一样，主旨就是一个词：整洁</h4><h4 id="糟糕的代码"><a href="#糟糕的代码" class="headerlink" title="糟糕的代码"></a>糟糕的代码</h4><h4 id="我们应该如何理解糟糕的代码？"><a href="#我们应该如何理解糟糕的代码？" class="headerlink" title="我们应该如何理解糟糕的代码？"></a>我们应该如何理解糟糕的代码？</h4><h4 id="无非就是明明不准确的代码。其实糟糕的代码远不止此，很多时候，我们会为了时间和进度，赶着出产品，外包公司更甚。我最开始在腾骏，公司主要业务就是外包，由于当时没有把写代码当成一回事，导致后面代码维护比较困难，也使自己养成了坏习惯，其实应该在项目的初期，就应该定好编码规范，到后面的维护会要简单的多。"><a href="#无非就是明明不准确的代码。其实糟糕的代码远不止此，很多时候，我们会为了时间和进度，赶着出产品，外包公司更甚。我最开始在腾骏，公司主要业务就是外包，由于当时没有把写代码当成一回事，导致后面代码维护比较困难，也使自己养成了坏习惯，其实应该在项目的初期，就应该定好编码规范，到后面的维护会要简单的多。" class="headerlink" title="无非就是明明不准确的代码。其实糟糕的代码远不止此，很多时候，我们会为了时间和进度，赶着出产品，外包公司更甚。我最开始在腾骏，公司主要业务就是外包，由于当时没有把写代码当成一回事，导致后面代码维护比较困难，也使自己养成了坏习惯，其实应该在项目的初期，就应该定好编码规范，到后面的维护会要简单的多。"></a>无非就是明明不准确的代码。其实糟糕的代码远不止此，很多时候，我们会为了时间和进度，赶着出产品，外包公司更甚。我最开始在腾骏，公司主要业务就是外包，由于当时没有把写代码当成一回事，导致后面代码维护比较困难，也使自己养成了坏习惯，其实应该在项目的初期，就应该定好编码规范，到后面的维护会要简单的多。</h4><h4 id="假如我们在写代码的时候，不注意规范，到了后面如果有新同志加入项目，由于对业务的不熟悉，以及代码的规范，很容易是新同学造成误解，进而编写出更糟糕的代码。长此以往，整个项目将会被糟糕的代码所吞噬。后果不堪设想。·"><a href="#假如我们在写代码的时候，不注意规范，到了后面如果有新同志加入项目，由于对业务的不熟悉，以及代码的规范，很容易是新同学造成误解，进而编写出更糟糕的代码。长此以往，整个项目将会被糟糕的代码所吞噬。后果不堪设想。·" class="headerlink" title="假如我们在写代码的时候，不注意规范，到了后面如果有新同志加入项目，由于对业务的不熟悉，以及代码的规范，很容易是新同学造成误解，进而编写出更糟糕的代码。长此以往，整个项目将会被糟糕的代码所吞噬。后果不堪设想。·"></a>假如我们在写代码的时候，不注意规范，到了后面如果有新同志加入项目，由于对业务的不熟悉，以及代码的规范，很容易是新同学造成误解，进而编写出更糟糕的代码。长此以往，整个项目将会被糟糕的代码所吞噬。后果不堪设想。·</h4><h4 id="整洁的代码"><a href="#整洁的代码" class="headerlink" title="整洁的代码"></a>整洁的代码</h4><h4 id="当你阅读整洁的代码的时候，我会觉得你在阅读一首诗！事实确实是这样，当我首次来到轻客的时候，看到项目的代码，似乎不能仅仅使用整洁来形容，整个项目结构都相当严谨，有的时候，生怕自己的一个命名把整个项目玷污。"><a href="#当你阅读整洁的代码的时候，我会觉得你在阅读一首诗！事实确实是这样，当我首次来到轻客的时候，看到项目的代码，似乎不能仅仅使用整洁来形容，整个项目结构都相当严谨，有的时候，生怕自己的一个命名把整个项目玷污。" class="headerlink" title="当你阅读整洁的代码的时候，我会觉得你在阅读一首诗！事实确实是这样，当我首次来到轻客的时候，看到项目的代码，似乎不能仅仅使用整洁来形容，整个项目结构都相当严谨，有的时候，生怕自己的一个命名把整个项目玷污。"></a>当你阅读整洁的代码的时候，我会觉得你在阅读一首诗！事实确实是这样，当我首次来到轻客的时候，看到项目的代码，似乎不能仅仅使用整洁来形容，整个项目结构都相当严谨，有的时候，生怕自己的一个命名把整个项目玷污。</h4><h4 id="整洁的原则"><a href="#整洁的原则" class="headerlink" title="整洁的原则"></a><em>整洁的原则</em></h4><h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a><em>变量</em></h4><h4 id="真应该是我们最经常听到的规范了。名副其实很容易理解，比如命名过程中出现-name1，呵呵，以前真的没少使用这种命名，现在我都想打死自己了，变量名-角标是需要严格禁止的。不过有些时候我们也会使用这样的命名："><a href="#真应该是我们最经常听到的规范了。名副其实很容易理解，比如命名过程中出现-name1，呵呵，以前真的没少使用这种命名，现在我都想打死自己了，变量名-角标是需要严格禁止的。不过有些时候我们也会使用这样的命名：" class="headerlink" title="真应该是我们最经常听到的规范了。名副其实很容易理解，比如命名过程中出现$name1，呵呵，以前真的没少使用这种命名，现在我都想打死自己了，变量名+角标是需要严格禁止的。不过有些时候我们也会使用这样的命名："></a>真应该是我们最经常听到的规范了。名副其实很容易理解，比如命名过程中出现<code>$name1</code>，呵呵，以前真的没少使用这种命名，现在我都想打死自己了，变量名+角标是需要严格禁止的。不过有些时候我们也会使用这样的命名：</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$getActiveAccount</span></span><br><span class="line"><span class="variable">$getActiveAccounts</span></span><br><span class="line"><span class="variable">$getActiveAccountInfo</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="应该很难有人区分这三个函数有什么不同了，moneyAmount-和-money两个变量其实没有任何区别。"><a href="#应该很难有人区分这三个函数有什么不同了，moneyAmount-和-money两个变量其实没有任何区别。" class="headerlink" title="应该很难有人区分这三个函数有什么不同了，moneyAmount 和 money两个变量其实没有任何区别。"></a>应该很难有人区分这三个函数有什么不同了，moneyAmount 和 money两个变量其实没有任何区别。</h4><h4 id="函数"><a href="#函数" class="headerlink" title="函数"></a><em>函数</em></h4><h4 id="对于面向对象，必不可少的就是类和函数了，在命名类的时候，应该使用名词，而函数应该是动词。"><a href="#对于面向对象，必不可少的就是类和函数了，在命名类的时候，应该使用名词，而函数应该是动词。" class="headerlink" title="对于面向对象，必不可少的就是类和函数了，在命名类的时候，应该使用名词，而函数应该是动词。"></a>对于面向对象，必不可少的就是类和函数了，在命名类的时候，应该使用名词，而函数应该是动词。</h4><h4 id="在写函数的时候，我们也应该按照专一原则，把大函数拆分成小函数，按照调用原则在类中进行排序。"><a href="#在写函数的时候，我们也应该按照专一原则，把大函数拆分成小函数，按照调用原则在类中进行排序。" class="headerlink" title="在写函数的时候，我们也应该按照专一原则，把大函数拆分成小函数，按照调用原则在类中进行排序。"></a>在写函数的时候，我们也应该按照专一原则，把大函数拆分成小函数，按照调用原则在类中进行排序。</h4><h4 id="作者还强调最好别写注释。如果是没读这本书的时候，我绝对是没办法理解的。因为项目在维护的时候，很少有人会去维护注释部分，随着时间的推移，注释和函数越来越不相符合。而且直接把代码注释是个讨厌的做法，因为后面的人，看着注释代码会觉得这段代码很有用，慢慢的，注释的代码就像破酒瓶一样。"><a href="#作者还强调最好别写注释。如果是没读这本书的时候，我绝对是没办法理解的。因为项目在维护的时候，很少有人会去维护注释部分，随着时间的推移，注释和函数越来越不相符合。而且直接把代码注释是个讨厌的做法，因为后面的人，看着注释代码会觉得这段代码很有用，慢慢的，注释的代码就像破酒瓶一样。" class="headerlink" title="作者还强调最好别写注释。如果是没读这本书的时候，我绝对是没办法理解的。因为项目在维护的时候，很少有人会去维护注释部分，随着时间的推移，注释和函数越来越不相符合。而且直接把代码注释是个讨厌的做法，因为后面的人，看着注释代码会觉得这段代码很有用，慢慢的，注释的代码就像破酒瓶一样。"></a>作者还强调最好别写注释。如果是没读这本书的时候，我绝对是没办法理解的。因为项目在维护的时候，很少有人会去维护注释部分，随着时间的推移，注释和函数越来越不相符合。而且直接把代码注释是个讨厌的做法，因为后面的人，看着注释代码会觉得这段代码很有用，慢慢的，注释的代码就像破酒瓶一样。</h4><h4 id="格式"><a href="#格式" class="headerlink" title="格式"></a><em>格式</em></h4><h4 id="我们应该尽量不要写巨大篇幅的代码，因为行数很多的话，会让阅读者很难阅读，你能容忍去阅读一个函数行数超过整个屏幕吗？"><a href="#我们应该尽量不要写巨大篇幅的代码，因为行数很多的话，会让阅读者很难阅读，你能容忍去阅读一个函数行数超过整个屏幕吗？" class="headerlink" title="我们应该尽量不要写巨大篇幅的代码，因为行数很多的话，会让阅读者很难阅读，你能容忍去阅读一个函数行数超过整个屏幕吗？"></a>我们应该尽量不要写巨大篇幅的代码，因为行数很多的话，会让阅读者很难阅读，你能容忍去阅读一个函数行数超过整个屏幕吗？</h4><h4 id="其实书的内容远不止此，况且我现在才读1-x2F-3，虽然书中的代码是Java但是思想是一致的。"><a href="#其实书的内容远不止此，况且我现在才读1-x2F-3，虽然书中的代码是Java但是思想是一致的。" class="headerlink" title="其实书的内容远不止此，况且我现在才读1&#x2F;3，虽然书中的代码是Java但是思想是一致的。"></a>其实书的内容远不止此，况且我现在才读1&#x2F;3，虽然书中的代码是<code>Java</code>但是思想是一致的。</h4>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/08/24/aliyun-mq/" rel="prev" title="阿里云消息队列和消息服务的使用">
+                  <i class="fa fa-chevron-left"></i> 阿里云消息队列和消息服务的使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017/08/24/thinking-1/" rel="next" title="一些杂谈琐事 —— 自我反思（一）">
+                  一些杂谈琐事 —— 自我反思（一） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">feilong</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">NaNm</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">NaN:aN</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
